@@ -2,7 +2,7 @@ import torch
 import torch.nn
 import torch.tensor
 
-from abc import ABC
+from abc import ABC, abstractmethod
 
 class Attack(ABC):
     '''abstract class for different types of attacks to inherit from'''
