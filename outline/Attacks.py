@@ -1,6 +1,6 @@
 import torch
-import torch.nn
-import torch.tensor
+import torch.nn as nn
+import torch.tensor as tensor
 
 from abc import ABC, abstractmethod
 
@@ -27,7 +27,7 @@ class FGSM(Attack):
         super().__init__(model, loss)
         self.epsilon = epsilon
 
-    @override
+    
     def attack(sample, label):
         super().attack(sample, label)
 
