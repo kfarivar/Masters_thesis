@@ -11,7 +11,7 @@ from tqdm import tqdm
 #from Dataset_measure import concentration_measure 
 import numpy as np
 
-from Measurements import Measure
+from .Measurements import Measure
 
 
 @attr.s
@@ -31,17 +31,27 @@ class Adversarisal_bench:
         
 
 
-    def measure(self, whole_dataset:pl.LightningDataModule, measures:List[Measure], attacks):
+    def measure(self, whole_dataset:pl.LightningDataModule, measures:List[Measure], attacks, on_train=True, on_val=True, on_test=True):
         ''' whole_dataset: is a lightning data module that includes data for train, val and test.
             If one is not needed None can be sent and None willl be returned.
+            
+            on_[dataset_subset]: a booleian variable indicating which part the data to use.
             
             
             returns the results as a list [train_results, val_results, test_results] each one a list of [result_of_on_clean, result_of_on_attack].
             if a measure doesn't implement on_clean or on_attack returns None as the result. 
         '''
-        train_results = self._measure(whole_dataset.train_dataloader(), measures, attacks)
-        val_results = self._measure(whole_dataset.val_dataloader(), measures, attacks)
-        test_results = self._measure(whole_dataset.test_dataloader(), measures, attacks)
+
+        train_results = val_results = test_results = None
+        if on_train:
+            print('Measuring on Train set:')
+            train_results = self._measure(whole_dataset.train_dataloader(), measures, attacks)
+        if on_val:
+            print('Measuring on Validation set:')
+            val_results = self._measure(whole_dataset.val_dataloader(), measures, attacks)
+        if on_test:
+            print('Measuring on Test set:')
+            test_results = self._measure(whole_dataset.test_dataloader(), measures, attacks)
 
         return train_results, val_results, test_results
 
@@ -62,14 +72,17 @@ class Adversarisal_bench:
             for m in measures:
                 m.on_clean_data(self.model, inputs, labels, outputs, predicted_labels)
 
+            #save old model state
+            old_state = self.model.state_dict()
+
             # calculate the measures that are based on an attack
             for attack in attacks:
                 # make adversarial images 
                 adv_inputs = attack(inputs, labels) # the model should be already sent to init the attack (according to torchattacks)
-                adv_output = self.model(adv_inputs)
-                adv_predictions = self.predictor(outputs)
+                adv_outputs = self.model(adv_inputs)
+                adv_predictions = self.predictor(adv_outputs)
                 for m in measures:
-                    m.on_attack_data(self.model, inputs, labels, outputs, predicted_labels, adv_inputs, adv_output, adv_predictions, attack)
+                    m.on_attack_data(self.model, inputs, labels, outputs, predicted_labels, adv_inputs, adv_outputs, adv_predictions, attack)
             
             #finilize the result for each batch
             for m in measures:
@@ -77,8 +90,32 @@ class Adversarisal_bench:
             
         # get results for the whole dataset
         results = []
-        for m in measures:
+        for idx, m in enumerate(measures):
+            if idx ==0:
+                print('normal acc stats')
+                print(m._total)
+                print(m._correct)
             results.append(m.final_result())
+
+        ########################
+        # Debug
+        #check if model is changed by the attack
+        """ def compare_models(dict1, model_2):
+            models_differ = 0
+            for key_item_1, key_item_2 in zip(dict1.items(), model_2.state_dict().items()):
+                if torch.equal(key_item_1[1], key_item_2[1]):
+                    pass
+                else:
+                    models_differ += 1
+                    if (key_item_1[0] == key_item_2[0]):
+                        print('Mismtach found at', key_item_1[0])
+                    else:
+                        raise Exception
+            if models_differ == 0:
+                print('Models match perfectly! :)')
+
+        compare_models(old_state, self.model) """
+        
 
         return results
 
