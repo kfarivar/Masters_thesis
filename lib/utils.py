@@ -33,9 +33,20 @@ def add_normalization_layer(model, model_mean, model_std):
 
 
 
-def print_measurement_results(results, measurements, on_train=True, on_val=True, on_test=True):
+def print_measurement_results(results, measurements, on_train=True, on_val=True, on_test=True, set_log_stream=False):
     ''' Prints the results of the benchmark properly
     '''
+
+    if set_log_stream:
+        log.basicConfig(
+            level=log.DEBUG,
+            format="%(asctime)s [%(levelname)s] %(message)s",
+            handlers=[
+                log.StreamHandler()
+            ]
+        )
+
+
     if on_train and results[0] is not None:
         log.info('Train set results:')
         for idx, m in enumerate(measurements):

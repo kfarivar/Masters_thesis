@@ -12,6 +12,7 @@ class Trainer(ABC):
     @abstractmethod
     def train(self):
         ''' performs training on a batch of data
+            returns the loss
         '''
         pass
 
@@ -30,6 +31,7 @@ class Robust_trainer(Trainer):
         self.optimizer.zero_grad()
         cost.backward()
         self.optimizer.step()
+        return cost
 
 
 

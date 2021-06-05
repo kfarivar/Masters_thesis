@@ -24,7 +24,9 @@ class Adversarisal_bench:
     model:nn.Module = attr.ib()
     # the function that transforms the output of the network into labels. takes inputs in batches.
     predictor = attr.ib()
+    untrained_state_dict = attr.ib()
     device = attr.ib(default='cuda:0')
+    
 
     def __attrs_post_init__(self):
         log.info(f'device is: {self.device}')
@@ -34,12 +36,21 @@ class Adversarisal_bench:
 
         
     def train_val_test(self, trainer:Trainer, num_epochs:int, whole_dataset:pl.LightningDataModule,measures:List[Measure], 
-                        attacks, train_measure_frequency=100, val_measure_frequency=100):
-        ''' Uses 'robustly_train' function to train and validate and 'evaluate_measures' to test.
+                        attacks, save_path, train_measure_frequency=100, val_measure_frequency=100, reset_model=True):
+        ''' Warning: the network sent to the benchmark will change after calling this function. save using new_model=copy.deepcopy(old_model)
+            Uses 'robustly_train' function to train and validate and 'evaluate_measures' to test.
+            The model sent to the benchmark will be modifed to get the robust model.
+            reset_model(bool): where to start the training 
+                True: start from the pretrained model sent to AdvLib 
+                False: set all the weights to self.untrained_state_dict then train  
             Evaluates on training/validation set with '[train/val]_measure_frequency' (if epoch_index % measure_frequency == 0)
+            saves the model at every evaluation at save_path
         '''
+        if reset_model:
+            self.model.load_state_dict(self.untrained_state_dict)
+
         print('Training:')
-        train_val_result = self.robustly_train(trainer, num_epochs, whole_dataset, measures, attacks, 
+        train_val_result = self.robustly_train(trainer, num_epochs, whole_dataset, measures, attacks, save_path, 
                                                 train_measure_frequency, val_measure_frequency)
 
         print('Testing:')
@@ -75,8 +86,7 @@ class Adversarisal_bench:
         return train_results, val_results, test_results
 
 
-
-    def robustly_train(self, trainer:Trainer, num_epochs:int, whole_dataset:pl.LightningDataModule, measures: List[Measure], attacks, 
+    def robustly_train(self, trainer:Trainer, num_epochs:int, whole_dataset:pl.LightningDataModule, measures: List[Measure], attacks, save_path,
                    train_measure_frequency=100, val_measure_frequency=100):
         ''' Runs the 'train_single_epoch' for 'num_epochs'.
             trainer implements the abstract class Trainer.
@@ -98,7 +108,7 @@ class Adversarisal_bench:
             pbar.set_description(f"training epoch {epoch_index}")
 
             measure_train_model:bool = epoch_index % train_measure_frequency == 0
-            train_single_epoch_measurements = self._train_single_epoch(trainer, train_loader, measures, attacks, measure_model=measure_train_model)
+            train_single_epoch_measurements = self._train_single_epoch(trainer, train_loader, measures, attacks, epoch_index, measure_model=measure_train_model)
             # save results
             if measure_train_model:
                 train_measurement_results[epoch_index] = train_single_epoch_measurements
@@ -108,18 +118,21 @@ class Adversarisal_bench:
                 pbar.set_description(f"validating epoch {epoch_index}")
                 eval_result = self.evaluate_measures(val_loader, measures, attacks)
                 val_measurement_results[epoch_index] = eval_result
+                # save the model
+                torch.save(self.model.state_dict(), save_path+f'/epoch_{epoch_index}.pt')
+
 
         
         return train_measurement_results, val_measurement_results
         
 
-    def _train_single_epoch(self, trainer:Trainer, dataloader: DataLoader, measures: List[Measure], attacks, measure_model:bool=False):
+    def _train_single_epoch(self, trainer:Trainer, dataloader: DataLoader, measures: List[Measure], attacks, epoch, measure_model:bool=False):
         ''' A single epoch of training loop.
             The model is trained on all the adverserial examples created by the attacks.
             measure_model: if true calculates the measures for all data points. 
             later I can add the ability to train using all attacks (just like now), But measure on a subset of attacks we used to train
         '''
-        # I don't merge this with the 'measure_on_batch' since I want to train the model on all atacks
+        # I don't merge this with the 'measure_on_batch' since I want to train the model on all attacks
         # and then measure the model on all attacks. 
         # otherwise in 'measure_on_batch' we would measure after each attack when the model is only partially trained.
         pbar = tqdm(enumerate(dataloader), leave=False) 
@@ -132,11 +145,14 @@ class Adversarisal_bench:
             self.model.train()
             for attack in attacks:
                 # make adversarial images 
-                adv_inputs = attack(inputs, labels) # the model should be already sent to init the attack (according to torchattacks)
+                adv_inputs = attack(inputs, labels).to(self.device) # the model should be already sent to init the attack (according to torchattacks)
                 adv_outputs = self.model(adv_inputs)
-                adv_predictions = self.predictor(adv_outputs) 
+                adv_predictions = self.predictor(adv_outputs)
                 #train the model
-                trainer.train(self.model, labels, adv_inputs, adv_outputs, adv_predictions, attack)
+                loss = trainer.train(self.model, labels, adv_inputs, adv_outputs, adv_predictions, attack)
+                
+                if batch_index % 100 == 0:
+                    print(f'Epoch [{epoch}], lter [{batch_index}], Loss: {loss.item()}')
             
             if measure_model:
                 # measure the model
@@ -166,6 +182,8 @@ class Adversarisal_bench:
         '''
         if dataloader is None:
             return None
+
+        self.model.eval()
     
         for data in tqdm(dataloader):
             inputs, labels = data[0].to(self.device), data[1].to(self.device)
@@ -206,21 +224,6 @@ class Adversarisal_bench:
 
 
 
-
-
-
-    
-    def make_non_robust_dataset(train_set, attack_method):
-        ''' Make a non-robust train set
-        '''
-
-        # very similar to measure_models_robust_accuracy the main difference is that having targets 
-        # here is mandatory. 
-        
-        return NotImplementedError # new dataset 
-
-    def make_robust_dataset(train_set):
-        return NotImplementedError
 
 
 

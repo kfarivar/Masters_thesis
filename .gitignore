@@ -5,6 +5,7 @@ data/
 
 # ignore model checkpoints
 model_checkpoints/
+Robust_models_chpt/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
