@@ -85,7 +85,7 @@ def print_train_test_val_result(results, measurements):
     log.info('*'*20)
 
     # print the test result
-    print_measurement_results((None,None, test_result), measurements, on_val=False, on_train=False)
+    #print_measurement_results((None,None, test_result), measurements, on_val=False, on_train=False)
 
-    log.info('*'*20)
+    #log.info('*'*20)
 

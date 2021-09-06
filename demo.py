@@ -8,7 +8,7 @@ log.basicConfig(
     level=log.DEBUG,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
-        log.FileHandler("resenet_SGD_warmup_debug.log"),
+        log.FileHandler("resnet34_batch_128_weight_decay_1e-5.log"),
         log.StreamHandler()
     ]
 )
@@ -61,7 +61,7 @@ def main(args):
 
     # make sure the data is in [0,1] ! if you use pytorch ToTensor tranform it is already taken care of.
     # note we have already added a normalization layer to our models to adjust them to this data.
-    dataset = CIFAR10_module(mean=(0,0,0), std=(1,1,1), data_dir = "./data")
+    dataset = CIFAR10_module(mean=(0,0,0), std=(1,1,1), data_dir = "./data", batch_size=args.batch_size)
     # prepare and setup the dataset
     dataset.prepare_data()
     dataset.setup()
@@ -77,23 +77,14 @@ def main(args):
     # otherwise the devies and the eval mode won't be set properly !!!
     # this is weird since the attacks automatically puts the model in eval mode ?!
     # This should have beem fixed by the attack library update
-    model_bench = ab(net, untrained_state_dict= untrained_state_dict, device='cuda:1', predictor=lambda x: torch.max(x, 1)[1])
+    model_bench = ab(net, untrained_state_dict= untrained_state_dict, device='cuda:'+args.device, predictor=lambda x: torch.max(x, 1)[1])
 
 
     model = net
     #fgsm = torchattacks.FGSM(model, eps=8/255)
     attacks = [torchattacks.FGSM(model, eps=8/255),
-            #torchattacks.BIM(model, eps=8/255, alpha=2/255, steps=7),
-            #torchattacks.CW(model, c=1, kappa=0, steps=1000, lr=0.01),
-            #torchattacks.RFGSM(model, eps=8/255, alpha=4/255, steps=1),
             #torchattacks.PGD(model, eps=8/255, alpha=2/255, steps=7),
-            #torchattacks.FFGSM(model, eps=8/255, alpha=12/255),
-            #torchattacks.TPGD(model, eps=8/255, alpha=2/255, steps=7),
-            #torchattacks.MIFGSM(model, eps=8/255, decay=1.0, steps=5),
             #torchattacks.APGD(model, eps=8/255, steps=7), # default norm inf
-            #torchattacks.FAB(model, eps=8/255),
-            #torchattacks.Square(model, eps=8/255),
-            #torchattacks.PGDDLR(model, eps=8/255, alpha=2/255, steps=7),
         ] 
 
 
@@ -109,20 +100,20 @@ def main(args):
         measurements = [normal_acc, robust_acc]
 
         loss = torch.nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(net.parameters(), lr=1e-3)
+        optimizer = torch.optim.Adam(net.parameters(), lr=1e-4, weight_decay=1e-5)
         trainer = Robust_trainer(optimizer, loss)
 
-        num_epochs = 20
+        num_epochs = 101
 
         print()
         print('attacks:')
         for atk in attacks: print(type(atk).__name__)
         print()
 
-        save_path = 'Robust_models_chpt/resnet34_FGSM'
+        save_path = 'Robust_models_chpt/v3_resnet34_FGSM_batch_128_weight_decay_1e-5'
         print(save_path)
         results = model_bench.train_val_test(trainer, num_epochs, dataset, measurements, attacks, save_path,
-                                            train_measure_frequency=1, val_measure_frequency=1)
+                                            train_measure_frequency=2, val_measure_frequency=2)
 
         print_train_test_val_result(results, measurements)
 
@@ -251,6 +242,10 @@ if __name__ == '__main__':
     parser.add_argument('model', type=str, choices=['simple', 'resnet18', 'resnet34'])
 
     parser.add_argument('mode', choices=['measuring', 'robust_training', 'orig_robust'])
+
+    parser.add_argument('batch_size', type=int)
+
+    parser.add_argument('device', type=str)  # e.g '2' means 'cuda:2'
 
     args = parser.parse_args()
 

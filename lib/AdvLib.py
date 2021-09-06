@@ -12,7 +12,7 @@ from tqdm import trange
 #from Dataset_measure import concentration_measure 
 import numpy as np
 
-from .Measurements import Measure
+from .Measurements import Measure, Dataset_measure
 from .Trainer import Trainer
 
 
@@ -33,12 +33,11 @@ class Adversarisal_bench:
         # we don't change the weights of the model
         self.model.eval().to(self.device)
 
-
         
     def train_val_test(self, trainer:Trainer, num_epochs:int, whole_dataset:pl.LightningDataModule,measures:List[Measure], 
                         attacks, save_path, train_measure_frequency=100, val_measure_frequency=100, reset_model=True):
-        ''' Warning: the network sent to the benchmark will change after calling this function. save using new_model=copy.deepcopy(old_model)
-            Uses 'robustly_train' function to train and validate and 'evaluate_measures' to test.
+        ''' Uses 'robustly_train' function to train and validate and 'evaluate_measures' to test.
+            Warning: the network sent to the benchmark will change after calling this function. save using new_model=copy.deepcopy(old_model)
             The model sent to the benchmark will be modifed to get the robust model.
             reset_model(bool): where to start the training 
                 True: start from the pretrained model sent to AdvLib 
@@ -78,6 +77,7 @@ class Adversarisal_bench:
             print('Measuring on Train set:')
             train_results = self.evaluate_measures(whole_dataset.train_dataloader(), measures, attacks)
         if on_val:
+            print('Measuring on Validation set:')
             val_results = self.evaluate_measures(whole_dataset.val_dataloader(), measures, attacks)
         if on_test:
             print('Measuring on Test set:')
@@ -91,6 +91,7 @@ class Adversarisal_bench:
         ''' Runs the 'train_single_epoch' for 'num_epochs'.
             trainer implements the abstract class Trainer.
             Evaluates on training/validation set with '[train/val]_measure_frequency' (if epoch_index % measure_frequency == 0)
+            saves only the epochs that are evaluated.
         '''
         train_loader = whole_dataset.train_dataloader()
         val_loader = whole_dataset.val_dataloader()
@@ -140,6 +141,8 @@ class Adversarisal_bench:
             pbar.set_description(f"batch: {batch_index}")
             
             inputs, labels = data[0].to(self.device), data[1].to(self.device)
+            # an index to identify each individual data point
+            indexes = data[2]
 
             # train on all attacks
             self.model.train()
@@ -160,7 +163,7 @@ class Adversarisal_bench:
                 # record the result of clean data 
                 outputs = self.model(inputs)
                 predicted_labels = self.predictor(outputs)
-                self._measure_on_batch(measures, attacks, inputs, labels, outputs, predicted_labels)
+                self._measure_on_batch(measures, attacks, inputs, labels, outputs, predicted_labels, indexes)
         
         
         results = None
@@ -187,10 +190,12 @@ class Adversarisal_bench:
     
         for data in tqdm(dataloader):
             inputs, labels = data[0].to(self.device), data[1].to(self.device)
+            # an index to identify each individual data point
+            indexes = data[2]
             outputs = self.model(inputs)
             predicted_labels = self.predictor(outputs)
             # Batch calculations
-            self._measure_on_batch(measures, attacks, inputs, labels, outputs, predicted_labels)            
+            self._measure_on_batch(measures, attacks, inputs, labels, outputs, predicted_labels, indexes)            
             
         # get results for the whole dataset
         results = []
@@ -199,12 +204,13 @@ class Adversarisal_bench:
 
         return results
 
-    def _measure_on_batch(self, measures: List[Measure], attacks, inputs, labels, outputs, predicted_labels):
+
+    def _measure_on_batch(self, measures: List[Measure], attacks, inputs, labels, outputs, predicted_labels, indexes):
         ''' Called on each batch to evaluate the results of these attacks and measures
         '''
         # calculate measures that just need the clean data
         for m in measures:
-            m.on_clean_data(self.model, inputs, labels, outputs, predicted_labels)
+            m.on_clean_data(self.model, inputs, labels, outputs, predicted_labels, indexes)
 
         # calculate the measures that are based on an attack
         for attack in attacks:
@@ -215,11 +221,60 @@ class Adversarisal_bench:
             
             # calculate measurements that need the attack data
             for m in measures:
-                m.on_attack_data(self.model, inputs, labels, outputs, predicted_labels, adv_inputs, adv_outputs, adv_predictions, attack)
+                m.on_attack_data(self.model, inputs, labels, outputs, predicted_labels, 
+                                adv_inputs, adv_outputs, adv_predictions, attack, indexes)
         
         #finilize the result for each batch
         for m in measures:
             m.batch_end()
+
+
+
+    # needs debuging
+    def measure_on_whole_dataset(self, measures:List[Dataset_measure], whole_dataset:pl.LightningDataModule, split='test'):
+        ''' This is for measures that require access to the whole dataset 
+            and are harder to implement batch wise. (e.g methods that include clustering or Knn).
+
+            split: either 'test', 'train' or 'val'  
+        '''
+        if split =='train':
+            self._measure_on_dataset_split(measures, whole_dataset.train_dataloader())
+
+        elif split == 'val':
+             self._measure_on_dataset_split(measures, whole_dataset.val_dataloader())
+
+        else:
+            self._measure_on_dataset_split(measures, whole_dataset.test_dataloader())
+
+    # needs debuging
+    def _measure_on_dataset_split(self, measures, dataloader: DataLoader):
+        ''' The method that actually calculates the datatset specific measures.
+        '''
+        if dataloader is None:
+            return None
+
+        self.model.eval()
+    
+        print("gathering data points ...")
+        for data in dataloader:
+            inputs = torch.cat((inputs, data[0].to(self.device)), dim=0) 
+            labels = torch.cat((inputs, data[1].to(self.device)), dim=0) 
+        print(inputs.shape)
+        print(labels.shape)
+
+        print("measuring on dataset ...")
+        results = []
+        for m in measures:
+            r = m.on_data(inputs, labels)
+            results.append(r)
+            
+
+        # get results for the whole dataset
+        return results
+
+
+
+
 
 
 

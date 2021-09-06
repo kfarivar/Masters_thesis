@@ -3,6 +3,10 @@ debug.log
 # ignore the dataset
 data/
 
+# ignore images
+images/
+adv_images
+
 # ignore model checkpoints
 model_checkpoints/
 Robust_models_chpt/

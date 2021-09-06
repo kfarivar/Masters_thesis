@@ -1,9 +1,11 @@
+import numpy as np
 import torch
 import torch.nn as nn
-import torch.tensor
 import attr
-
 from abc import ABC, abstractmethod
+
+from art.metrics import clever_u
+from art.estimators.classification import PyTorchClassifier
 
 class Measure(ABC):
     ''' A specific measurement to be applied on a batch of data in measure method of AdvLib.
@@ -35,6 +37,7 @@ class Measure(ABC):
 
 
 
+
 @attr.s
 class Normal_accuracy(Measure):
     ''' Measure a specific models non-robust / normal accuracy.
@@ -44,7 +47,7 @@ class Normal_accuracy(Measure):
     # number of corrcet predictions
     _correct = attr.ib(default=0) 
 
-    def on_clean_data(self, model, inputs, labels, outputs, predicted_labels):
+    def on_clean_data(self, model, inputs, labels, outputs, predicted_labels, indexes):
         self._total += labels.size(0)
         self._correct += (predicted_labels == labels).sum().item()
 
@@ -85,13 +88,13 @@ class Robust_accuracy(Measure):
     # number of data points that were corrcetly predicted both before and after applying the attack
     _correct_before_and_after_attack = attr.ib(factory=dict) 
 
-    def on_clean_data(self, model, inputs, labels, outputs, predicted_labels):
+    def on_clean_data(self, model, inputs, labels, outputs, predicted_labels, indexes):
         self._total += labels.size(0)
         self._total_correct += (predicted_labels == labels).sum().item()
 
 
 
-    def on_attack_data(self, model, inputs, labels, outputs, predicted_labels, adv_inputs, adv_output, adv_predictions, attack):
+    def on_attack_data(self, model, inputs, labels, outputs, predicted_labels, adv_inputs, adv_output, adv_predictions, attack, indexes):
         ''' Takes a batch and the adverserial version of the batch and returns what precent of the previously correct are correct after the
             attack and what percent of total are now correct.
         '''
@@ -129,38 +132,99 @@ class Robust_accuracy(Measure):
         return results
 
 
+@attr.s
+class Subset_saliency(Measure):
+    pass
 
 
-if __name__ == '__main__':
-    # tests
-    ra = Robust_accuracy()
 
-    labels = torch.tensor([1,0,1,1,1])
-    predicted_labels = torch.tensor([1,0,1,1,0]) # 80% accuracy
-    adv_predictions = torch.tensor([0,1,1,1,0]) # 20% both
-    import torchattacks
-    from simple_model import Net
-    attack = torchattacks.PGD(Net(), eps=8/255, alpha=2/255, steps=4) 
+# needs debuging
+@attr.s
+class Clever_score(Measure):
+    ''' Note, the implemnetation of the adversarial-robustness-toolbox is inefficient and incomplete !  
+    Clever is an estimate of the minimum amount of purturbation required to create an adverserial example for a specific data point.
+    This measure returns the average score for a subset of the data set. 
+    see paper: https://arxiv.org/abs/1801.10578
+    The adversarial-robustness-toolbox implementation is used. (https://github.com/Trusted-AI/adversarial-robustness-toolbox)
+    
+    The number of classes should match the second dimension of outputs.  
+    '''
+    #a set of indexes for the subset of points to calculate the score on
+    # array-like (e.g. list)
+    data_point_indexes = attr.ib()
+    #The loss function used for training (e.g. for classification torch.nn.CrossEntropyLoss())
+    loss = attr.ib()
+    # refer to library docs and paper
+    nb_batches:int=attr.ib()
+    batch_size:int=attr.ib()
+    # radius similar to the epsilon in an attack
+    radius:float = attr.ib()
+    # either 1,2,np.inf
+    norm = attr.ib()
+    c_init = attr.ib()
+    pool_factor = attr.ib()
+    verbose = attr.ib()
 
-    ra.on_attack_data(None, None, labels, None, predicted_labels, None, None, adv_predictions, attack)
 
-    print(ra)
+    #(internal) dict of the clever scores. index is key clever score is value.
+    _clever_scores = attr.ib(default=dict()) 
+
+    def on_clean_data(self, model, inputs, labels, outputs, predicted_labels, indexes):
+        # load the model into the librray format
+        classifier = PyTorchClassifier(
+                                    model=model,
+                                    loss=self.loss,
+                                    input_shape=list(inputs.shape[1:]),
+                                    nb_classes=outputs.shape[1],
+                                ) 
+
+        # get indexes we are interested in.
+        # access_indexes is the index we can use to get the desired input
+        data_indexes, _, access_indexes = np.intersect1d(self.data_point_indexes, indexes)
+        # this for loop can be parallelized in cpu
+        for data_idx, access_idx in zip(data_indexes,access_indexes):
+            # data points can be duplicates avoid double calc
+            if data_idx not in self._clever_scores:
+                # get the access index
+                data_point = inputs[access_idx].numpy() 
+
+                clever_score = clever_u(classifier=classifier , x=data_point, nb_batches=self.nb_batches, batch_size=self.batch_size, 
+                                radius=self.radius, norm=self.norm, c_init=self.c_init, pool_factor=self.pool_factor, verbose=self.verbose)
+
+                self._clever_scores[data_idx] = clever_score
+
+
+
+    def on_attack_data(self,*args):
+        return None
+
+    def batch_end(self):
+        return None
+        
+    def final_result(self):
+        avg_clever_score = np.mean(list(self._clever_scores.values()))
+        ############################
+        # IMPORTANT
+        #reset the values
+        self._clever_scores = dict()
+
+        return avg_clever_score
+    
+
+
+
+class Dataset_measure(ABC):
+    ''' for measures specific to the dataset. 
+        These usually require the whole dataset to calculate things like knn or clustering.
+    '''
+    @abstractmethod
+    def on_data():
+        pass
+
         
 
-# TODO
-""" class Concentration_measure(Measure):
-    def __init__(self):
-        super().__init__()
-    
-    def on_clean_data(self, whole_dataset:(DataLoader,DataLoader)):
-        # input: DataLoader
-        # join the test and train
-        # 1. calculate knn (preliminary.py)
-        # 2. run the proposed algorithm that finds a robust error region (main_infinity.py)
-        # return a number
-        return NotImplementedError
 
-    def on_attack_data(self, whole_dataset:(DataLoader,DataLoader)):
-        return None """
+
+
 
         
