@@ -2,6 +2,8 @@ debug.log
 
 # ignore the dataset
 data/
+bolt_self_supervised_training/cifar-10-batches-py
+bolt_self_supervised_training/cifar-10-python.tar.gz
 
 # ignore images
 images/
@@ -16,6 +18,7 @@ huy_Supervised_models_training_CIFAR10/*.zip
 #ignore logs 
 barlow_twins_with_linear_layer_logs/
 simCLR_with_linear_layer_logs/
+bolt_self_supervised_training/lightning_logs_simclr
 
 # Byte-compiled / optimized / DLL files
 **/__pycache__/
