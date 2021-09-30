@@ -11,6 +11,7 @@ adv_images
 model_checkpoints/
 Robust_models_chpt/
 huy_Supervised_models_training_CIFAR10/cifar10/
+huy_Supervised_models_training_CIFAR10/cifar10_models/state_dicts
 huy_Supervised_models_training_CIFAR10/*.zip
 #ignore logs 
 barlow_twins_with_linear_layer_logs/
