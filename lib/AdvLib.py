@@ -8,10 +8,6 @@ from typing import List
 from tqdm import tqdm
 from tqdm import trange
 
-
-#from Dataset_measure import concentration_measure 
-import numpy as np
-
 from .Measurements import Measure, Dataset_measure
 from .Trainer import Trainer
 
@@ -187,6 +183,8 @@ class Adversarisal_bench:
             return None
 
         self.model.eval()
+        for m in measures:
+            m.before_evaluation(self.model)
     
         for data in tqdm(dataloader):
             inputs, labels = data[0].to(self.device), data[1].to(self.device)

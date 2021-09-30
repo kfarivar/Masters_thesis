@@ -8,7 +8,7 @@ log.basicConfig(
     level=log.DEBUG,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
-        log.FileHandler("resnet34_batch_128_weight_decay_1e-5.log"),
+        log.FileHandler("log.log"),
         log.StreamHandler()
     ]
 )
@@ -24,8 +24,8 @@ from PyTorch_CIFAR10.cifar10_models.resnet import resnet18 , resnet34
 
 
 def main(args):
-    # Get the model
 
+    # choose a model
     if args.model=='simple':
         # simple model
         net = simple_conv_Net()
@@ -38,7 +38,7 @@ def main(args):
     elif args.model=='resnet18':
         # get resnet18
         net = resnet18(pretrained=True)
-        # normalization for inputs in [0,1]
+        # normalization used in standard training for inputs
         model_mean = (0.4914, 0.4822, 0.4465)
         model_std = (0.2471, 0.2435, 0.2616)
         # make untrained version
@@ -46,6 +46,7 @@ def main(args):
 
     elif args.model == 'resnet34':
         net = resnet34(pretrained=True)
+        # normalization used in standard training for inputs
         model_mean = (0.4914, 0.4822, 0.4465)
         model_std = (0.2471, 0.2435, 0.2616)
         # make untrained version
@@ -62,7 +63,6 @@ def main(args):
     # make sure the data is in [0,1] ! if you use pytorch ToTensor tranform it is already taken care of.
     # note we have already added a normalization layer to our models to adjust them to this data.
     dataset = CIFAR10_module(mean=(0,0,0), std=(1,1,1), data_dir = "./data", batch_size=args.batch_size)
-    # prepare and setup the dataset
     dataset.prepare_data()
     dataset.setup()
 

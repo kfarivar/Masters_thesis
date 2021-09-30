@@ -36,9 +36,12 @@ class CIFAR10_module(pl.LightningDataModule):
     ''' Note the Train is shuffeled but not the test
     '''
 
-    def __init__(self, mean, std, data_dir: str = "../data" , batch_size: int = 32, num_workers=12):
+    def __init__(self, mean, std, data_dir: str = "./data" , batch_size: int = 32, num_workers=12, augment_train=True, 
+                train_transforms=None):
         '''The mean and std used for normalization during training should be sent.
-        
+           augment_train: if True applies default data augmentation (randomcrop, horizontal flip) for train set.
+           train_transforms: apply custom transform to train set. (ignores default augmentation and normalization !)
+
         '''
         super().__init__()
         self.data_dir = data_dir
@@ -48,6 +51,8 @@ class CIFAR10_module(pl.LightningDataModule):
         self.std = std
         # we might need individual indices
         self.cifar_with_idx = dataset_with_indices(CIFAR10)
+        self.augment_train = augment_train
+        self.train_trans = train_transforms
 
 
     def prepare_data(self):
@@ -58,13 +63,25 @@ class CIFAR10_module(pl.LightningDataModule):
     def setup(self, stage: Optional[str] = None):
         # Assign train dataset for use in dataloaders
         if stage == 'fit' or stage is None:
-            train_transforms = transforms.Compose(
-                                        [transforms.RandomCrop(32, padding=4),
-                                        transforms.RandomHorizontalFlip(),
-                                        transforms.ToTensor(),
-                                        transforms.Normalize(self.mean, self.std) ])
+
+            if self.train_trans is not None:
+                train_transforms = self.train_trans
+                                                 
+
+            elif self.augment_train:
+                train_transforms = transforms.Compose(
+                                            [transforms.RandomCrop(32, padding=4),
+                                            transforms.RandomHorizontalFlip(),
+                                            transforms.ToTensor(),
+                                            transforms.Normalize(self.mean, self.std) ])
+            else:
+                train_transforms = transforms.Compose(
+                                            [transforms.ToTensor(),
+                                            transforms.Normalize(self.mean, self.std) ])
+
             self.cifar10_train = self.cifar_with_idx(root=self.data_dir, train=True, download=True, transform=train_transforms)
 
+        
         # Assign test dataset for use in dataloader(s)
         if stage == 'test' or stage is None:
             test_transforms = transforms.Compose(

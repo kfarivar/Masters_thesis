@@ -10,9 +10,14 @@ adv_images
 # ignore model checkpoints
 model_checkpoints/
 Robust_models_chpt/
+huy_Supervised_models_training_CIFAR10/cifar10/
+huy_Supervised_models_training_CIFAR10/*.zip
+#ignore logs 
+barlow_twins_with_linear_layer_logs/
+simCLR_with_linear_layer_logs/
 
 # Byte-compiled / optimized / DLL files
-__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 

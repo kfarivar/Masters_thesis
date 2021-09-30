@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torch.nn import functional as F
 import logging as log
 
 def add_normalization_layer(model, model_mean, model_std):
@@ -28,6 +29,66 @@ def add_normalization_layer(model, model_mean, model_std):
     )
 
     return new_model
+
+
+""" def add_linear_layer(model, pre_process:nn.Module, feature_number, class_number, eval_mode:bool=True, disable_grad:bool=True):
+    ''' Adds a linear layer to the end of a network (trained using unsupervise learning) for classification.
+        feature_number: number of features the unsupervised network creates
+        class_number: number of classes in the classification task 
+        pre_process: apply any additional preprocessing on the output of the model like flatten
+        eval_mode: fix the drop out and batch normalization layers.
+        disable_grad: disable the gradient in the backend model
+    '''
+    encoder = nn.Sequential(
+        model,
+        pre_process
+    )
+
+    if disable_grad:
+        encoder.requires_grad_(requires_grad=False)
+    # we have to set eval after Sequential otherwise it will be reset to training.
+    if eval_mode:
+        encoder.eval()
+
+    linear_layer = nn.Linear(feature_number, class_number)
+
+    return encoder, linear_layer """
+
+
+
+class normalize(nn.Module):
+    '''make functional.normalize a module so we can use it in Sequential.
+    '''
+    def __init__(self, dim):
+        super(normalize, self).__init__()
+        self.normal = F.normalize
+        self.dim = dim
+        
+    def forward(self, x):
+        x = self.normal(x, dim=self.dim)
+        return x
+
+
+def remove_operation_count_from_dict(state_dict):
+    '''remove operators count in state dict. 
+       used for the barlow twins model since they use thop library !
+       if a key ends in total_ops or total_params it is removed.'''
+
+    import re
+    to_remove= []
+    for key in state_dict.keys():
+        # if it ends in total_ops or total_params remove it !
+        if re.search(r"total_ops$|total_params$", key):
+            to_remove.append(key)
+
+    for key in to_remove:
+        state_dict.pop(key) # if you don't want it to throw error use d.pop(k, None)
+
+    return state_dict
+    
+
+
+
 
 
 

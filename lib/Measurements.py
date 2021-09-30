@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import attr
 from abc import ABC, abstractmethod
+from copy import deepcopy
 
 from art.metrics import clever_u
 from art.estimators.classification import PyTorchClassifier
@@ -10,24 +11,31 @@ from art.estimators.classification import PyTorchClassifier
 class Measure(ABC):
     ''' A specific measurement to be applied on a batch of data in measure method of AdvLib.
     '''
+
+    def before_evaluation(*args, **kwargs):
+        ''' called right before the loop on dataset to eavluate the model. 
+        mostly useful to register hooks to examine mid layer activations for the rest of the code.
+        '''
+        pass
     
     @abstractmethod
     def on_clean_data():
-        '''called on the result of a batch of data.
+        '''called on the result of a batch of data. clled once per batch. counting number of points should happen here.
         '''
         pass
 
     @abstractmethod
     def on_attack_data():
-        ''' called on the result of an attack on a batch of data.
+        ''' called on the result of an attack on a batch of data. called the same number of times as number of attacks.
+            Any attack related statistics should be calculated here preferrebly saved in a dictionary keyed by attack name.
         '''
         pass
 
-    @abstractmethod
-    def batch_end():
+    
+    def batch_end(*args, **kwargs):
         '''called after calcuating each single batch.
         '''
-        pass
+        return None
 
     @abstractmethod
     def final_result():
@@ -36,6 +44,84 @@ class Measure(ABC):
         pass
 
 
+class Feature_diff(Measure):
+    ''' Calculate the Euclidean norm of the difference of a layer before and after attack for each sample.
+        return the average over the whole dataset. 
+    '''
+
+    def __init__(self, layer):
+        ''' layer is the name of the layer we want to calculate the difference for.
+            The name of each layer can be found using:
+                for name, layer in model.named_modules():
+            layer can be set to 'output' to consider the logits of the model. 
+        '''
+        self.layer = layer
+        # total num of data points
+        self.total_count = 0
+        # sum of the eculidean distances of differences of layer for each attack
+        self.dist_sums = {}
+        # save the output of layer after each forward
+        self.activation = None
+        # activations for clean data
+        self.clean_activations = None
+        # save handle to hook to free it at the end
+        self.hook_handle = None 
+
+    def before_evaluation(self, model):
+        # the normal logits outputs don't need hooks
+        if self.layer != 'output':
+            # hook to be sent to the layer
+            def save_activations(model, input, output):
+                self.activation = output.detach()
+            #send the hook to the target layer
+            for name, layer_module in model.named_modules():
+                if name == self.layer:
+                    self.hook_handle = layer_module.register_forward_hook(save_activations)
+                    
+
+
+    def on_clean_data(self, model, inputs, labels, outputs, predicted_labels, indexes):
+        self.total_count += outputs.size(0)
+        # save clean activations
+        self.clean_activations = deepcopy(self.activation)
+
+
+    def on_attack_data(self, model, inputs, labels, outputs, predicted_labels, adv_inputs, adv_output, adv_predictions, attack, indexes):
+        ''' Calculate the sum of norms of a batch '''
+
+        if self.layer == 'output':
+            diff = outputs - adv_output
+        else: # self.activation should be activations for the attack sample
+            diff = self.clean_activations - self.activation  
+
+        # flatten the diff starting from the second dimesnion (in case it is a conv layer output)
+        diff = torch.flatten(diff, start_dim=1)
+        norms = torch.norm(diff, dim=1, p=2)
+
+        attack_name = type(attack).__name__
+        self.dist_sums[attack_name] = self.dist_sums.get(attack_name, 0) + torch.sum(norms)
+    
+    
+    def final_result(self):
+        result = {}
+        for attack_name, norm_sum in self.dist_sums.items():
+            result[attack_name] = norm_sum / self.total_count 
+        
+        # reset the variabel
+        self.total_count = 0
+        self.dist_sums = {}
+        self.activation = None
+        self.clean_activations = None
+
+        #free the hook to avoid adding many hooks durin training
+        if self.layer != 'output':
+            self.hook_handle.remove()
+        self.hook_handle = None
+
+        return result
+
+
+        
 
 
 @attr.s
@@ -55,8 +141,6 @@ class Normal_accuracy(Measure):
     def on_attack_data(self,*args):
         return None
 
-    def batch_end(self):
-        return None
         
     def final_result(self):
         accuracy = self._correct/self._total
@@ -103,15 +187,12 @@ class Robust_accuracy(Measure):
         correctly_predicted_labels = labels[mask_correct]
         corresponding_adv_predictions = adv_predictions[mask_correct]
         attack_name = type(attack).__name__
-        # count the total correct after this attack
+        # count the total correct after this attack (add the key to dictionary if not there)
         self._correct_after_attack[attack_name] = self._correct_after_attack.get(attack_name, 0) + (labels == adv_predictions).sum().item()
         # count the total that were correct before and after the attack
         self._correct_before_and_after_attack[attack_name] = self._correct_before_and_after_attack.get(attack_name,0) + \
                                                             (correctly_predicted_labels == corresponding_adv_predictions).sum().item()
 
-    
-    def batch_end(self):
-        return None
         
     def final_result(self):
         results = {}
