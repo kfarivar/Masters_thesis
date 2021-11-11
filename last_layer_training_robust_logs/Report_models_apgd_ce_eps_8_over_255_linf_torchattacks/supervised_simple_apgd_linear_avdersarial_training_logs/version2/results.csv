@@ -1,0 +1,201 @@
+epoch,mode,measure_name,attack_name,descriptor1,descriptor2,descriptor3,descriptor4,value
+0,Train,Normal_accuracy,,,,,,95.48
+0,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,7.148000000000001
+0,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,7.4863845831587765
+0,Train,Loss_measure,,,,,,"tensor(0.0039, device='cuda:0')"
+0,Train,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+1,Train,Normal_accuracy,,,,,,93.158
+1,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,6.372
+1,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,6.8399922711951735
+1,Train,Loss_measure,,,,,,"tensor(0.0040, device='cuda:0')"
+1,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+2,Train,Normal_accuracy,,,,,,93.806
+2,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,4.8
+2,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,5.116943479095154
+2,Train,Loss_measure,,,,,,"tensor(0.0041, device='cuda:0')"
+2,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+3,Train,Normal_accuracy,,,,,,92.368
+3,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.8059999999999996
+3,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,4.120474623246146
+3,Train,Loss_measure,,,,,,"tensor(0.0042, device='cuda:0')"
+3,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+4,Train,Normal_accuracy,,,,,,94.096
+4,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.372
+4,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.5835742220710767
+4,Train,Loss_measure,,,,,,"tensor(0.0042, device='cuda:0')"
+4,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+5,Train,Normal_accuracy,,,,,,92.716
+5,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.6839999999999997
+5,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.9734242201993184
+5,Train,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+5,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+6,Train,Normal_accuracy,,,,,,95.184
+6,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.064
+6,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.219028408135821
+6,Train,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+6,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+7,Train,Normal_accuracy,,,,,,89.632
+7,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.2800000000000002
+7,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.659407354516244
+7,Train,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+7,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+8,Train,Normal_accuracy,,,,,,93.19
+8,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.164
+8,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.395214078763816
+8,Train,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+8,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+9,Train,Normal_accuracy,,,,,,93.798
+9,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.058
+9,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.260197445574532
+9,Train,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+9,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+10,Train,Normal_accuracy,,,,,,90.422
+10,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.274
+10,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.620800247727323
+10,Train,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+10,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+11,Train,Normal_accuracy,,,,,,87.67399999999999
+11,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.154
+11,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.5974177065036383
+11,Train,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+11,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+12,Train,Normal_accuracy,,,,,,93.002
+12,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.3800000000000003
+12,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,2.5590847508655727
+12,Train,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+12,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+13,Train,Normal_accuracy,,,,,,93.5
+13,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.664
+13,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,2.8491978609625668
+13,Train,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+13,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+14,Train,Normal_accuracy,,,,,,88.536
+14,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.616
+14,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,2.9547302792084578
+14,Train,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+14,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+15,Train,Normal_accuracy,,,,,,94.32199999999999
+15,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.748
+15,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,2.9134242276457245
+15,Train,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+15,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+16,Train,Normal_accuracy,,,,,,91.636
+16,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.7359999999999998
+16,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,2.9857261338338645
+16,Train,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+16,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+17,Train,Normal_accuracy,,,,,,91.932
+17,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.598
+17,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,2.8260018274376715
+17,Train,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+17,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+18,Train,Normal_accuracy,,,,,,92.816
+18,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.406
+18,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.6696259265643856
+18,Train,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+18,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+19,Train,Normal_accuracy,,,,,,88.952
+19,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.7319999999999998
+19,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,4.195521179962227
+19,Train,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+19,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+0,Validation,Normal_accuracy,,,,,,87.38
+0,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,6.45
+0,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,7.3815518425268944
+0,Validation,Loss_measure,,,,,,"tensor(0.0040, device='cuda:0')"
+0,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+1,Validation,Normal_accuracy,,,,,,85.56
+1,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,5.319999999999999
+1,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,6.21785881252922
+1,Validation,Loss_measure,,,,,,"tensor(0.0041, device='cuda:0')"
+1,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+2,Validation,Normal_accuracy,,,,,,85.8
+2,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,4.1000000000000005
+2,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,4.778554778554779
+2,Validation,Loss_measure,,,,,,"tensor(0.0042, device='cuda:0')"
+2,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+3,Validation,Normal_accuracy,,,,,,84.58
+3,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.2300000000000004
+3,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.8188697091510995
+3,Validation,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+3,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+4,Validation,Normal_accuracy,,,,,,85.82
+4,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.8899999999999997
+4,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.3675134001398273
+4,Validation,Loss_measure,,,,,,"tensor(0.0043, device='cuda:0')"
+4,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+5,Validation,Normal_accuracy,,,,,,85.05
+5,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.38
+5,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.974132863021752
+5,Validation,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+5,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+6,Validation,Normal_accuracy,,,,,,86.52
+6,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.9899999999999998
+6,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.45584835876098
+6,Validation,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+6,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+7,Validation,Normal_accuracy,,,,,,82.49
+7,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.0700000000000003
+7,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.721663231906898
+7,Validation,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+7,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+8,Validation,Normal_accuracy,,,,,,85.37
+8,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.1199999999999997
+8,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.6546796298465503
+8,Validation,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+8,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+9,Validation,Normal_accuracy,,,,,,85.55
+9,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.37
+9,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.9392168322618355
+9,Validation,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+9,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+10,Validation,Normal_accuracy,,,,,,82.45
+10,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.37
+10,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,4.087325651910248
+10,Validation,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+10,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+11,Validation,Normal_accuracy,,,,,,81.14
+11,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.4099999999999997
+11,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,4.202612768055213
+11,Validation,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+11,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+12,Validation,Normal_accuracy,,,,,,84.27
+12,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.6
+12,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.085320992049365
+12,Validation,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+12,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+13,Validation,Normal_accuracy,,,,,,85.25
+13,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.08
+13,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.612903225806452
+13,Validation,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+13,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+14,Validation,Normal_accuracy,,,,,,81.23
+14,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.77
+14,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.4100701711190444
+14,Validation,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+14,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+15,Validation,Normal_accuracy,,,,,,85.83
+15,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.8400000000000003
+15,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.3088663637422813
+15,Validation,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+15,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+16,Validation,Normal_accuracy,,,,,,83.67
+16,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.85
+16,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.4062387952671207
+16,Validation,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+16,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+17,Validation,Normal_accuracy,,,,,,83.48
+17,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,2.76
+17,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,3.3061811212266408
+17,Validation,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+17,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+18,Validation,Normal_accuracy,,,,,,84.86
+18,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.54
+18,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,4.171576714588735
+18,Validation,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+18,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+19,Validation,Normal_accuracy,,,,,,81.6
+19,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.62
+19,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,4.436274509803922
+19,Validation,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+19,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"

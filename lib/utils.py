@@ -1,3 +1,4 @@
+from numpy.core.numeric import NaN
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -89,9 +90,92 @@ def remove_operation_count_from_dict(state_dict):
 
 
 
+import pandas as pd
+
+def save_measurements_to_csv(results, measurements, file_name=None, on_train=True, on_val=True, on_test=True, save=True, epoch=-1):
+    ''' Saves(if save is set) the results of the benchmark from the dictionaries to a CSV file.
+        results should be the triplet of (train_results, val_results ,test_results)
+        returns a pandas df.
+        if a epoch >=0 is given adds it as a column
+
+        
+    '''
+    
+    df = pd.DataFrame(columns = ['mode', 'measure_name',  'attack_name', 'descriptor1', 'descriptor2', 'value'])
+
+    def parse_results(mode, df):
+        mode_index = {'Train':0, 'Validation':1, 'Test':2}
+        for measure_idx, measure in enumerate(measurements):
+            # some measures return a single result 
+            if isinstance(results[mode_index[mode]][measure_idx], dict):
+                for attack, descriptors in results[mode_index[mode]][measure_idx].items():
+                    # some measurements dont have descriptors !
+                    if isinstance(descriptors, dict):
+                        for i, (descriptor, value) in enumerate(descriptors.items()):
+                            row = {}
+                            row['mode'] = mode
+                            row['measure_name'] = type(measure).__name__
+                            row['attack_name'] = attack
+                            row[f'descriptor{i+1}'] = descriptor
+                            row['value'] = value
+                            df = df.append(row, ignore_index=True)
+                    else:
+                        df = df.append({'mode':mode, 'measure_name':type(measure).__name__, 'attack_name':attack, 'value':descriptors}, ignore_index=True)
+            else:
+                df = df.append({'mode':mode, 'measure_name':type(measure).__name__, 'value':results[mode_index[mode]][measure_idx]}, ignore_index=True)
+        
+        return df
+
+    if on_train and results[0] is not None:
+        df = parse_results('Train', df)
+
+    if on_val and results[1] is not None:
+        df = parse_results('Validation', df)
+        
+    if on_test and results[2] is not None:
+        df = parse_results('Test', df)
+
+    if save:
+        df.to_csv(file_name, index=False)
+
+    if epoch >=0:
+        df['epoch'] = epoch
+        
+    return df
 
 
+def save_training_results_to_csv(results, measurements, file_name):
+    train_val_result, test_result = results
 
+    train_measurement_results, val_measurement_results = train_val_result
+
+    train_dfs = []
+    for epoch,v in train_measurement_results.items():
+        # add epoch as a column
+        df = save_measurements_to_csv((v,None, None), measurements, on_val=False, on_test=False, save=False, epoch= epoch)
+        train_dfs.append(df)
+    
+    val_dfs = []
+    for epoch,v in val_measurement_results.items():
+        # add epoch as a column
+        df = save_measurements_to_csv((None,v, None), measurements, on_train=False, on_test=False, save=False, epoch= epoch)
+        val_dfs.append(df)
+
+    all_dfs = train_dfs + val_dfs
+    if test_result is not None:
+        test_df = save_measurements_to_csv((None,None, test_result), measurements, on_val=False, on_train=False, save=False, epoch= 0)
+        all_dfs.append(test_df)
+    
+    
+    all_results = pd.concat(all_dfs, ignore_index=True)
+    #reorder columns
+    columns = ['epoch','mode', 'measure_name',  'attack_name', 'descriptor1', 'descriptor2', 'descriptor3', 'descriptor4',  'value']
+    all_results = all_results[columns]
+
+    # save as csv
+    all_results.to_csv(file_name, index=False)
+
+    return all_results
 
 
 def print_measurement_results(results, measurements, on_train=True, on_val=True, on_test=True, set_log_stream=False):
@@ -146,7 +230,7 @@ def print_train_test_val_result(results, measurements):
     log.info('*'*20)
 
     # print the test result
-    #print_measurement_results((None,None, test_result), measurements, on_val=False, on_train=False)
-
-    #log.info('*'*20)
+    if test_result is not None:
+        print_measurement_results((None,None, test_result), measurements, on_val=False, on_train=False)
+        log.info('*'*20)
 

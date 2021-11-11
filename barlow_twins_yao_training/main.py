@@ -118,6 +118,7 @@ def test(net, memory_data_loader, test_data_loader):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train SimCLR')
+    parser.add_argument('save_path', type=str, help='save the model here.')
     parser.add_argument('--dataset', default='cifar10', type=str, help='Dataset: cifar10 or tiny_imagenet or stl10')
     parser.add_argument('--feature_dim', default=128, type=int, help='Feature dim for latent vector')
     parser.add_argument('--temperature', default=0.5, type=float, help='Temperature used in softmax')
@@ -129,8 +130,12 @@ if __name__ == '__main__':
     parser.add_argument('--lmbda', default=0.005, type=float, help='Lambda that controls the on- and off-diagonal terms')
     parser.add_argument('--corr_neg_one', dest='corr_neg_one', action='store_true')
     parser.add_argument('--corr_zero', dest='corr_neg_one', action='store_false')
+    parser.add_argument('--normalize_features', action='store_false')
     parser.set_defaults(corr_neg_one=False)
     
+    #(change the save path not to overwrite) 
+    # command used to train: CUDA_VISIBLE_DEVICES=1 python main.py '??????' --lmbda 0.0078125 --corr_zero --batch_size 512 --feature_dim 128 --dataset cifar10
+
 
     # args parse
     args = parser.parse_args()
@@ -173,13 +178,14 @@ if __name__ == '__main__':
 
     # model setup and optimizer config
     model = Model(feature_dim, dataset).cuda()
-    if dataset == 'cifar10':
+    """ if dataset == 'cifar10':
         flops, params = profile(model, inputs=(torch.randn(1, 3, 32, 32).cuda(),))
     elif dataset == 'tiny_imagenet' or dataset == 'stl10':
-        flops, params = profile(model, inputs=(torch.randn(1, 3, 64, 64).cuda(),))
-
+        flops, params = profile(model, inputs=(torch.randn(1, 3, 64, 64).cuda(),)) 
     flops, params = clever_format([flops, params])
-    print('# Model Params: {} FLOPs: {}'.format(params, flops))
+    print('# Model Params: {} FLOPs: {}'.format(params, flops)) """
+
+
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
     c = len(memory_data.classes)
 
@@ -191,8 +197,8 @@ if __name__ == '__main__':
         corr_neg_one_str = ''
     save_name_pre = '{}{}_{}_{}_{}'.format(corr_neg_one_str, lmbda, feature_dim, batch_size, dataset)
     
-    if not os.path.exists('bolt_resnet18_results'):
-        os.mkdir('bolt_resnet18_results')
+    if not os.path.exists(args.save_path):
+        os.mkdir(args.save_path)
     best_acc = 0.0
     for epoch in range(1, epochs + 1):
         train_loss = train(model, train_loader, optimizer)
@@ -203,8 +209,8 @@ if __name__ == '__main__':
             results['test_acc@5'].append(test_acc_5)
             # save statistics
             data_frame = pd.DataFrame(data=results, index=range(5, epoch + 1, 5))
-            data_frame.to_csv('bolt_resnet18_results/{}_statistics.csv'.format(save_name_pre), index_label='epoch')
-            torch.save(model.state_dict(), f'bolt_resnet18_results/{save_name_pre}_epoch_{epoch}.pth')
+            data_frame.to_csv(args.save_path + '/{}_statistics.csv'.format(save_name_pre), index_label='epoch')
+            torch.save(model.state_dict(), args.save_path + f'/{save_name_pre}_epoch_{epoch}.pth')
             if test_acc_1 > best_acc:
                 best_acc = test_acc_1
     

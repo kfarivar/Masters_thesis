@@ -5,7 +5,8 @@ from torch.nn import functional as F
 from pytorch_lightning import LightningModule
 from torchmetrics import Accuracy
 
-from .barlow_twins_with_projector import BT
+from barlow_twins_yao_training.model import Model as BT
+from huy_Supervised_models_training_CIFAR10.module import CIFAR10Module
 from .simclr_module import SimCLR
 from lib.utils import normalize, remove_operation_count_from_dict
 
@@ -76,7 +77,7 @@ class SSL_encoder_linear_classifier(LightningModule):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
 
         # model params
-        parser.add_argument('model', type=str, choices=['barlow_twins', 'simCLR', 'BYOL'], help='model type')
+        parser.add_argument('model', type=str, choices=['barlow_twins', 'simCLR', 'BYOL', 'supervised'], help='model type')
         parser.add_argument('device', type=int, help='cuda device number, e.g 2 means cuda:2') 
         parser.add_argument('path', type=str, help='path to model chekpoint') 
         parser.add_argument('--feature_num', type=int, help='number of output features for the unsupervised model, for resnet18 it is 512', default=512) 
@@ -86,7 +87,7 @@ class SSL_encoder_linear_classifier(LightningModule):
         parser.add_argument("--dataset", type=str, default="cifar10")
 
         # training params
-        parser.add_argument('--batch_size', type=int, default=128, help='batch size for training the final linear layer')
+        parser.add_argument('--batch_size', type=int, default=512, help='batch size for training the final linear layer')
         parser.add_argument("--optimizer", default="adam", type=str, choices=['adam'])        
         parser.add_argument("--max_epochs", default= 5, type=int, help="number of total epochs to run")
         parser.add_argument("--learning_rate", default=1e-2, type=float, help="learning rate")
@@ -101,10 +102,27 @@ class SSL_encoder_linear_classifier(LightningModule):
 
         return parser
 
-            
 
+
+
+class barlow_twins(BT):
+    '''correct the forward method of the barlow twins model'''
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        # apply encoder
+        # unpack the bolt resnet result
+        return self.f(x)[-1]
  
+class huy_supervised(CIFAR10Module):
+    '''extract the encoder part of the supervised model to train the last layer like other SSL models'''
+    def __init__(self, classifier='resnet18'):
+        super().__init__(classifier=classifier)
 
+    def forward(self, x):
+        # exclude the last linear layer
+        return self.model(x)[-1]
 
 
 from collections import OrderedDict
@@ -120,23 +138,28 @@ class Encoder(LightningModule):
         self.model = model
         # load pretrained unsupervised model
         if model == 'barlow_twins':
-            encoder_and_projector = BT()
+            encoder = barlow_twins()
             # if key ends in total_ops or total_params remove it.(only needed for barlow twins)
             state_dict = remove_operation_count_from_dict(torch.load(path))
             # in pytorch we can load in place.
-            encoder_and_projector.load_state_dict(state_dict)
-            self.encoder = encoder_and_projector.f
+            encoder.load_state_dict(state_dict)
+            self.encoder = encoder
             # flatten output of encoder and normalize (since yao's implementation normalizes during training)
-            self.pre_process = nn.Sequential(nn.Flatten(), normalize(dim=-1))
+            self.pre_process = nn.Sequential(nn.Flatten())#, normalize(dim=-1))
 
         elif model == 'simCLR':
             # Important: in lightining the 'load_from_checkpoint' method ,unlike pytorch, returns the loaded model 
             # IN LIGHTINING LOADING DOESN'T HAPPEN IN PLACE, IT IS RETURNED !! 
             # we need to use lightinings own loading method, there is a top linear layer added durin unsupervised learning 
             # and setting strict to False ignores that.("non_linear_evaluator.block_forward.2.weight", "non_linear_evaluator.block_forward.2.bias".)
-            encoder_and_projector = SimCLR.load_from_checkpoint(path, strict=False)
+            encoder = SimCLR.load_from_checkpoint(path, strict=False)
             # the forward method only applies the encoder and not the projector. so no need to call encoder.
-            self.encoder = encoder_and_projector
+            self.encoder = encoder
+            self.pre_process = nn.Flatten()
+
+        elif model == 'supervised':
+            encoder = huy_supervised.load_from_checkpoint(path, strict=False)
+            self.encoder = encoder
             self.pre_process = nn.Flatten()
 
         else:
@@ -159,6 +182,9 @@ class Encoder(LightningModule):
     def train(self, mode: bool):
         ''' avoid pytorch lighting auto set trian mode. keep it in eval. '''
         return super().train(False)
+
+    def requires_grad_(self, requires_grad: bool):
+        return super().requires_grad_(False)
 
     def state_dict(self, destination, prefix, keep_vars):
         ''' (probably needs to be fixed!) avoid pytorch lighting auto save params '''

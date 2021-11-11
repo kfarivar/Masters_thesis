@@ -36,7 +36,7 @@ def main(args):
             precision=args.precision,
         )
 
-        model = CIFAR10Module(args)
+        model = CIFAR10Module(**args.__dict__)
         data = CIFAR10Data(args)
 
         if bool(args.pretrained):
@@ -81,6 +81,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--learning_rate", type=float, default=1e-2)
     parser.add_argument("--weight_decay", type=float, default=1e-2)
+    parser.add_argument("--optimizer", type=str, default='sgd')
 
     # command: python train.py --gpu_id 1 
 

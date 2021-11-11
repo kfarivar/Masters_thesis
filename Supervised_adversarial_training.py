@@ -113,7 +113,7 @@ def main(args):
         save_path = 'Robust_models_chpt/v3_resnet34_FGSM_batch_128_weight_decay_1e-5'
         print(save_path)
         results = model_bench.train_val_test(trainer, num_epochs, dataset, measurements, attacks, save_path,
-                                            train_measure_frequency=2, val_measure_frequency=2)
+                                            train_measure_frequency=2, val_measure_frequency=2, reset_model=True)
 
         print_train_test_val_result(results, measurements)
 
@@ -246,6 +246,7 @@ if __name__ == '__main__':
     parser.add_argument('batch_size', type=int)
 
     parser.add_argument('device', type=str)  # e.g '2' means 'cuda:2'
+
 
     args = parser.parse_args()
 

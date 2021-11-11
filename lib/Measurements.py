@@ -74,9 +74,13 @@ class Feature_diff(Measure):
             def save_activations(model, input, output):
                 self.activation = output.detach()
             #send the hook to the target layer
+            layer_exists = False
             for name, layer_module in model.named_modules():
                 if name == self.layer:
                     self.hook_handle = layer_module.register_forward_hook(save_activations)
+                    layer_exists = True
+        if not layer_exists:
+            raise ValueError('The layer name sent to Feature_diff is incorrect !!')
                     
 
 
@@ -98,14 +102,14 @@ class Feature_diff(Measure):
         diff = torch.flatten(diff, start_dim=1)
         norms = torch.norm(diff, dim=1, p=2)
 
-        attack_name = type(attack).__name__
+        attack_name = attack.get_name()
         self.dist_sums[attack_name] = self.dist_sums.get(attack_name, 0) + torch.sum(norms)
     
     
     def final_result(self):
         result = {}
         for attack_name, norm_sum in self.dist_sums.items():
-            result[attack_name] = norm_sum / self.total_count 
+            result[attack_name] = (norm_sum / self.total_count).item()
         
         # reset the variabel
         self.total_count = 0
@@ -122,6 +126,7 @@ class Feature_diff(Measure):
 
 
         
+
 
 
 @attr.s
@@ -153,6 +158,87 @@ class Normal_accuracy(Measure):
 
         return accuracy *100
         
+class Loss_measure(Measure):
+    ''' Caclulate the specified loss'''
+    def __init__(self, loss_function):
+        '''loss_function: like a pytorch loss function should accept logits and label in batch form'''
+        super().__init__()
+
+        self.loss_func = loss_function
+        # total num of data points
+        self.total_count = 0
+
+        # sum of losses for clean data and different attacks
+        self.sum_losses = {'Clean':0.0}
+        
+    def on_clean_data(self, model, inputs, labels, outputs, predicted_labels, indexes):
+        self.total_count += labels.size(0)
+        clean_loss = self.loss_func(outputs, labels)
+        self.sum_losses['Clean'] += clean_loss
+
+    def on_attack_data(self, model, inputs, labels, outputs, predicted_labels, adv_inputs, adv_output, adv_predictions, attack, indexes):
+        '''calculate loss separately for each attack.'''
+        attack_loss = self.loss_func(adv_output, labels)
+        attack_name = attack.get_name()
+        self.sum_losses[attack_name] = self.sum_losses.get(attack_name, 0.0) + attack_loss
+
+    def final_result(self):
+        results = {}
+        for attack_name, sum_loss in self.sum_losses.items():
+            results[attack_name] = sum_loss / self.total_count
+        
+        # reset the counters
+        self.total_count = 0
+        self.sum_losses = {'Clean':0.0}
+
+        return results
+
+from torch import linalg as LA
+class Check_perturbation(Measure):
+    '''check if the adv example is in the esilon neighbourhood of the sample'''
+    def __init__(self, eps, norm):
+        '''
+        eps: the purturbation
+        norm: either 'linf' or 'l2'
+        '''
+        super().__init__()
+        self.eps = eps
+        # total num of data points
+        self.norm = norm
+
+        # are all purturbations in bound
+        self.all_in_bound = {'Clean':0.0}
+    
+    def on_clean_data(self, *args):
+        return None
+    
+    def on_attack_data(self, model, inputs, labels, outputs, predicted_labels, adv_inputs, adv_output, adv_predictions, attack, indexes):
+        # get the 2D matrix of differences dim 0 is batch
+        diff = torch.flatten(inputs - adv_inputs, start_dim=1)
+        if self.norm == 'l2':
+            norm_of_diff = LA.vector_norm(diff, ord=2, dim=1)
+        elif self.norm == 'linf':
+            norm_of_diff = LA.vector_norm(diff, ord=np.inf, dim=1)
+
+        # check in bound
+        mask = norm_of_diff > self.eps
+
+        if mask.any():
+            print('the perturbation for images at indexes below are out of bound:')
+            print(indexes[mask])
+            print('Amount of perturbations:')
+            print(norm_of_diff[mask])
+            raise ValueError('Perturbation out of bound.')
+
+        return None
+
+
+    def final_result(self):
+        return None
+
+
+
+
 
 
 @attr.s
@@ -166,7 +252,7 @@ class Robust_accuracy(Measure):
 
 
     # number of data points that were correctly predicted after attack (regadrless of, if they were initially predicted correctly or not)
-    # the keys are the attack names type(attack).__name__
+    # the keys are the attack names attack.get_name()
     _correct_after_attack = attr.ib(factory=dict)
     
     # number of data points that were corrcetly predicted both before and after applying the attack
@@ -186,7 +272,7 @@ class Robust_accuracy(Measure):
         mask_correct = (labels == predicted_labels)
         correctly_predicted_labels = labels[mask_correct]
         corresponding_adv_predictions = adv_predictions[mask_correct]
-        attack_name = type(attack).__name__
+        attack_name = attack.get_name()
         # count the total correct after this attack (add the key to dictionary if not there)
         self._correct_after_attack[attack_name] = self._correct_after_attack.get(attack_name, 0) + (labels == adv_predictions).sum().item()
         # count the total that were correct before and after the attack
@@ -201,8 +287,8 @@ class Robust_accuracy(Measure):
             #initialise a sub dict for this attack's result
             results[attack_name] = {}
             # return the two stats
-            results[attack_name]['percentage_correct_after_attack'] = correct_after_attack / self._total * 100
-            results[attack_name]['percentage_of_correct_that_remain_correct_after_attack'] = correct_before_and_after_attack / self._total_correct * 100
+            results[attack_name]['Total_accuracy'] = correct_after_attack / self._total * 100
+            results[attack_name]['Correct_accuracy'] = correct_before_and_after_attack / self._total_correct * 100
 
         # reset the counters
         self._total = 0

@@ -3,155 +3,111 @@ import torch.nn as nn
 import torch.nn.functional as F
 from tqdm import tqdm
 
-import matplotlib.pyplot as plt
-import numpy as np
-from torch.utils.tensorboard import SummaryWriter
-
-from torchinfo import summary
 
 
+
+
+
+
+
+from models.models_mean_std import supervised_huy, barlow_twins_yao, simCLR_bolts
 
 
 from models.simclr_module import SimCLR
 
-device = 'cuda:1'
+from lib.utils import  add_normalization_layer, print_measurement_results
 
+from lib.Measurements import Normal_accuracy, Robust_accuracy
+import torchattacks
 
+from autoattack import AutoAttack
+from lib.Attacks import AutoAttack_Wrapper, Torchattacks_Wrapper
 
-
-weight_path = './model_checkpoints/simCLR_unsupervised/epoch=285-step=50335.ckpt'
-""" state_dict = torch.load(weight_path)['state_dict'] # get 'state_dict' from lightining checkpoint
-weight_key = "non_linear_evaluator.block_forward.2.weight"
-bias_key = "non_linear_evaluator.block_forward.2.bias"
-# load the linear layer weights from unsupervise training
-weight = state_dict[weight_key].to(device)
-bias = state_dict[bias_key].to(device) """
-
-
-# load my W and b
-my_ckp_path = './simCLR_with_linear_layer_logs/lightning_logs/version_10/checkpoints/fixed_simCLR_linear_layer_trained-epoch=94-val_acc=0.420.ckpt'
-my_ckp = torch.load(my_ckp_path)['state_dict']
-my_weight = my_ckp['final_linear_layer.weight'].to(device)
-my_bias = my_ckp['final_linear_layer.bias'].to(device)
-
-""" w_diff = torch.sum((my_weight - weight)**2) / torch.numel(my_weight) 
-bias_diff = torch.sum((my_bias-bias)**2) / torch.numel(my_bias)
-
-print('sum squared diffs:')
-print(w_diff)
-print(bias_diff) """
-
-
-#Load model
-from models.SSL_linear_classifier import Encoder
-#simclr = SimCLR.load_from_checkpoint(weight_path, strict=False)
-simclr = Encoder(model='simCLR', path=weight_path)
-
-""" print('OG simclr')
-summary(simclr, input_size=(1, 3, 32, 32), row_settings=("depth","var_names"), depth= 10)
-
-print('My encoder simclr')
-summary(simclr, input_size=(1, 3, 32, 32), row_settings=("depth","var_names"), depth= 10) """
-
-simclr.to(device)
-simclr.freeze()
-
-# Data
-mean=[x / 255.0 for x in [125.3, 123.0, 113.9]]
-std=[x / 255.0 for x in [63.0, 62.1, 66.7]]
 from lib.Get_dataset import CIFAR10_module
-dataset = CIFAR10_module(mean, std, batch_size=128, augment_train=False, train_transforms=None)
-dataset.prepare_data()
-dataset.setup()
+from lib.AdvLib import Adversarisal_bench as ab
 
-def calc_accuracy(my_weight, my_bias):
-    # predict using the linear model in checkpoint
-    correct = torch.zeros(1, device=device)
-    count = torch.zeros(1, device=device)
+from models.SSL_linear_classifier import SSL_encoder_linear_classifier
 
-    for batch in tqdm(dataset.val_dataloader()):
-        x,y = batch[0].to(device), batch[1].to(device)
+import logging as log
+log.basicConfig(
+    level=log.DEBUG,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        #log.FileHandler("log.log"),
+        log.StreamHandler()
+    ]
+)
 
-        #get features
-        features = simclr(x)
-        #predict 
-        logits = torch.mm(features, my_weight.t().contiguous()) + torch.unsqueeze(my_bias, 0)
+device = 'cuda:0'
 
-        _, preds  = torch.max(logits, dim=1)
+def test_attack():
+    '''Test a nwe attack'''
+    # test for attack
+    # get resnet18 (standard supervised)
+    supervised_path = './huy_Supervised_models_training_CIFAR10/cifar10/resnet18/version_3/checkpoints/best_val_acc_acc_val=88.37.ckpt'
+    from huy_Supervised_models_training_CIFAR10.module import CIFAR10Module as supervised_model
+    supervised = supervised_model(classifier='resnet18').load_from_checkpoint(supervised_path)
+    # freeze the model
+    supervised.freeze() 
+    
+    # add a normalization layer to the begining 
+    model = add_normalization_layer(supervised, supervised_huy[0], supervised_huy[1])
+     
 
-        correct += torch.sum(preds==y)
+    # define  meaures
+    normal_acc = Normal_accuracy()
+    robust_acc = Robust_accuracy()
 
-        count += batch[1].size(0)
+    #initialize and send the model to AdvLib
+    model_bench = ab(model, untrained_state_dict= None, device=device, 
+                    predictor=lambda x: torch.max(x, 1)[1])
+
+
+    #define attacks
+    Fgsm = torchattacks.FGSM(model, eps=8/255)
+    Fgsm = Torchattacks_Wrapper(Fgsm, 'Fgsm')
+
+    Apgd_ce = AutoAttack(model, attacks_to_run = ['apgd-ce'], norm='Linf', eps=8/255, version='custom') #, verbose=False)
+    Apgd_ce = AutoAttack_Wrapper(Apgd_ce, 'Apgd-ce')
+
+    Apgd_dlr = AutoAttack(model, attacks_to_run = ['apgd-dlr'], norm='Linf', eps=8/255, version='custom') #, verbose=False)
+    Apgd_dlr = AutoAttack_Wrapper(Apgd_dlr, 'Apgd-dlr')
+
+    attacks = [
+        Fgsm, 
+        Apgd_ce,
+        Apgd_dlr
+            ]
+
+    dataset = CIFAR10_module(mean=(0,0,0), std=(1,1,1), data_dir = "./data", batch_size=512)
+    dataset.prepare_data()
+    dataset.setup()
+
+    on_train=False
+    on_val = False
+    measurements = [normal_acc, robust_acc ]
+    results = model_bench.measure_splits(dataset, measurements, attacks, on_train=on_train, on_val=on_val)
+    print_measurement_results(results, measurements, on_train=on_train)
+    #save_measurements_to_csv(results, measurements, f'{model_name}_results.csv', on_train=on_train)
+
+
+
+if __name__ == '__main__': 
+    with torch.no_grad():
         
 
-    return correct/count
+        supervised_path = './huy_Supervised_models_training_CIFAR10/cifar10/resnet18/version_3/checkpoints/best_val_acc_acc_val=88.37.ckpt'
+        linear_separated_sup = SSL_encoder_linear_classifier('supervised', supervised_path)
+
+
+        linear_separated_sup.encoder.encoder.final_linear.weight = torch.nn.parameter.Parameter(weights)
+        linear_separated_sup.encoder.encoder.final_linear.bias = torch.nn.parameter.Parameter(bias)
+
+        print(linear_separated_sup.encoder.encoder.final_linear.bias)
+        print(bias)
 
 
 
-# train a linear layer 
-import torch.optim as optim
-
-#create the linear layer
-my_lin_layer = torch.nn.Linear(512, 10, bias=True).to(device)
-
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(my_lin_layer.parameters(), lr=0.01)
-
-
-#logging 
-writer = SummaryWriter('linear_debug_simclr')
-
-
-for epoch in range(2):  # loop over the dataset multiple times
-    running_loss = 0.0
-
-    pbar = tqdm(enumerate(dataset.train_dataloader(), 0))
-    for i, batch in pbar:
-        # get the inputs; data is a list of [inputs, labels]
-        x,y = batch[0].to(device), batch[1].to(device)
-        #get features
-        features = simclr(x)
-
-        # zero the parameter gradients
-        optimizer.zero_grad()
-        # forward + backward + optimize
-        outputs = my_lin_layer(features)
-        loss = criterion(outputs, y)
-        loss.backward()
-        optimizer.step()
-
-
-        running_loss += loss.item()
-
-    with torch.no_grad():    
-        acc = calc_accuracy(my_lin_layer.weight, my_lin_layer.bias)
-    pbar.set_description(f'epoch loss: {running_loss}, epoch acc: {acc}.')
-
-    writer.add_scalar('training loss', running_loss, epoch)
-    writer.add_scalar('training acc', acc, epoch)
-
-
-print('Finished Training')
-
-print('Val acc:')
-print(calc_accuracy(my_lin_layer.weight, my_lin_layer.bias) )
-
-
-""" my_weight = my_lin_layer.weight
-my_bias = my_lin_layer.bias """
-
-
-
-
-
-
-
-
-
-'''for name, module in simclr.named_children():
-    print()
-    print(name)
-    print(module)'''
  
 
 

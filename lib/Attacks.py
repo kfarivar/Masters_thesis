@@ -1,78 +1,79 @@
 import torch
 import torch.nn as nn
-import torch.tensor as tensor
 
 from abc import ABC, abstractmethod
 
+
+
 class Attack(ABC):
-    '''abstract class for different types of attacks to inherit from'''
+    '''abstract class for different types of attacks for adding a call function and an identifying name'''
 
     @abstractmethod
-    def __init__(self, model:nn.Module, loss:nn.Module):
-        self.model = model
-        self.loss =loss
+    def __init__(self, adversary):
+        pass
 
     @abstractmethod
-    def attack(sample, label, target)->(tensor, int):
-        '''assumes the prediction of the model on this sample is correct.
-        if attack succeeds should return the tuple: (distorted input, label) 
-        if fail should return None'''
-        assert self.model(sample) == label, "the classification is already incorrect !"
+    def __call__(self, sample, label):
+        '''Should return a bacth of adversarial data'''
+        pass
+    
+    @abstractmethod
+    def get_name():
+        '''returns the attack name this is used as an identifier when accumulating the results and should be unique !'''
+        pass
+
+class ART_Wrapper(Attack):
+    '''wrapper for attacks in Adversarial Robustness Tollbox (IBM)
+    This librray has major issues in the sense that they don't support gpu devices !!
+    '''
+    def __init__(self, adversary, name):
+        self.adversary = adversary
+        self._name = name
+
+    def __call__(self, sample, label):
+        return self.adversary.generate(sample.cpu().numpy(), label.cpu().numpy())
+
+    def get_name(self):
+        return self._name
+
+    
+
+class Torchattacks_Wrapper(Attack):
+    ''' wrapper for torch attachs to add the get_name method '''
+    def __init__(self, adversary, name):
+        self.adversary = adversary
+        self._name = name
+
+    def __call__(self, sample, label):
+        return self.adversary(sample, label)
+
+    def get_name(self):
+        return self._name
+        
+
+class AutoAttack_Wrapper(Attack):
+    ''' wrapper for auto-attacks to add the call function
+        still need to debug putting the model in or out of eval/train for robust training !!!!
+    '''
+
+    def __init__(self, adversary, name):
+        ''' The adversary as defined by AutoAttack(forward_pass, norm='norm', eps=epsilon, version='version') 
+            use adversary.attacks_to_run = ['apgd-ce'] to select subsets !
+        '''
+        self.adversary = adversary
+        self._name = name
+
+    def __call__(self, samples, labels):
+        x_adv = self.adversary.run_standard_evaluation(samples, labels, bs=labels.shape[0])
+        return x_adv 
+
+    def get_name(self):
+        return self._name
+
+
+
         
 
 
-class FGSM(Attack):
 
-    def __init__(self, model:nn.Module, loss:nn.Module, epsilon):
-        super().__init__(model, loss)
-        self.epsilon = epsilon
-
-    
-    def attack(sample, label):
-        super().attack(sample, label)
-
-        # keep track of gradient
-        sample.requires_grad = True
-
-        # predict
-        output = self.model(sample)
-
-        # Calculate the loss
-        loss = self.loss(output, label)
-
-        # Zero all existing gradients
-        self.model.zero_grad()
-
-        # Calculate gradients of model in backward pass
-        loss.backward()
-
-        # Collect datagrad
-        data_grad = sample.grad.data
-
-        # perform FGSM Attack
-        perturbed_data = _fgsm_attack(sample, epsilon, data_grad)
-
-        # Re-classify the perturbed image
-        output = model(perturbed_data)
-
-        # Check for success
-        final_pred = output
-
-        if final_pred.item() == label.item():
-            # the attack was unsuccessful
-            return None
-        else:
-            # send back the results if successful
-            return (perturbed_data, final_pred.item())
-
-    
-    def _fgsm_attack(image, epsilon, data_grad):
-        # Collect the element-wise sign of the data gradient
-        sign_data_grad = data_grad.sign()
-        # Create the perturbed image by adjusting each pixel of the input image
-        perturbed_image = image + epsilon*sign_data_grad
-        # Adding clipping to maintain [0,1] range
-        perturbed_image = torch.clamp(perturbed_image, 0, 1)
-        # Return the perturbed image
-        return perturbed_image
 

@@ -1,0 +1,8 @@
+mode,measure_name,attack_name,descriptor1,descriptor2,descriptor3,descriptor4,value,attack
+Test,Normal_accuracy,,,,,,88.37,
+Test,Robust_accuracy,,percentage_correct_after_attack,,,,0.62,Apgd-ce
+Test,Robust_accuracy,,,percentage_of_correct_that_remain_correct_after_attack,,,0.7015955641054656,Apgd-ce
+Test,Robust_accuracy,,percentage_correct_after_attack,,,,0.52,Apgd-dlr
+Test,Robust_accuracy,,,percentage_of_correct_that_remain_correct_after_attack,,,0.5884349892497454,Apgd-dlr
+Test,Feature_diff,,,,,,"tensor(11.0218, device='cuda:1')",Apgd-ce
+Test,Feature_diff,,,,,,"tensor(9.3426, device='cuda:1')",Apgd-dlr

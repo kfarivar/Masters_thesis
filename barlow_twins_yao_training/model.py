@@ -34,7 +34,8 @@ class Model(nn.Module):
         x = self.f(x)[-1]
         feature = torch.flatten(x, start_dim=1)
         out = self.g(feature)
-        return F.normalize(feature, dim=-1), F.normalize(out, dim=-1)
+        #return F.normalize(feature, dim=-1), F.normalize(out, dim=-1)
+        return feature, out
 
 
 
@@ -47,11 +48,5 @@ if __name__ == '__main__':
     print('lightning model')
     summary(lit_model, input_size=(1, 3, 32, 32), row_settings=("depth","var_names"), depth= 10)
 
-    print('Resnet 18 torchvision')
-    summary(resnet18(), input_size=(1, 3, 32, 32), row_settings=("depth","var_names"), depth= 10)
-    
-    model = Model()
-    print('yao model')
-    summary(model, input_size=(1, 3, 32, 32), row_settings=("depth","var_names"), depth= 10)
 
     

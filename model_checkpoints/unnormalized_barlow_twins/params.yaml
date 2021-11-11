@@ -1,0 +1,1 @@
+command used to train: CUDA_VISIBLE_DEVICES=1 python main.py '??????(save_path)' --lmbda 0.0078125 --corr_zero --batch_size 512 --feature_dim 128 --dataset cifar10

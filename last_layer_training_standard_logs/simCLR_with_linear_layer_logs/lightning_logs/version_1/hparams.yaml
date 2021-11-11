@@ -1,0 +1,11 @@
+batch_size: 512
+class_num: 10
+dataset: cifar10
+device: 1
+fast_dev_run: false
+feature_num: 512
+learning_rate: 0.01
+max_epochs: 5
+model: simCLR
+optimizer: adam
+path: ./bolt_self_supervised_training/lightning_logs_simCLR_every5th_checkpoint/version_0/checkpoints/epoch=792-step=139567.ckpt

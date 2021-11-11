@@ -1,0 +1,21 @@
+epoch,mode,measure_name,attack_name,descriptor1,descriptor2,descriptor3,descriptor4,value
+0,Train,Normal_accuracy,,,,,,65.854
+0,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.084
+0,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,4.683086828438667
+0,Train,Loss_measure,,,,,,"tensor(0.0041, device='cuda:0')"
+0,Train,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"
+1,Train,Normal_accuracy,,,,,,78.414
+1,Train,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,6.274
+1,Train,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,8.00112224857806
+1,Train,Loss_measure,,,,,,"tensor(0.0039, device='cuda:0')"
+1,Train,Loss_measure,,,,,,"tensor(0.0044, device='cuda:0')"
+0,Validation,Normal_accuracy,,,,,,67.38
+0,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,3.58
+0,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,5.313149302463639
+0,Validation,Loss_measure,,,,,,"tensor(0.0041, device='cuda:0')"
+0,Validation,Loss_measure,,,,,,"tensor(0.0046, device='cuda:0')"
+1,Validation,Normal_accuracy,,,,,,78.36999999999999
+1,Validation,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,,,7.93
+1,Validation,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,,,10.11866785759857
+1,Validation,Loss_measure,,,,,,"tensor(0.0039, device='cuda:0')"
+1,Validation,Loss_measure,,,,,,"tensor(0.0045, device='cuda:0')"

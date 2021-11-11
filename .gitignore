@@ -10,15 +10,17 @@ images/
 adv_images
 
 # ignore model checkpoints
-model_checkpoints/
-Robust_models_chpt/
-huy_Supervised_models_training_CIFAR10/cifar10/
+**/*.ckpt
+**/*.pth
+**/*.pt
+#barlow_twins_yao_training/bolt_resnet18_without_any_normalization/
+#Supervised_Robust_models_chpt/
+#model_checkpoints/
+#Robust_models_chpt/
+#huy_Supervised_models_training_CIFAR10/cifar10/
 huy_Supervised_models_training_CIFAR10/cifar10_models/state_dicts
 huy_Supervised_models_training_CIFAR10/*.zip
 #ignore logs 
-barlow_twins_with_linear_layer_logs/
-simCLR_with_linear_layer_logs/
-bolt_self_supervised_training/lightning_logs_simclr
 
 # Byte-compiled / optimized / DLL files
 **/__pycache__/

@@ -5,6 +5,7 @@ import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torch import Tensor, nn
+from torch._C import device
 from torch.nn import functional as F
 
 from pl_bolts.models.self_supervised.resnets import resnet18, resnet50
@@ -80,6 +81,7 @@ class SimCLR(LightningModule):
         learning_rate: float = 1e-3,
         final_lr: float = 0.0,
         weight_decay: float = 1e-6,
+        augmentation_type = 'original',
         **kwargs
     ):
         """
@@ -110,6 +112,7 @@ class SimCLR(LightningModule):
         self.exclude_bn_bias = exclude_bn_bias
         self.weight_decay = weight_decay
         self.temperature = temperature
+        self.augmentaion_type = augmentation_type
 
         self.start_lr = start_lr
         self.final_lr = final_lr
@@ -149,17 +152,31 @@ class SimCLR(LightningModule):
 
         # final image in tuple is for online eval
         (img1, img2, _), y = batch
-
         # get h representations, bolts resnet returns a list
         h1 = self(img1)
         h2 = self(img2)
-
         # get z representations
         z1 = self.projection(h1)
         z2 = self.projection(h2)
+        
 
-        loss = self.nt_xent_loss(z1, z2, self.temperature)
+        # which type of pairing of images do we use 
+        # original: 1 image randomly augmented twice, all other images negative
+        # unique_images: 2 unique images from same class(randomly chosen), negative other images not in the class.
+        if self.augmentaion_type == 'original':
+            loss = self.nt_xent_loss(z1, z2, self.temperature)
 
+        elif self.augmentaion_type == 'unique_images':
+            # this is not the most efficient implementation since like the original simCLR I recalculate the z2 while it is already 
+            # in z1. But since there are indexes being droped in my data module keeping track is hard !
+            loss = self.label_based_xent_loss(z1, z2, self.temperature, y)
+
+        elif self.augmentaion_type == 'random_images':
+            # I shuffle the images in z2 as a sanity check/ baseline to see if the network still learns
+            random_index = torch.randperm(z2.size(0), device=z2.device)
+            z2 = z2[random_index] #.contiguous()
+            loss = self.nt_xent_loss(z1, z2, self.temperature)
+        
         return loss
 
     def training_step(self, batch, batch_idx):
@@ -253,7 +270,7 @@ class SimCLR(LightningModule):
         neg = sim.sum(dim=-1)
 
         # from each row, subtract e^(1/temp) to remove similarity measure for x1.x1
-        row_sub = Tensor(neg.shape).fill_(math.e ** (1 / temperature)).to(neg.device)
+        row_sub = torch.full(neg.size(), math.e ** (1 / temperature), device=neg.device)
         neg = torch.clamp(neg - row_sub, min=eps)  # clamp for numerical stability
 
         # Positive similarity, pos becomes [2 * batch_size]
@@ -263,6 +280,52 @@ class SimCLR(LightningModule):
         loss = -torch.log(pos / (neg + eps)).mean()
 
         return loss
+    
+    def label_based_xent_loss(self, out_1, out_2, temperature, labels, eps=1e-6):
+        """
+        assume out_1 and out_2 are normalized
+        out_1: [batch_size, dim]
+        out_2: [batch_size, dim]
+        This is the loss version where for each image I use the labels to select a positive sample randomly from the same class (already done in my data module)
+        Also the nagative samples are only from the other classes. 
+        """
+
+        pos = torch.exp(torch.sum(out_1 * out_2, dim=-1) / temperature)
+
+        # we don't need to concatenate the two outputs since for denum calculation we just need representation of samples in the out_1.
+        # doing a concat will just produce repetative results. 
+        # Image B(out_2) is also among the set A images(out_1).
+        # And we don't want to use out_2 since it is randomly samples and some images might not be there !
+        cov = torch.mm(out_1, out_1.t().contiguous())
+        sims = torch.exp(cov / temperature)
+
+        # go through all classes and calculate the sum of similarities betweem 
+        # this image and other images not from the same class
+        
+        # speed things up by not checking the classes !
+        if self.dataset != 'cifar10':
+            raise NotImplemented('This loss currently just supports cifar10')
+        #classes = torch.unique(labels)
+        
+        neg = torch.zeros(sims.size(0), device=sims.device)
+        for c in range(10):
+            # create a mask to select columns and rows
+            mask = torch.tensor(labels==c, device=sims.device)
+            neg[mask] = sims[mask, :][:,~mask].sum(dim=1) 
+
+        # we still need to add the pos to negative to get the denum.
+        neg = neg + pos
+        # clamp for numerical stability
+        neg = torch.clamp(neg, min=eps)  
+
+        loss = -torch.log(pos / (neg + eps)).mean()
+
+        return loss
+
+
+    # this is supposed to make the model run faster !
+    def optimizer_zero_grad(self, epoch, batch_idx, optimizer, optimizer_idx):
+        optimizer.zero_grad(set_to_none=True)
 
     @staticmethod
     def add_model_specific_args(parent_parser):
@@ -283,6 +346,7 @@ class SimCLR(LightningModule):
         parser.add_argument("--jitter_strength", type=float, default=1.0, help="jitter strength")
         parser.add_argument("--dataset", type=str, default="cifar10", help="stl10, cifar10")
         parser.add_argument("--data_dir", type=str, default=".", help="path to download data")
+        parser.add_argument("--augmentation_type", required=True, choices=['original', 'unique_images', 'random_images'], type=str, help="wether the two images are augmented versions of the same image or are two unique images from the same class. In the latter the negative images will only be from other classes.")
 
         # training params
         parser.add_argument("--fast_dev_run", default=1, type=int)
@@ -309,6 +373,7 @@ def cli_main():
     from pl_bolts.callbacks.ssl_online import SSLOnlineEvaluator
     from pl_bolts.datamodules import CIFAR10DataModule, ImagenetDataModule, STL10DataModule
     from pl_bolts.models.self_supervised.simclr.transforms import SimCLREvalDataTransform, SimCLRTrainDataTransform
+    from kiya_data_manipulations import single_images_train_transform, single_images_val_transform, CIFAR10DataModule_class_pairs
 
     parser = ArgumentParser()
 
@@ -331,14 +396,21 @@ def cli_main():
 
         args.gaussian_blur = True
         args.jitter_strength = 1.0
+
     elif args.dataset == "cifar10":
         val_split = 5000
         if args.num_nodes * args.gpus * args.batch_size > val_split:
             val_split = args.num_nodes * args.gpus * args.batch_size
 
-        dm = CIFAR10DataModule(
-            data_dir=args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers, val_split=val_split
-        )
+        if args.augmentation_type == 'unique_images':
+            # set the on_after_batch_transfer by using my module !!
+            dm = CIFAR10DataModule_class_pairs(
+                data_dir=args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers, val_split=val_split
+            )
+        elif args.augmentation_type in ['original', 'random_images']:
+            dm = CIFAR10DataModule(
+                data_dir=args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers, val_split=val_split
+            )
 
         args.num_samples = dm.num_samples
 
@@ -351,6 +423,7 @@ def cli_main():
 
         args.gaussian_blur = False
         args.jitter_strength = 0.5
+
     elif args.dataset == "imagenet":
         args.maxpool1 = True
         args.first_conv = True
@@ -377,19 +450,38 @@ def cli_main():
     else:
         raise NotImplementedError("other datasets have not been implemented till now")
 
-    dm.train_transforms = SimCLRTrainDataTransform(
-        input_height=args.input_height,
-        gaussian_blur=args.gaussian_blur,
-        jitter_strength=args.jitter_strength,
-        normalize=normalization,
-    )
 
-    dm.val_transforms = SimCLREvalDataTransform(
-        input_height=args.input_height,
-        gaussian_blur=args.gaussian_blur,
-        jitter_strength=args.jitter_strength,
-        normalize=normalization,
-    )
+    # avoid unnecessary calculations in the uniqe case by not calculating the second transform
+    if args.augmentation_type == 'unique_images': 
+        dm.train_transforms = single_images_train_transform(
+            input_height=args.input_height,
+            gaussian_blur=args.gaussian_blur,
+            jitter_strength=args.jitter_strength,
+            normalize=normalization,
+        )
+        dm.val_transforms = single_images_val_transform(
+            input_height=args.input_height,
+            gaussian_blur=args.gaussian_blur,
+            jitter_strength=args.jitter_strength,
+            normalize=normalization,
+        ) 
+        
+
+    elif args.augmentation_type in ['original', 'random_images']:
+        dm.train_transforms = SimCLRTrainDataTransform(
+            input_height=args.input_height,
+            gaussian_blur=args.gaussian_blur,
+            jitter_strength=args.jitter_strength,
+            normalize=normalization,
+        )
+        dm.val_transforms = SimCLREvalDataTransform(
+            input_height=args.input_height,
+            gaussian_blur=args.gaussian_blur,
+            jitter_strength=args.jitter_strength,
+            normalize=normalization,
+        )
+
+
 
     model = SimCLR(**args.__dict__)
 
@@ -415,19 +507,22 @@ def cli_main():
             )
 
     lr_monitor = LearningRateMonitor(logging_interval="step")
-    model_checkpoint = ModelCheckpoint(save_last=True, save_top_k=1, monitor="val_loss")
-    callbacks = [model_checkpoint, online_evaluator] if args.online_ft else [model_checkpoint]
+    save_path = f'./simclr/simCLR_{args.arch}_logs_and_chekpoints'
+    model_checkpoint = ModelCheckpoint(save_last=True, save_top_k=1, monitor="val_loss", filename='{epoch}-best_val_loss_{val_loss}')
+    interval_checkpoint = ModelCheckpoint(save_top_k=-1, every_n_epochs=5, filename="{epoch}-{val_loss:.2f}-{online_val_acc:.2f}")
+    callbacks = [model_checkpoint, online_evaluator, interval_checkpoint] if args.online_ft else [model_checkpoint]
     callbacks.append(lr_monitor)
+
 
     trainer = Trainer(
         max_epochs=args.max_epochs,
         max_steps=None if args.max_steps == -1 else args.max_steps,
         gpus=[args.gpus], # kiya edited so it is the gpu index not number of gpus
-        #num_nodes=args.num_nodes,
-        #distributed_backend="ddp" if args.gpus > 1 else None,
         sync_batchnorm=True if args.gpus > 1 else False,
         precision=32 if args.fp32 else 16,
         callbacks=callbacks,
+        default_root_dir = save_path,
+        profiler="simple"
         #fast_dev_run=args.fast_dev_run,
     )
 
@@ -436,3 +531,38 @@ def cli_main():
 
 if __name__ == "__main__":
     cli_main()
+
+    # (run from parent folder) command: python simclr/simclr_module.py --dataset cifar10 --arch resnet18 --gpus 1 --batch_size 256 --num_workers 16 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 800 --online_ft
+    
+    # (optimized for time params, use this !) python simclr/simclr_module.py --dataset cifar10 --arch resnet18 --gpus 1 --batch_size 4096  --num_workers 48 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 800 --online_ft --augmentation_type original
+
+    # (my version command) python simclr/simclr_module.py --dataset cifar10 --arch resnet18 --gpus 1 --batch_size 256  --num_workers 16 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 800 --online_ft --augmentation_type unique_images
+
+
+
+'''
+Visualize pair of images:
+
+import matplotlib.pyplot as plt
+import numpy as np
+def show(img, ax):
+    npimg = img.cpu().numpy()
+    npimg = np.transpose(npimg, (1,2,0))
+    """ mean=np.array([x / 255.0 for x in [125.3, 123.0, 113.9]])
+    std= np.array([x / 255.0 for x in [63.0, 62.1, 66.7]])
+    npimg = npimg*std + mean """
+    ax.imshow(npimg)
+
+(x1, x2, _), ys = batch
+for i, im1 in enumerate(x1):
+    im2 = x2[i]
+    y = ys[i]
+    f, axarr = plt.subplots(1,2)
+    f.suptitle('The label is: ' + str(y))
+    show(im1, axarr[0])
+    show(im2, axarr[1])
+    plt.savefig(f'simclr/sample_images/im{i}.png')
+
+input("Enter your value: ")
+
+'''

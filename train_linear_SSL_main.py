@@ -10,6 +10,8 @@ from models.SSL_linear_classifier import SSL_encoder_linear_classifier
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 
+from models.models_mean_std import supervised_huy, barlow_twins_yao, simCLR_bolts
+
 from copy import deepcopy
 
 
@@ -31,8 +33,12 @@ def main():
     
     if args.model == 'simCLR':
         # taken from pl_bolts.transforms.dataset_normalizations.cifar10_normalization
-        mean=[x / 255.0 for x in [125.3, 123.0, 113.9]]
-        std=[x / 255.0 for x in [63.0, 62.1, 66.7]] 
+        mean= simCLR_bolts[0]
+        std= simCLR_bolts[1]
+
+    if args.model =='supervised':
+        mean = supervised_huy[0]
+        std = supervised_huy[1]
 
         
     # prepare the dataset 
@@ -55,13 +61,14 @@ def main():
                         )
 
     # and train it on the train set.
+    
     # Initialize a trainer
     trainer = Trainer(
         check_val_every_n_epoch= 1,
         gpus= [args.device],
         max_epochs= args.max_epochs,
         progress_bar_refresh_rate= 1, 
-        default_root_dir= f'./{args.model}_with_linear_layer_logs',
+        default_root_dir= f'./last_layer_training_standard_logs/{args.model}_with_linear_layer_logs',
         callbacks= [checkpoint_callback],
         fast_dev_run=args.fast_dev_run
     )
@@ -77,12 +84,17 @@ def main():
 
 
 if __name__ == '__main__':
-    #barlow_twins model path: ./model_checkpoints/barlow_twins_unsupervised/0.0078125_128_128_cifar10_model_1000.pth
-    # simCLR model path: ./model_checkpoints/simCLR_unsupervised/epoch=285-step=50335.ckpt
+    # barlow_twins_model_path='./model_checkpoints/barlow_twins_unsupervised/0.0078125_128_128_cifar10_epoch_795.pth'
+    # simCLR_model_path='./bolt_self_supervised_training/lightning_logs_simCLR_every5th_checkpoint/version_0/checkpoints/epoch=792-step=139567.ckpt'
 
-    #barlow twins command : python SSL_linear_main.py barlow_twins 1 ./model_checkpoints/barlow_twins_unsupervised/0.0078125_128_128_cifar10_model_1000.pth
-        
-    # simCLR command: python SSL_linear_main.py simCLR 1 ./model_checkpoints/simCLR_unsupervised/epoch=285-step=50335.ckpt
+    #supervised_path='./huy_Supervised_models_training_CIFAR10/cifar10/resnet18/version_3/checkpoints/best_val_acc_acc_val=88.37.ckpt'
+
+    #barlow twins command : python train_linear_SSL_main.py barlow_twins 1 ./model_checkpoints/barlow_twins_unsupervised/0.0078125_128_128_cifar10_epoch_795.pth
+
+    # simCLR command: python train_linear_SSL_main.py simCLR 1 ./bolt_self_supervised_training/lightning_logs_simCLR_every5th_checkpoint/version_0/checkpoints/epoch=792-step=139567.ckpt
+    
+    #supervised command: python train_linear_SSL_main.py supervised 1 './huy_Supervised_models_training_CIFAR10/cifar10/resnet18/version_3/checkpoints/best_val_acc_acc_val=88.37.ckpt'
+    
     main()
 
 

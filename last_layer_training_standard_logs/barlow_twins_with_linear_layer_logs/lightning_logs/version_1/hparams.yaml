@@ -1,0 +1,11 @@
+batch_size: 512
+class_num: 10
+dataset: cifar10
+device: 0
+fast_dev_run: false
+feature_num: 512
+learning_rate: 0.01
+max_epochs: 5
+model: barlow_twins
+optimizer: adam
+path: ./model_checkpoints/barlow_twins_unsupervised/0.0078125_128_128_cifar10_epoch_795.pth
