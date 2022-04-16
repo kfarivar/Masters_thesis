@@ -46,14 +46,22 @@ class CIFAR10Data(pl.LightningDataModule):
             print("Unzip file successful!")
 
     def train_dataloader(self):
-        transform = T.Compose(
-            [
-                T.RandomCrop(32, padding=4),
-                T.RandomHorizontalFlip(),
-                T.ToTensor(),
-                T.Normalize(self.mean, self.std),
-            ]
-        )
+        if self.my_hparams.no_augmentation:
+            transform = T.Compose(
+                [
+                    T.ToTensor(),
+                    T.Normalize(self.mean, self.std),
+                ]
+            )
+        else:
+            transform = T.Compose(
+                [
+                    T.RandomCrop(32, padding=4),
+                    T.RandomHorizontalFlip(),
+                    T.ToTensor(),
+                    T.Normalize(self.mean, self.std),
+                ]
+            )
         dataset = CIFAR10(root=self.my_hparams.data_dir, train=True, transform=transform, download=True)
         dataloader = DataLoader(
             dataset,

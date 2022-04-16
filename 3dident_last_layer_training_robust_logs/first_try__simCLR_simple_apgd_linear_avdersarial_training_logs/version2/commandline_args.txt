@@ -1,0 +1,19 @@
+{
+  "model": "simCLR",
+  "device": 2,
+  "dataset": "3dident",
+  "train_ratio": 0.04,
+  "val_ratio": 0.1,
+  "path": "./bolt_self_supervised_training/simclr/3dident_simCLR_resnet18_logs_and_chekpoints/lightning_logs/small_arch/checkpoints/epoch=93_best_val_loss=6.664149761199951_online_val_acc=1.00.ckpt",
+  "feature_num": 512,
+  "class_num": 10,
+  "batch_size": 512,
+  "optimizer": "adam",
+  "max_epochs": 20,
+  "learning_rate": 1e-05,
+  "weight_decay": 0,
+  "attack": "simple_apgd",
+  "eps": 0.03137254901960784,
+  "norm": "Linf",
+  "exp_name": "first_try_"
+}

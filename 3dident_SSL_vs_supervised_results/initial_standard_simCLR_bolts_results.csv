@@ -1,0 +1,5 @@
+mode,measure_name,attack_name,descriptor1,descriptor2,value
+Test,Normal_accuracy,,,,98.16873168945312
+Test,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,0.5716100335121155
+Test,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,0.582273006439209
+Test,Feature_diff,simple_APGD_10_iters,,,5.823208332061768

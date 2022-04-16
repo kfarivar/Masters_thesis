@@ -2,34 +2,35 @@ from numpy.core.numeric import NaN
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+from pytorch_lightning.core.lightning import LightningModule
 import logging as log
 
-def add_normalization_layer(model, model_mean, model_std):
-    ''' the attacks library requires the inputs to be in [0,1] but the model can have their own input requirements.
-        Adding a normalization layer for the model. 
-        We can't use torch.transforms because it supports only non-batch images.
+
+    
+
+class Normalize_input(LightningModule) :
+    ''' 
+    the attacks library requires the inputs to be in [0,1] but the model can have their own input requirements.
+    So Adding a normalization layer for the model. 
+    We can't use torch.transforms because it supports only non-batch images.
+    It is a LightningModule since I can then access device attribute.
     '''
+    def __init__(self, mean, std, model) :
+        super().__init__()
+        self.register_buffer('mean', torch.Tensor(mean))
+        self.register_buffer('std', torch.Tensor(std))
+        self.model = model
+        
+    def forward(self, input):
+        # Broadcasting
+        mean = self.mean.reshape(1, 3, 1, 1)
+        std = self.std.reshape(1, 3, 1, 1)
+        normalized_input = (input - mean) / std
 
-    class Normalize(nn.Module) :
-        def __init__(self, mean, std) :
-            super().__init__()
-            self.register_buffer('mean', torch.Tensor(mean))
-            self.register_buffer('std', torch.Tensor(std))
-            
-        def forward(self, input):
-            # Broadcasting
-            mean = self.mean.reshape(1, 3, 1, 1)
-            std = self.std.reshape(1, 3, 1, 1)
-            return (input - mean) / std
+        return self.model(normalized_input)
 
-    norm_layer = Normalize(mean=model_mean, std=model_std)
 
-    new_model = nn.Sequential(
-        norm_layer,
-        model
-    )
-
-    return new_model
+    
 
 
 """ def add_linear_layer(model, pre_process:nn.Module, feature_number, class_number, eval_mode:bool=True, disable_grad:bool=True):
@@ -57,20 +58,20 @@ def add_normalization_layer(model, model_mean, model_std):
 
 
 
-class normalize(nn.Module):
+""" class normalize(nn.Module):
     '''make functional.normalize a module so we can use it in Sequential.
     '''
     def __init__(self, dim):
-        super(normalize, self).__init__()
+        super().__init__()
         self.normal = F.normalize
         self.dim = dim
         
     def forward(self, x):
         x = self.normal(x, dim=self.dim)
-        return x
+        return x """
 
 
-def remove_operation_count_from_dict(state_dict):
+""" def remove_operation_count_from_dict(state_dict):
     '''remove operators count in state dict. 
        used for the barlow twins model since they use thop library !
        if a key ends in total_ops or total_params it is removed.'''
@@ -85,7 +86,7 @@ def remove_operation_count_from_dict(state_dict):
     for key in to_remove:
         state_dict.pop(key) # if you don't want it to throw error use d.pop(k, None)
 
-    return state_dict
+    return state_dict """
     
 
 
@@ -102,6 +103,7 @@ def save_measurements_to_csv(results, measurements, file_name=None, on_train=Tru
     '''
     
     df = pd.DataFrame(columns = ['mode', 'measure_name',  'attack_name', 'descriptor1', 'descriptor2', 'value'])
+    
 
     def parse_results(mode, df):
         mode_index = {'Train':0, 'Validation':1, 'Test':2}
@@ -117,12 +119,20 @@ def save_measurements_to_csv(results, measurements, file_name=None, on_train=Tru
                             row['measure_name'] = type(measure).__name__
                             row['attack_name'] = attack
                             row[f'descriptor{i+1}'] = descriptor
+                            if isinstance(value, torch.Tensor):
+                                value = value.cpu().item()
                             row['value'] = value
                             df = df.append(row, ignore_index=True)
                     else:
-                        df = df.append({'mode':mode, 'measure_name':type(measure).__name__, 'attack_name':attack, 'value':descriptors}, ignore_index=True)
+                        value = descriptors
+                        if isinstance(value, torch.Tensor):
+                            value = value.cpu().item()
+                        df = df.append({'mode':mode, 'measure_name':type(measure).__name__, 'attack_name':attack, 'value':value}, ignore_index=True)
             else:
-                df = df.append({'mode':mode, 'measure_name':type(measure).__name__, 'value':results[mode_index[mode]][measure_idx]}, ignore_index=True)
+                value = results[mode_index[mode]][measure_idx]
+                if isinstance(value, torch.Tensor):
+                    value = value.cpu().item()
+                df = df.append({'mode':mode, 'measure_name':type(measure).__name__, 'value':value}, ignore_index=True)
         
         return df
 
@@ -169,7 +179,9 @@ def save_training_results_to_csv(results, measurements, file_name):
     
     all_results = pd.concat(all_dfs, ignore_index=True)
     #reorder columns
-    columns = ['epoch','mode', 'measure_name',  'attack_name', 'descriptor1', 'descriptor2', 'descriptor3', 'descriptor4',  'value']
+    columns = all_results.columns.values.tolist()
+    residual = [e for e in columns if e not in ['epoch','mode', 'measure_name', 'attack_name'] ]
+    columns = ['epoch','mode', 'measure_name', 'attack_name'] + residual
     all_results = all_results[columns]
 
     # save as csv

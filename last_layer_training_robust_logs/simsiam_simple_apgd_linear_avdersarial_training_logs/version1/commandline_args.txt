@@ -1,0 +1,16 @@
+{
+  "model": "simsiam",
+  "device": 3,
+  "path": "./bolt_self_supervised_training/simsiam/simsiam_resnet18_logs_and_chekpoints/lightning_logs/version_0/checkpoints/epoch=733-best_val_loss_val_loss=-0.9130538105964661.ckpt",
+  "feature_num": 512,
+  "class_num": 10,
+  "dataset": "cifar10",
+  "batch_size": 512,
+  "optimizer": "adam",
+  "max_epochs": 20,
+  "learning_rate": 1e-05,
+  "weight_decay": 0,
+  "attack": "simple_apgd",
+  "eps": 0.03137254901960784,
+  "norm": "Linf"
+}

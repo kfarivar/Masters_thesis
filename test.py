@@ -2,20 +2,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from tqdm import tqdm
-
-
-
-
-
-
+import numpy as np
 
 
 from models.models_mean_std import supervised_huy, barlow_twins_yao, simCLR_bolts
 
 
-from models.simclr_module import SimCLR
 
-from lib.utils import  add_normalization_layer, print_measurement_results
+from lib.utils import   print_measurement_results
 
 from lib.Measurements import Normal_accuracy, Robust_accuracy
 import torchattacks
@@ -92,19 +86,60 @@ def test_attack():
 
 
 
+def print_model_arch():
+    from torchinfo import summary
+    
+    print('3dident model:')
+    from torchvision import models
+    base_encoder_class = {
+        "rn18": models.resnet18,
+        "rn50": models.resnet50,
+        "rn101": models.resnet101,
+        "rn152": models.resnet152,
+    }['rn18']
+    n_latents = 10
+    encoder = base_encoder_class(False, num_classes=n_latents * 10)
+    projection = torch.nn.Sequential(*[torch.nn.LeakyReLU(), torch.nn.Linear(n_latents * 10, 8 + 1)])
+    f = torch.nn.Sequential(*[encoder, projection])
+    summary(f, input_size=(1, 3, 224, 224), row_settings=("depth","var_names"), depth= 10) 
+
+    """ print('Bolts model:')
+    from pl_bolts.models.self_supervised.resnets import resnet18
+    summary(resnet18(maxpool1=False), input_size=(1, 3, 32 , 32), row_settings=("depth","var_names"), depth= 10)
+    """
+    #first_conv=False, maxpool1=False, return_all_feature_maps=False
+
+    """ from barlow_twins_yao_training.barlowtwins_module import BarlowTwins
+
+    barlow_linear_path = '/home/kiarash_temp/adversarial-components/barlow_twins_yao_training/barlow_twins_resnet18_logs_and_chekpoints/lightning_logs/without_cosine_decay/checkpoints/epoch=398-best_val_loss_val_loss=264.6981506347656.ckpt'
+    barlow_twins = BarlowTwins.load_from_checkpoint(barlow_linear_path, strict=False)
+    summary(barlow_twins, input_size=(1, 3, 32 , 32), row_settings=("depth","var_names"), depth= 10)  """
+
+
+    """ for name, layer_module in simclr.named_modules():
+        print(name) """
+
+    print('simclr')
+    from bolt_self_supervised_training.simclr.simclr_module import SimCLR
+    path = '/home/kiarash_temp/adversarial-components/bolt_self_supervised_training/simclr/3dident_simCLR_resnet18_logs_and_chekpoints/lightning_logs/version_0/checkpoints/epoch=0_best_val_loss=7.298301696777344_online_val_acc=0.41.ckpt'
+    model = SimCLR.load_from_checkpoint(path, strict=False)
+    summary(model, input_size=(1, 3, 224 , 224), row_settings=("depth","var_names"), depth= 10)
+
+
+    from huy_Supervised_models_training_CIFAR10.module import Causal3DidentModel as supervised_model
+    supervised_path = './huy_Supervised_models_training_CIFAR10/3dident_logs/resnet18/version_1/checkpoints/best_val_acc_acc_val=99.24.ckpt'
+    supervised = supervised_model(classifier='resnet18').load_from_checkpoint(supervised_path)
+    summary(supervised, input_size=(1, 3, 224 , 224), row_settings=("depth","var_names"), depth= 10)
+
+
+
 if __name__ == '__main__': 
-    with torch.no_grad():
-        
 
-        supervised_path = './huy_Supervised_models_training_CIFAR10/cifar10/resnet18/version_3/checkpoints/best_val_acc_acc_val=88.37.ckpt'
-        linear_separated_sup = SSL_encoder_linear_classifier('supervised', supervised_path)
+    print_model_arch()
+
+    
 
 
-        linear_separated_sup.encoder.encoder.final_linear.weight = torch.nn.parameter.Parameter(weights)
-        linear_separated_sup.encoder.encoder.final_linear.bias = torch.nn.parameter.Parameter(bias)
-
-        print(linear_separated_sup.encoder.encoder.final_linear.bias)
-        print(bias)
 
 
 

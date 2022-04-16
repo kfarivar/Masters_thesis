@@ -1,0 +1,17 @@
+{
+  "model": "simCLR",
+  "device": 2,
+  "path": "/home/kiarash_temp/adversarial-components/bolt_self_supervised_training/simclr/cifar10_simCLR_resnet18_logs_and_chekpoints/lightning_logs/version_0/checkpoints/epoch=552_best_val_loss=5.9763102531433105_online_val_acc=0.90.ckpt",
+  "feature_num": 512,
+  "class_num": 10,
+  "dataset": "cifar10",
+  "batch_size": 512,
+  "optimizer": "adam",
+  "max_epochs": 20,
+  "learning_rate": 1e-05,
+  "weight_decay": 0,
+  "attack": "simple_apgd",
+  "eps": 0.03137254901960784,
+  "norm": "Linf",
+  "exp_name": "3runs_600epochs_simclr"
+}

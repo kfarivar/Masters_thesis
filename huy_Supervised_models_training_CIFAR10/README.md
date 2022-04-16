@@ -1,4 +1,5 @@
 # PyTorch models trained on CIFAR-10 dataset
+https://github.com/huyvnphan/PyTorch_CIFAR10
 - I modified [TorchVision](https://pytorch.org/docs/stable/torchvision/models.html) official implementation of popular CNN models, and trained those on CIFAR-10 dataset.
 - I changed *number of class, filter size, stride, and padding* in the the original code so that it works with CIFAR-10.
 - I also share the **weights** of these models, so you can just load the weights and use them.

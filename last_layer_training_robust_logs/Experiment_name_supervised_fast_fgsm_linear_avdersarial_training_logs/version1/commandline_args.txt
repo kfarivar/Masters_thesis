@@ -1,0 +1,17 @@
+{
+  "model": "supervised",
+  "device": 0,
+  "path": "./model_checkpoints/bolt_resnet18_supervised/best_val_acc_acc_val=88.37.ckpt",
+  "feature_num": 512,
+  "class_num": 10,
+  "dataset": "cifar10",
+  "batch_size": 512,
+  "optimizer": "adam",
+  "max_epochs": 20,
+  "learning_rate": 0.0001,
+  "weight_decay": 0,
+  "attack": "fast_fgsm",
+  "eps": 0.03137254901960784,
+  "norm": "Linf",
+  "exp_name": "Experiment_name"
+}

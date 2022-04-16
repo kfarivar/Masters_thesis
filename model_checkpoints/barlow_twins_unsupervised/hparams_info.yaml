@@ -1,3 +1,4 @@
 command used to train: python main.py --lmbda 0.0078125 --corr_zero --batch_size 128 --feature_dim 128 --dataset cifar10
 
 lmbda(parameter of the loss function), feature_dim, batch_size, dataset, epoch: 0.0078125, 128, 128, cifar10, 1000
+

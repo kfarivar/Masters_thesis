@@ -1,37 +1,73 @@
 from argparse import ArgumentParser
+import glob
+from argparse import ArgumentParser
+import json
+
 import torch
 from torch import nn
 from torch.nn import functional as F
 from pytorch_lightning import LightningModule
-from torchmetrics import Accuracy
+from torch.utils import data
+from torchmetrics import Accuracy, R2Score
+#from sklearn.metrics import r2_score
 
-from barlow_twins_yao_training.model import Model as BT
+from barlow_twins_yao_training.barlowtwins_module import BarlowTwins
 from huy_Supervised_models_training_CIFAR10.module import CIFAR10Module
-from .simclr_module import SimCLR
-from lib.utils import normalize, remove_operation_count_from_dict
+from bolt_self_supervised_training.simclr.simclr_module import SimCLR
+from bolt_self_supervised_training.simsiam.simsiam_module import SimSiam
+
+from huy_Supervised_models_training_CIFAR10.module import Causal3DidentModel
+
 
 class SSL_encoder_linear_classifier(LightningModule):
     ''' This is an self-supervised learning module + linear classifier added to the last layer.
         So we can use the SSL encoder for classification. 
         It also includes the info about training and optimizer. 
+        This can also be a regressor in case of 3dident.
     '''
-    def __init__(self, model, path, feature_num=512, class_num=10, optimizer=None, learning_rate=1, **kwargs):
+    def __init__(self, model, path, dataset='cifar10', regress_latents=False, classify_spotlight=False, feature_num=512, class_num=10, optimizer=None, learning_rate=1, loading=False, **kwargs):
         ''' model: the type of SSL model to use as encoder
             path: the chekpoint for the best model chekpoint
             feature_num: number of output features for the unsupervised model
-            class_num: number of classes
+            class_num: number of classes, if regress_latents then the number of latents to regress.
+            regress_latents: in case of 3dident whether to classify objects or regress latents.
         '''
         super().__init__()
-        self.save_hyperparameters()
+        if not loading:
+            self.save_hyperparameters()
         self.optim = optimizer
         self.lr = learning_rate
+
+        self.dataset = dataset
+        self.regress_latents = regress_latents
+        self.classify_spotlight = classify_spotlight
 
         #the masurement is accuracy
         self.train_acc = Accuracy()
         self.val_acc = Accuracy()
+        
+        """ # or coefficient of determination (hacky), seperated to be able to report them individually.
+        self.train_r2_scores = []
+        self.val_r2_scores = []
+        for i in range(class_num):
+            self.train_r2_scores.append(R2Score())
+            self.val_r2_scores.append(R2Score())
+        # register the metrics properly as a child.
+        self.train_r2_scores = nn.ModuleList(self.train_r2_scores)
+        self.val_r2_scores = nn.ModuleList(self.val_r2_scores) """
+
+        """ self.train_spotlight_R2 = R2Score()
+        self.val_spotlight_R2 = R2Score() """
+
+
+        if dataset == '3dident' and classify_spotlight:
+            class_num = 3
+        else:
+            class_num = 10
+        
 
         # disable the gradient of encoder and put it in eval mode
-        self.encoder = Encoder(model, path)
+        self.encoder = Encoder(model, path, dataset)
         # add a linear layer (#features to #classes) 
         self.final_linear_layer = nn.Linear(feature_num, class_num)
 
@@ -39,17 +75,85 @@ class SSL_encoder_linear_classifier(LightningModule):
         features = self.encoder(x)
         return self.final_linear_layer(features)
 
-    def training_step(self, batch, batch_nb):
-        # note we get: data, target, index for each batch.
-        x, y, _ = batch
-        y_hat = self(x)
-        loss = F.cross_entropy(y_hat, y)
+    def shared_step(self, batch, mode):
+        # note for each batch we get: 
+        # cifar: data, target, index 
+        # 3dident: data, target, latents
+        if self.dataset == 'cifar10' :
+            x, y, _ = batch
+            y_hat = self(x)
+            loss = F.cross_entropy(y_hat, y)
 
-        self.log('train_loss', loss, on_step=False, on_epoch=True)
-        self.train_acc(y_hat, y)
-        self.log('train_acc', self.train_acc, on_step=False, on_epoch=True)
+            self.log(f'{mode}_classification_loss', loss, on_step=False, on_epoch=True)
+
+            if mode == 'train':
+                acc = self.train_acc(y_hat, y)
+            else:
+                acc = self.val_acc(y_hat, y)
+            self.log(f'{mode}_acc', acc, on_step=False, on_epoch=True)
+        
+        elif self.classify_spotlight:
+            images, _, latents = batch
+
+            # get classes
+            labels = Causal3DidentModel.spotlight_label_from_latent(latents)
+            labels = labels.to(images.device)
+            # filter outputs 
+            images = images[labels != -1]
+            # filter labels
+            labels = labels[labels != -1]
+
+            outputs = self(images)
+
+            _, predictions = torch.max(outputs, 1)
+            loss = F.cross_entropy(outputs, labels)
+            self.log(f'{mode}_classification_loss', loss) #, on_step=True, on_epoch=True)
+
+            if mode == 'train':
+                acc = self.train_acc(predictions, labels)
+            else:
+                acc = self.val_acc(predictions, labels)
+            self.log(f'{mode}_acc', acc) #, on_step=True, on_epoch=True)
+
+
+        """ There is a problem with speed and logging gives error
+        elif self.dataset == '3dident' and self.regress_latents:
+            x, object_class, latents = batch
+            y_hat = self(x)
+            loss = F.mse_loss(y_hat, latents)
+
+            self.log(f'{mode}_regession_loss', loss, on_step=False, on_epoch=True)
+
+            if mode == 'train':
+                for i, r2_score in enumerate(self.train_r2_scores):
+                    r2_score(y_hat[:,i], latents[:,i])
+                    self.log(f'train_R^2/{i}', r2_score, on_step=False, on_epoch=True)
+            else: 
+                for i, r2_score in enumerate(self.val_r2_scores):
+                    r2_score(y_hat[:,i], latents[:,i])
+                    self.log(f'val_R^2/{i}', r2_score, on_step=False, on_epoch=True)
+            
+            if mode =='train':
+                r2 = self.train_spotlight_R2(y_hat[:,6], latents[:,6])
+            else:
+                r2 = self.val_spotlight_R2(y_hat[:,6], latents[:,6])
+            
+            self.log(f'{mode}_R^2_spotlight', r2, on_step=False, on_epoch=True) 
+
+        else:
+            raise NotImplementedError('dataset or regression type not implemented !') """
+
 
         return loss
+
+
+    def training_step(self, batch, batch_nb):
+
+        return self.shared_step(batch, mode='train')
+        
+    def validation_step(self, batch, batch_idx):
+
+        return self.shared_step(batch, mode='val')
 
 
     def configure_optimizers(self):
@@ -59,15 +163,74 @@ class SSL_encoder_linear_classifier(LightningModule):
         else:
             raise NotImplemented('that optimizer is not implemented.')
 
+    @classmethod
+    def load_from_checkpoint(
+        cls,
+        checkpoint_path,
+        mode,
+        from_version=True,
+        map_location = None,
+        hparams_file = None,
+        strict: bool = True,
+        **kwargs,
+    ):
+        '''I overwrite the load for easier loading. 
 
-    def validation_step(self, batch, batch_idx):
-        x, y, _ = batch
-        y_hat = self(x)
-        loss = F.cross_entropy(y_hat, y)
-        
-        self.log('val_loss', loss, on_step=False, on_epoch=True)
-        self.val_acc(y_hat, y)
-        self.log('val_acc', self.val_acc, on_step=False, on_epoch=True)
+            mode: 'standard' or 'robust' determins how to choose the checkpoint
+
+            from_version: if True It is enough to specify the version. I will choose the best checkpoint. 
+                          if False you can pass a specific checkpoint from a version.
+        '''
+
+        if from_version:
+            if mode == 'standard':
+                # go to chekpoint choose the only checpoint and load it.
+                # lightining uses the hparam file to initialize the model which loades the encoder automatically.
+                chkpts = glob.glob(checkpoint_path+"/checkpoints/*")
+                if len(chkpts)==1:
+                    print('Loading: ' + chkpts[0])
+                    return super().load_from_checkpoint(chkpts[0], map_location, hparams_file, strict, **kwargs)
+                elif len(chkpts)==0:
+                    raise FileNotFoundError('No checkpoints were found !')
+                else:
+                    raise NotImplementedError('Multiple checkpoints found. This standard loading is not implemented')
+            
+            elif mode == 'robust':
+                # this correspnds to my libraries results
+                # look for the checkpoint starting with best in its name
+                chkpts = glob.glob(checkpoint_path+"/checkpoints/best*.pt")
+                if len(chkpts)==1:
+                    chpt = chkpts[0]
+                    print("loading: " + chpt)
+                    # find the hparams file and load the encoder network
+                    hparams_path = checkpoint_path + '/commandline_args.txt'
+                    with open(hparams_path, 'r') as f:
+                        hparams = json.load(f)
+                    
+                    # load the encoder (for some reason running save_hparams throws an error, thats why I added the loading flag.)
+                    model = cls(hparams['model'], hparams['path'], loading=True)
+                    # load the linear layer
+                    model_dict = torch.load(chpt) 
+                    bias = model_dict['model.final_linear_layer.bias']
+                    weights = model_dict['model.final_linear_layer.weight']
+                    model.final_linear_layer.weight = torch.nn.Parameter(weights)
+                    model.final_linear_layer.bias = torch.nn.Parameter(bias)
+
+                    return model
+
+                elif len(chkpts)==0:
+                    raise FileNotFoundError('No checkpoints were found !')
+                    
+                else:
+                    raise NotImplementedError('This robust loading is not implemented')
+
+
+        else:
+            if mode == 'standard':
+                return super().load_from_checkpoint(checkpoint_path, map_location, hparams_file, strict, **kwargs)
+            
+            elif mode == 'robust':
+                raise NotADirectoryError()
 
         
 
@@ -77,11 +240,14 @@ class SSL_encoder_linear_classifier(LightningModule):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
 
         # model params
-        parser.add_argument('model', type=str, choices=['barlow_twins', 'simCLR', 'BYOL', 'supervised'], help='model type')
+        parser.add_argument('model', type=str, choices=['barlow_twins', 'simCLR', 'simsiam', 'supervised'], help='model type')
         parser.add_argument('device', type=int, help='cuda device number, e.g 2 means cuda:2') 
         parser.add_argument('path', type=str, help='path to model chekpoint') 
         parser.add_argument('--feature_num', type=int, help='number of output features for the unsupervised model, for resnet18 it is 512', default=512) 
         parser.add_argument('--class_num', type=int, help='number of classes' ,default=10)
+
+        parser.add_argument('--regress_latents', action='store_true', help='used for regressing 3dident')
+        parser.add_argument('--classify_spotlight', action='store_true', help='used for classifying 3dident apotlight')
         
         # transform params
         parser.add_argument("--dataset", type=str, default="cifar10")
@@ -105,26 +271,24 @@ class SSL_encoder_linear_classifier(LightningModule):
 
 
 
-class barlow_twins(BT):
-    '''correct the forward method of the barlow twins model'''
-    def __init__(self):
-        super().__init__()
+from pl_bolts.models.self_supervised.resnets import resnet18 as lit_ssl_resnet18
 
-    def forward(self, x):
-        # apply encoder
-        # unpack the bolt resnet result
-        return self.f(x)[-1]
- 
-class huy_supervised(CIFAR10Module):
-    '''extract the encoder part of the supervised model to train the last layer like other SSL models'''
-    def __init__(self, classifier='resnet18'):
-        super().__init__(classifier=classifier)
+class huy_supervised(LightningModule):
+    '''only load the encoder part of the supervised model to train the last layer like other SSL models'''
+    def __init__(self, dataset, classifier='resnet18'):
+        #super().__init__(classifier=classifier)
+        super().__init__()
+        if dataset == 'cifar10':
+            self.model = lit_ssl_resnet18(first_conv=False, maxpool1=False, return_all_feature_maps=False)
+        elif dataset == '3dident':
+            self.model = lit_ssl_resnet18(first_conv=True, maxpool1=True, return_all_feature_maps=False)
 
     def forward(self, x):
         # exclude the last linear layer
+        # bolt models return a list
         return self.model(x)[-1]
 
-
+    
 from collections import OrderedDict
 
 class Encoder(LightningModule):
@@ -133,37 +297,47 @@ class Encoder(LightningModule):
         requires_grad to False and in eval mode. 
     '''
 
-    def __init__(self, model, path):
+    def __init__(self, model, path, dataset):
         super().__init__()
         self.model = model
         # load pretrained unsupervised model
+        # Important: in lightining the 'load_from_checkpoint' method ,unlike pytorch, returns the loaded model 
+        # IN LIGHTINING LOADING DOESN'T HAPPEN IN PLACE, IT IS RETURNED !! 
+
+        # For lightining models
+        # we need to use lightinings own loading method, there is a top linear layer added durin unsupervised learning 
+        # and setting strict to False ignores that.("non_linear_evaluator.block_forward.2.weight", "non_linear_evaluator.block_forward.2.bias".)
+        # the forward method only applies the encoder and not the projector. so no need to call encoder.
+
+        # Possible improvement For some of the models the forward calculates the unused one layer projection(s) as well which might slightly slow them down. 
+
         if model == 'barlow_twins':
-            encoder = barlow_twins()
-            # if key ends in total_ops or total_params remove it.(only needed for barlow twins)
-            state_dict = remove_operation_count_from_dict(torch.load(path))
-            # in pytorch we can load in place.
-            encoder.load_state_dict(state_dict)
+            # lightining
+            encoder = BarlowTwins.load_from_checkpoint(path, strict=False)
             self.encoder = encoder
-            # flatten output of encoder and normalize (since yao's implementation normalizes during training)
-            self.pre_process = nn.Sequential(nn.Flatten())#, normalize(dim=-1))
+            # flatten output of encoder 
+            self.pre_process = nn.Flatten()
+            
 
         elif model == 'simCLR':
-            # Important: in lightining the 'load_from_checkpoint' method ,unlike pytorch, returns the loaded model 
-            # IN LIGHTINING LOADING DOESN'T HAPPEN IN PLACE, IT IS RETURNED !! 
-            # we need to use lightinings own loading method, there is a top linear layer added durin unsupervised learning 
-            # and setting strict to False ignores that.("non_linear_evaluator.block_forward.2.weight", "non_linear_evaluator.block_forward.2.bias".)
+            # lightining
             encoder = SimCLR.load_from_checkpoint(path, strict=False)
-            # the forward method only applies the encoder and not the projector. so no need to call encoder.
+            self.encoder = encoder
+            self.pre_process = nn.Flatten()
+
+        elif model =='simsiam':
+            #lightining 
+            encoder = SimSiam.load_from_checkpoint(path, strict=False)
             self.encoder = encoder
             self.pre_process = nn.Flatten()
 
         elif model == 'supervised':
-            encoder = huy_supervised.load_from_checkpoint(path, strict=False)
+            encoder = huy_supervised.load_from_checkpoint(path, dataset=dataset, strict=False)
             self.encoder = encoder
             self.pre_process = nn.Flatten()
 
         else:
-            raise NotImplemented('This encoder for SSL is not supported yet.')
+            raise NotImplementedError('This encoder for SSL is not supported yet.')
         
         
         self.freeze()

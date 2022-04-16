@@ -1,12 +1,13 @@
 import numpy as np
 import torch
 import torch.nn as nn
+from torch import linalg as LA
 import attr
 from abc import ABC, abstractmethod
 from copy import deepcopy
 
-from art.metrics import clever_u
-from art.estimators.classification import PyTorchClassifier
+#from art.metrics import clever_u
+#from art.estimators.classification import PyTorchClassifier
 
 class Measure(ABC):
     ''' A specific measurement to be applied on a batch of data in measure method of AdvLib.
@@ -109,7 +110,7 @@ class Feature_diff(Measure):
     def final_result(self):
         result = {}
         for attack_name, norm_sum in self.dist_sums.items():
-            result[attack_name] = (norm_sum / self.total_count).item()
+            result[attack_name] = (norm_sum / self.total_count)
         
         # reset the variabel
         self.total_count = 0
@@ -129,18 +130,19 @@ class Feature_diff(Measure):
 
 
 
-@attr.s
+
 class Normal_accuracy(Measure):
     ''' Measure a specific models non-robust / normal accuracy.
     '''
-    # total number of data points
-    _total = attr.ib(default=0)
-    # number of corrcet predictions
-    _correct = attr.ib(default=0) 
+    def __init__(self):
+        # total number of data points
+        self._total = 0
+        # number of corrcet predictions
+        self._correct = 0
 
     def on_clean_data(self, model, inputs, labels, outputs, predicted_labels, indexes):
         self._total += labels.size(0)
-        self._correct += (predicted_labels == labels).sum().item()
+        self._correct += (predicted_labels == labels).sum()
 
 
     def on_attack_data(self,*args):
@@ -158,6 +160,85 @@ class Normal_accuracy(Measure):
 
         return accuracy *100
         
+class Calculate_mean_classifier(Measure):
+    '''A strech of using measures to het the mean classifier.
+        Only to be used with the train set !
+    '''
+
+    def __init__(self, class_num, feature_dim):
+        '''classes are assumed to be from 0 to class_num-1.
+            feature_dim: the output dimension of model.
+        '''
+        # number of classes
+        self.class_num = class_num
+        self.feature_dim = feature_dim
+        
+
+    def before_evaluation(self, model):
+        '''create the tensors here so we can directly make them on gpu'''
+        # get model device
+        device = model.device
+        #total number of data points in each class
+        self.total = torch.zeros(self.class_num, device=device)
+        
+        # the sum features of each class
+        self.features_sum = torch.zeros(self.class_num, self.feature_dim, device=device)
+
+    def on_clean_data(self, model, inputs, labels, outputs, predicted_labels, indexes):
+        for cls in range(self.class_num):
+            self.total[cls] += (labels==cls).sum() 
+            self.features_sum[cls] += outputs[labels==cls].sum(dim=0)
+
+    def on_attack_data(self,*args):
+        return None
+
+        
+    def final_result(self):
+        counts = torch.unsqueeze(self.total, 1)
+        # save the results
+        self.mean_features = self.features_sum/counts
+
+        ############################
+        # IMPORTANT
+        #reset the values
+        self.total = 0
+        self.features_sum = 0
+
+        return None
+
+
+
+class Mean_classifier_accuracy(Normal_accuracy):
+    '''Measure the distances to clusters and classify and calculate accuracy.
+        Should only be used by and encoder without a classification layer ! 
+        (so the ouputs are features !)
+    '''
+    def __init__(self, mean_classes):
+        super().__init__()
+        self.mean_classes = mean_classes
+        self.num_classes = mean_classes.size(0)
+
+    def on_clean_data(self, model, inputs, labels, outputs, predicted_labels, indexes):
+        batch_size = labels.size(0)
+        self._total += batch_size
+
+        # calculate distances
+        dists = torch.zeros(batch_size, self.num_classes, device=model.device)
+        for cls, cls_mean in enumerate(self.mean_classes):
+            diff =  outputs - cls_mean
+            dists[:,cls] = LA.vector_norm(diff, ord=2, dim=1)
+        
+        # get the class predictions
+        preds = torch.argmin(dists, dim=1)
+
+        self._correct += (preds == labels).sum()
+
+
+        
+
+
+
+
 class Loss_measure(Measure):
     ''' Caclulate the specified loss'''
     def __init__(self, loss_function):
@@ -193,9 +274,9 @@ class Loss_measure(Measure):
 
         return results
 
-from torch import linalg as LA
+
 class Check_perturbation(Measure):
-    '''check if the adv example is in the esilon neighbourhood of the sample'''
+    '''check if the adv example is in the epsilon neighbourhood of the sample'''
     def __init__(self, eps, norm):
         '''
         eps: the purturbation
@@ -260,7 +341,7 @@ class Robust_accuracy(Measure):
 
     def on_clean_data(self, model, inputs, labels, outputs, predicted_labels, indexes):
         self._total += labels.size(0)
-        self._total_correct += (predicted_labels == labels).sum().item()
+        self._total_correct += (predicted_labels == labels).sum()
 
 
 
@@ -274,10 +355,10 @@ class Robust_accuracy(Measure):
         corresponding_adv_predictions = adv_predictions[mask_correct]
         attack_name = attack.get_name()
         # count the total correct after this attack (add the key to dictionary if not there)
-        self._correct_after_attack[attack_name] = self._correct_after_attack.get(attack_name, 0) + (labels == adv_predictions).sum().item()
+        self._correct_after_attack[attack_name] = self._correct_after_attack.get(attack_name, 0) + (labels == adv_predictions).sum()
         # count the total that were correct before and after the attack
         self._correct_before_and_after_attack[attack_name] = self._correct_before_and_after_attack.get(attack_name,0) + \
-                                                            (correctly_predicted_labels == corresponding_adv_predictions).sum().item()
+                                                            (correctly_predicted_labels == corresponding_adv_predictions).sum()
 
         
     def final_result(self):
@@ -299,14 +380,62 @@ class Robust_accuracy(Measure):
         return results
 
 
-@attr.s
+from torchvision.utils import save_image
+from pathlib import Path
+
+class Save_sample_images(Measure):
+    '''
+    save a number of sample images, equally for each class.
+    '''
+    def __init__(self, total, path):
+        '''
+        total: number of clean samples to save among their adversarial counterparts those that have been succesful in fooling the model and originally correctly classified are saved.
+        An attack needs to be used for this to save the images.
+
+        path: save path, can create it if doens't exits. always created in the sample_images folder.
+        '''
+        super().__init__()
+        # number of clean samples saved for each class
+        self.count = 0 # np.zeros(7)
+        self.total = total
+        # make paths
+        self.orig_path = './sample_images' /  Path(path) / 'orig_images'
+        self.adv_path = './sample_images' /  Path(path) / 'adv_images'
+        self.orig_path.mkdir(parents=True, exist_ok=True)
+        self.adv_path.mkdir(parents=True, exist_ok=True)
+
+    def on_clean_data(self, model, inputs, labels, outputs, predicted_labels, indexes):
+        pass
+        
+
+    def on_attack_data(self, model, inputs, labels, outputs, predicted_labels, adv_inputs, adv_output, adv_predictions, attack, indexes): 
+        idx = 0
+        while self.count < self.total:
+            # save all clean images
+            save_image(inputs[idx], self.orig_path / f'index{indexes[idx]}_CorrectLabel{labels[idx]}_PredictedLabel_{predicted_labels[idx]}.png')
+
+            # for adversarial save only originally correctly classified images that fooled the network
+            if (predicted_labels[idx]== labels[idx]) and (adv_predictions[idx]!= labels[idx]):
+                save_image(adv_inputs[idx], self.adv_path / f'index{indexes[idx]}_CorrectLabel{labels[idx]}_AdvLabel{adv_predictions[idx]}.png')
+
+            idx += 1
+            self.count += 1
+
+
+    def final_result(self):
+        self.count = 0
+        return None
+
+
+
+
 class Subset_saliency(Measure):
     pass
 
 
 
 # needs debuging
-@attr.s
+""" @attr.s
 class Clever_score(Measure):
     ''' Note, the implemnetation of the adversarial-robustness-toolbox is inefficient and incomplete !  
     Clever is an estimate of the minimum amount of purturbation required to create an adverserial example for a specific data point.
@@ -375,7 +504,7 @@ class Clever_score(Measure):
         #reset the values
         self._clever_scores = dict()
 
-        return avg_clever_score
+        return avg_clever_score """
     
 
 

@@ -1,0 +1,17 @@
+{
+  "model": "supervised",
+  "device": 5,
+  "path": "/home/kiarash_temp/adversarial-components/huy_Supervised_models_training_CIFAR10/cifar10/resnet18/no_augmentations/checkpoints/best_val_acc_acc_val=82.27.ckpt",
+  "feature_num": 512,
+  "class_num": 10,
+  "dataset": "cifar10",
+  "batch_size": 512,
+  "optimizer": "adam",
+  "max_epochs": 20,
+  "learning_rate": 1e-05,
+  "weight_decay": 0,
+  "attack": "simple_apgd",
+  "eps": 0.03137254901960784,
+  "norm": "Linf",
+  "exp_name": "no_augmentation_supervised"
+}

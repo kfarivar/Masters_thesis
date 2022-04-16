@@ -15,7 +15,7 @@ hidden_mlp: 2048
 input_height: 32
 jitter_strength: 0.5
 learning_rate: 1.5
-max_epochs: 800
+max_epochs: 467
 max_steps: -1
 maxpool1: false
 num_nodes: 1

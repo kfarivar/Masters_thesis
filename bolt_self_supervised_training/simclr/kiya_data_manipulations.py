@@ -1,7 +1,11 @@
 ''' Entities for My modifications to simCLR'''
+import torch
+import pytorch_lightning as pl
 from typing import Any, Optional, Union
 from torchvision import transforms
 import numpy as np
+from PIL import Image 
+        
 
 from pl_bolts.datamodules import CIFAR10DataModule
 from pl_bolts.models.self_supervised.simclr.transforms import SimCLREvalDataTransform, SimCLRTrainDataTransform
@@ -114,3 +118,196 @@ class single_images_val_transform(single_images_train_transform):
                 self.final_transform,
             ]
         )
+
+
+class CIFAR10_use_all_train(CIFAR10DataModule):
+    '''The original DS doesn't use all the train this one uses all 50_000 train images.'''
+
+    def __init__(
+        self,
+        data_dir: Optional[str] = None,
+        num_workers: int = 0,
+        normalize: bool = False,
+        batch_size: int = 32,
+        seed: int = 42,
+        shuffle: bool = True,
+        pin_memory: bool = True,
+        drop_last: bool = False,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        """
+        Args:
+            data_dir: Where to save/load the data
+            val_split: Percent (float) or number (int) of samples to use for the validation split
+            num_workers: How many workers to use for loading data
+            normalize: If true applies image normalize
+            batch_size: How many samples per batch to load
+            seed: Random seed to be used for train/val/test splits
+            shuffle: If true shuffles the train data every epoch
+            pin_memory: If true, the data loader will copy Tensors into CUDA pinned memory before
+                        returning them
+            drop_last: If true drops the last incomplete batch
+        """
+        super().__init__(  # type: ignore[misc]
+            data_dir=data_dir,
+            val_split= 50_000,
+            num_workers=num_workers,
+            normalize=normalize,
+            batch_size=batch_size,
+            seed=seed,
+            shuffle=shuffle,
+            pin_memory=pin_memory,
+            drop_last=drop_last,
+            *args,
+            **kwargs,
+        )
+
+
+    def setup(self, stage: Optional[str] = None) -> None:
+        """Creates train, val, and test dataset."""
+        if stage == "fit" or stage is None:
+            train_transforms = self.default_transforms() if self.train_transforms is None else self.train_transforms
+            val_transforms = self.default_transforms() if self.val_transforms is None else self.val_transforms
+
+            dataset_train = self.dataset_cls(self.data_dir, train=True, transform=train_transforms, **self.EXTRA_ARGS)
+            
+            dataset_val = self.dataset_cls(self.data_dir, train=False, transform=val_transforms, **self.EXTRA_ARGS)
+
+            # Split (changed !)
+            self.dataset_train = dataset_train
+            self.dataset_val = dataset_val
+
+        if stage == "test" or stage is None:
+            test_transforms = self.default_transforms() if self.test_transforms is None else self.test_transforms
+            self.dataset_test = self.dataset_cls(
+                self.data_dir, train=False, transform=test_transforms, **self.EXTRA_ARGS
+            )
+    
+    def _get_splits(self, len_dataset: int):
+        return None
+
+    def _split_dataset(self, dataset, train: bool = True) :
+        return None
+    
+    @property
+    def num_samples(self) -> int:
+        return 50_000
+
+    @property
+    def num_classes(self) -> int:
+        """
+        Return:
+            10
+        """
+        return 10
+
+import sys
+sys.path.append('/home/kiarash_temp/adversarial-components/3dident_causal/kiya_3dident')
+from clevr_dataset import CausalDataset
+
+class Causal_3Dident (pl.LightningDataModule):
+    def __init__(self, data_dir, jitter_strength = 1, batch_size: int = 32, num_workers=16):
+        super().__init__()
+        self.data_dir = data_dir
+        self.batch_size = batch_size
+        # strength of color distortion.
+        self.jitter_strength = jitter_strength
+        self.num_workers = num_workers
+    
+        self.num_classes = 7
+
+    def setup(self, stage: Optional[str] = None):
+        mean_per_channel = [0.4327, 0.2689, 0.2839]
+        std_per_channel = [0.1201, 0.1457, 0.1082]
+        transform_list = []
+
+        # random crop (0.08 is considered small crop in paper.)
+        transform_list += [transforms.RandomResizedCrop(224, 
+                                scale=(0.08, 1.0), 
+                                interpolation=Image.BICUBIC), 
+                            transforms.RandomHorizontalFlip()]
+        # color distortion
+        color_jitter = transforms.ColorJitter(0.8*self.jitter_strength, 0.8*self.jitter_strength, 0.8*self.jitter_strength, 0.2*self.jitter_strength)
+        rnd_color_jitter = transforms.RandomApply([color_jitter], p=0.8)
+        rnd_gray = transforms.RandomGrayscale(p=0.2)
+        color_distort = transforms.Compose([rnd_color_jitter, rnd_gray])
+        transform_list += [color_distort]
+
+        transform_test_list = [transforms.ToTensor(),
+                                transforms.Normalize(
+                                    mean=mean_per_channel,
+                                    std=std_per_channel
+                                )]
+        transform_list += transform_test_list
+        dataset_kwargs = dict(transform=transforms.Compose(transform_list))
+        latent_dimensions_to_use = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        dataset_kwargs["latent_dimensions_to_use"] = latent_dimensions_to_use
+
+        #online transforms 
+        online_trans = transforms.Compose([
+                                transforms.RandomResizedCrop(224, 
+                                    scale=(0.08, 1.0), 
+                                    interpolation=Image.BICUBIC), 
+                                transforms.RandomHorizontalFlip(), 
+                                transforms.ToTensor(),
+                                transforms.Normalize(
+                                    mean=mean_per_channel,
+                                    std=std_per_channel
+                                )])
+        dataset_kwargs['tuning_transforms'] = online_trans
+
+        # the dataset
+        self.train_dataset = CausalDataset(
+                                        classes=np.arange(7), 
+                                        root='{}/trainset'.format(self.data_dir), 
+                                        biaugment=True,
+                                        use_augmentations=True, # Should be true if we apply either of crop/color distort/ rotation
+                                        change_all_positions=False,
+                                        change_all_hues=False,
+                                        change_all_rotations=False,
+                                        apply_rotation=False,
+                                        **dataset_kwargs # this is where we send the transformations.
+                                        ) 
+        # for my simclr validation first 2 images should have the same augmentation status as train. 
+        # But the third should have no augmentation (not even flip)!
+        dataset_kwargs['tuning_transforms'] = transforms.Compose(transform_test_list)
+        self.val_dataset = CausalDataset(
+                                        classes=np.arange(7), 
+                                        root='{}/testset'.format(self.data_dir), 
+                                        biaugment=True,
+                                        use_augmentations=True, # Should be true if we apply either of crop/color distort/ rotation
+                                        change_all_positions=False,
+                                        change_all_hues=False,
+                                        change_all_rotations=False,
+                                        apply_rotation=False,
+                                        **dataset_kwargs # this is where we send the transformations.
+                                        ) 
+
+        # unused.
+        dataset_kwargs['transform'] = transforms.Compose(transform_test_list)
+        self.test_dataset = CausalDataset(classes=np.arange(7), 
+                                    root='{}/testset'.format(self.data_dir), 
+                                    biaugment=False, 
+                                    **dataset_kwargs)
+        self.num_samples = len(self.train_dataset)
+        
+        
+    def train_dataloader(self):
+        train_loader = torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, 
+                                                num_workers=self.num_workers,
+                                                pin_memory=True, shuffle=True)
+        return train_loader
+
+    def val_dataloader(self):
+        val_loader = torch.utils.data.DataLoader(self.val_dataset, batch_size=self.batch_size, 
+                                                num_workers=self.num_workers,
+                                                pin_memory=True, shuffle=True)
+        return val_loader
+        
+
+    def test_dataloader(self):
+        test_loader = torch.utils.data.DataLoader(self.test_dataset, batch_size=self.batch_size, 
+                                                num_workers=self.num_workers,
+                                                pin_memory=True, shuffle=False)
+        return test_loader

@@ -1,0 +1,11 @@
+mode,measure_name,attack_name,descriptor1,descriptor2,value
+Test,Normal_accuracy,,,,76.16000000000001
+Test,Robust_accuracy,Fgsm,Total_accuracy,,23.32
+Test,Robust_accuracy,Fgsm,,Correct_accuracy,29.72689075630252
+Test,Robust_accuracy,Apgd-ce,Total_accuracy,,0.0
+Test,Robust_accuracy,Apgd-ce,,Correct_accuracy,0.0
+Test,Robust_accuracy,simple_APGD_10_iters,Total_accuracy,,2.0
+Test,Robust_accuracy,simple_APGD_10_iters,,Correct_accuracy,2.6260504201680672
+Test,Feature_diff,Fgsm,,,0.3536190390586853
+Test,Feature_diff,Apgd-ce,,,0.6461948752403259
+Test,Feature_diff,simple_APGD_10_iters,,,0.3969961702823639

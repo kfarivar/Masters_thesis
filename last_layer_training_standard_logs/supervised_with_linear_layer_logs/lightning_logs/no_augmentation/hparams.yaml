@@ -1,0 +1,12 @@
+batch_size: 512
+class_num: 10
+dataset: cifar10
+device: 5
+fast_dev_run: false
+feature_num: 512
+learning_rate: 0.01
+loading: false
+max_epochs: 5
+model: supervised
+optimizer: adam
+path: /home/kiarash_temp/adversarial-components/huy_Supervised_models_training_CIFAR10/cifar10/resnet18/no_augmentations/checkpoints/best_val_acc_acc_val=82.27.ckpt

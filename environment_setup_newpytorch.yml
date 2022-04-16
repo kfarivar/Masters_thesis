@@ -1,0 +1,12 @@
+conda install python pandas numpy matplotlib tqdm scipy
+
+conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+
+# pytorch-lightning=1.4.8 for ray tune.
+conda install -c conda-forge pytorch-lightning=1.4.8 lightning-bolts
+
+pip install torchattacks
+pip install adversarial-robustness-toolbox
+
+pip install git+https://github.com/fra31/auto-attack
+

@@ -1,0 +1,11 @@
+batch_size: 512
+class_num: 10
+dataset: cifar10
+device: 5
+fast_dev_run: false
+feature_num: 512
+learning_rate: 0.01
+max_epochs: 5
+model: simCLR
+optimizer: adam
+path: ./bolt_self_supervised_training/simclr/simCLR_resnet18_logs_and_chekpoints/lightning_logs/using_labels_version_4/epoch=462-best_val_loss_val_loss=3.899880886077881.ckpt

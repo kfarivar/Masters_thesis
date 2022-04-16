@@ -1,0 +1,16 @@
+{
+  "model": "simCLR",
+  "device": 3,
+  "path": "./bolt_self_supervised_training/simclr/simCLR_resnet18_logs_and_chekpoints/lightning_logs/Using_all_of_train_set_400epochs/checkpoints/epoch=380_best_val_loss=5.988133430480957_online_val_acc=0.88.ckpt",
+  "feature_num": 512,
+  "class_num": 10,
+  "dataset": "cifar10",
+  "batch_size": 512,
+  "optimizer": "adam",
+  "max_epochs": 20,
+  "learning_rate": 0.0001,
+  "weight_decay": 0,
+  "attack": "simple_apgd",
+  "eps": 0.03137254901960784,
+  "norm": "Linf"
+}

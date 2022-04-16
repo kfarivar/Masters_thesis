@@ -1,0 +1,11 @@
+batch_size: 512
+class_num: 10
+dataset: cifar10
+device: 5
+fast_dev_run: false
+feature_num: 512
+learning_rate: 0.01
+max_epochs: 5
+model: simCLR
+optimizer: adam
+path: /home/kiarash_temp/adversarial-components/bolt_self_supervised_training/simclr/simCLR_resnet18_logs_and_chekpoints/lightning_logs/tobe_used_400epochs_with_decay/checkpoints/epoch=391_best_val_loss=5.987453937530518_online_val_acc=0.88.ckpt

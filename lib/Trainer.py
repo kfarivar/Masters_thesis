@@ -28,7 +28,7 @@ class Robust_trainer(Trainer):
     def train(self, model, labels, adv_inputs, adv_outputs, adv_predictions, attack):
         
         cost = self.loss(adv_outputs, labels)
-        self.optimizer.zero_grad()
+        self.optimizer.zero_grad(set_to_none=True)
         cost.backward()
         self.optimizer.step()
         return cost

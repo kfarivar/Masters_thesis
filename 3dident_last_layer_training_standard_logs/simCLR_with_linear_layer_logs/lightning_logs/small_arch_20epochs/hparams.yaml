@@ -1,0 +1,14 @@
+batch_size: 512
+class_num: 10
+classify_spotlight: true
+dataset: 3dident
+device: 6
+fast_dev_run: false
+feature_num: 512
+learning_rate: 0.01
+loading: false
+max_epochs: 20
+model: simCLR
+optimizer: adam
+path: ./bolt_self_supervised_training/simclr/3dident_simCLR_resnet18_logs_and_chekpoints/lightning_logs/small_arch/checkpoints/epoch=93_best_val_loss=6.664149761199951_online_val_acc=1.00.ckpt
+regress_latents: false

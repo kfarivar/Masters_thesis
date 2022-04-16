@@ -1,6 +1,6 @@
-import math
+from select import select
+import numpy as np
 import torch
-import torchvision
 import torchvision.transforms as transforms
 from torchvision.datasets import CIFAR10
 from torch.utils.data import DataLoader
@@ -100,5 +100,151 @@ class CIFAR10_module(pl.LightningDataModule):
     def test_dataloader(self):
         return DataLoader(self.cifar10_test, batch_size=self.batch_size, shuffle=False, 
                         num_workers=self.num_workers, pin_memory=True)
-                        
 
+    @property
+    def num_samples(self) -> int:
+        
+        return 50_000 #train_len
+
+    @property
+    def num_classes(self) -> int:
+        """
+        Return:
+            10
+        """
+        return 10
+
+
+from PIL import Image 
+import numpy as np                        
+import sys
+sys.path.append('/home/kiarash_temp/adversarial-components/3dident_causal/kiya_3dident')
+from clevr_dataset import CausalDataset
+
+
+
+class Causal_3Dident(pl.LightningDataModule):
+    '''
+    used for finetuning SSL or supervised training.
+    There is no color jitter. random crops only applied for supervised.
+    '''
+
+    def __init__(self, data_dir, augment_train=False, no_normalization=False, batch_size: int = 32, 
+                    num_workers=32, train_subset=1, val_subset=1, train_include_index=False, val_include_index=False):
+        '''
+        [train/val]_subset: if ratio between 0 and 1 chooses a random subset of data for train/eval of size ratio*len(dataset).
+
+        no_normalization: if true the images are normalized between [0,1]. if False, the original data normalization is applied.
+
+        include_index: whether to include index of samples in each batch.
+        '''
+        super().__init__()
+        self.data_dir = data_dir
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+        self.num_classes = 7
+        self.augment_train = augment_train
+        self.train_subset = train_subset
+        self.val_subset = val_subset  
+        self.no_normalization = no_normalization
+        self.train_include_index = train_include_index
+        self.val_include_index = val_include_index
+
+    def setup(self, stage: Optional[str] = None):
+        mean_per_channel = [0.4327, 0.2689, 0.2839]
+        std_per_channel = [0.1201, 0.1457, 0.1082]
+        transform_list = []
+
+        # random crop (0.08 is considered small crop in paper.)
+        supervised_transforms = [transforms.RandomResizedCrop(224, 
+                                scale=(0.08, 1.0), 
+                                interpolation=Image.BICUBIC), 
+                            transforms.RandomHorizontalFlip()]
+
+        if self.no_normalization:
+            basic_transforms = [transforms.ToTensor()]
+        else:
+            basic_transforms = [transforms.ToTensor(),
+                                    transforms.Normalize(
+                                        mean=mean_per_channel,
+                                        std=std_per_channel
+                                    )]
+
+
+        if self.augment_train:                     
+            transform_list = supervised_transforms + basic_transforms
+
+        else:
+            transform_list = basic_transforms
+
+        dataset_kwargs = {'transform':transforms.Compose(transform_list)}
+
+        latent_dimensions_to_use = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        dataset_kwargs["latent_dimensions_to_use"] = latent_dimensions_to_use
+
+        # the dataset
+        self.train_dataset = CausalDataset(
+                                        classes=np.arange(7), 
+                                        root='{}/trainset'.format(self.data_dir), 
+                                        biaugment=False,
+                                        use_augmentations=False, # doesn't matter since we dont use biaugment. (trasforms are still applied)
+                                        change_all_positions=False,
+                                        change_all_hues=False,
+                                        change_all_rotations=False,
+                                        apply_rotation=False,
+                                        include_index = self.train_include_index,
+                                        **dataset_kwargs # this is where we send the transformations.
+                                        ) 
+
+        # val data (same as test)
+        dataset_kwargs['transform'] = transforms.Compose(basic_transforms)
+        self.val_dataset = CausalDataset(
+                                        classes=np.arange(7), 
+                                        root='{}/testset'.format(self.data_dir), 
+                                        biaugment=False,
+                                        use_augmentations=False, # Should be true if we apply either of crop/color distort/ rotation
+                                        change_all_positions=False,
+                                        change_all_hues=False,
+                                        change_all_rotations=False,
+                                        apply_rotation=False,
+                                        include_index= self.val_include_index,
+                                        **dataset_kwargs # this is where we send the transformations.
+                                        ) 
+        
+
+
+        # select random subset of data
+        def select_subset(dataset, ratio):
+            if (ratio > 0) and (ratio <1):
+                print('using subset of whole dataset.')
+                indexes = np.random.choice(len(dataset), size=int(ratio*len(dataset)), replace=False)
+                sub_dataset = torch.utils.data.Subset(dataset, indexes)
+            else:
+                print('using whole dataset.')
+                sub_dataset = dataset
+            
+            return sub_dataset
+
+        self.train_dataset = select_subset(self.train_dataset, self.train_subset)
+        self.val_dataset = select_subset(self.val_dataset, self.val_subset)
+
+        self.num_samples = len(self.train_dataset)
+
+
+        
+    def train_dataloader(self):
+        train_loader = torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, 
+                                                num_workers=self.num_workers,
+                                                pin_memory=True, shuffle=True)
+        return train_loader
+
+    def val_dataloader(self, shuffle=False):
+        val_loader = torch.utils.data.DataLoader(self.val_dataset, batch_size=self.batch_size, 
+                                                num_workers=self.num_workers,
+                                                pin_memory=True, shuffle=shuffle)
+        return val_loader
+        
+
+    def test_dataloader(self, shuffle=False):
+        
+        return self.val_dataloader(shuffle=shuffle)

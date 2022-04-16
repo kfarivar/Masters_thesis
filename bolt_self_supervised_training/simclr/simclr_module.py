@@ -10,7 +10,7 @@ from torch.nn import functional as F
 
 from pl_bolts.models.self_supervised.resnets import resnet18, resnet50
 from pl_bolts.optimizers.lars import LARS
-from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
+# from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 from pl_bolts.transforms.dataset_normalizations import (
     cifar10_normalization,
     imagenet_normalization,
@@ -51,7 +51,7 @@ class Projection(nn.Module):
             nn.Linear(self.input_dim, self.hidden_dim),
             nn.BatchNorm1d(self.hidden_dim),
             nn.ReLU(),
-            nn.Linear(self.hidden_dim, self.output_dim, bias=False),
+            nn.Linear(self.hidden_dim, self.output_dim, bias=True),
         )
 
     def forward(self, x):
@@ -62,19 +62,19 @@ class Projection(nn.Module):
 class SimCLR(LightningModule):
     def __init__(
         self,
-        gpus: int,
-        num_samples: int,
-        batch_size: int,
-        dataset: str,
+        gpus: int=1,
+        num_samples: int=1,
+        batch_size: int=1,
+        dataset: str='cifar10',
         num_nodes: int = 1,
-        arch: str = "resnet50",
+        arch: str = "resnet18",
         hidden_mlp: int = 2048,
         feat_dim: int = 128,
         warmup_epochs: int = 10,
         max_epochs: int = 100,
         temperature: float = 0.1,
-        first_conv: bool = True,
-        maxpool1: bool = True,
+        first_conv: bool = False,
+        maxpool1: bool = False,
         optimizer: str = "adam",
         exclude_bn_bias: bool = False,
         start_lr: float = 0.0,
@@ -130,8 +130,7 @@ class SimCLR(LightningModule):
         
 
         # compute iters per epoch
-        global_batch_size = self.num_nodes * self.gpus * self.batch_size if self.gpus > 0 else self.batch_size
-        self.train_iters_per_epoch = self.num_samples // global_batch_size
+        self.train_iters_per_epoch = self.num_samples // self.batch_size
 
     def init_model(self):
         if self.arch == "resnet18":
@@ -152,6 +151,8 @@ class SimCLR(LightningModule):
 
         # final image in tuple is for online eval
         (img1, img2, _), y = batch
+
+
         # get h representations, bolts resnet returns a list
         h1 = self(img1)
         h2 = self(img2)
@@ -234,13 +235,36 @@ class SimCLR(LightningModule):
         scheduler = {
             "scheduler": torch.optim.lr_scheduler.LambdaLR(
                 optimizer,
-                linear_warmup_decay(warmup_steps, total_steps, cosine=True),
+                self.linear_warmup_decay(warmup_steps, total_steps, cosine=True),
             ),
             "interval": "step",
             "frequency": 1,
         }
 
         return [optimizer], [scheduler]
+
+    # warmup + decay as a function I wanted to change this !
+    def linear_warmup_decay(self, warmup_steps, total_steps, cosine=True, linear=False):
+        """Linear warmup for warmup_steps, optionally with cosine annealing or linear decay to 0 at total_steps."""
+        assert not (linear and cosine)
+
+        def fn(step):
+            if step < warmup_steps:
+                return float(step) / float(max(1, warmup_steps))
+
+            if not (cosine or linear):
+                # no decay
+                return 1.0
+
+            progress = float(step - warmup_steps) / float(max(1, total_steps - warmup_steps))
+            if cosine:
+                # cosine decay
+                return 0.5 * (1.0 + math.cos(math.pi * progress))
+
+            # linear decay
+            return 1.0 - progress
+
+        return fn
 
     def nt_xent_loss(self, out_1, out_2, temperature, eps=1e-6):
         """
@@ -332,7 +356,7 @@ class SimCLR(LightningModule):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
 
         # model params
-        parser.add_argument("--arch", default="resnet50", type=str, help="convnet architecture")
+        parser.add_argument("--arch", default="resnet18", type=str, help="convnet architecture")
         # specify flags to store false
         parser.add_argument("--first_conv", action="store_false")
         parser.add_argument("--maxpool1", action="store_false")
@@ -344,9 +368,10 @@ class SimCLR(LightningModule):
         # transform params
         parser.add_argument("--gaussian_blur", action="store_true", help="add gaussian blur")
         parser.add_argument("--jitter_strength", type=float, default=1.0, help="jitter strength")
-        parser.add_argument("--dataset", type=str, default="cifar10", help="stl10, cifar10")
+        parser.add_argument("--dataset", type=str, default="cifar10", help="3dident, cifar10")
         parser.add_argument("--data_dir", type=str, default=".", help="path to download data")
-        parser.add_argument("--augmentation_type", required=True, choices=['original', 'unique_images', 'random_images'], type=str, help="wether the two images are augmented versions of the same image or are two unique images from the same class. In the latter the negative images will only be from other classes.")
+        parser.add_argument("--augmentation_type", default='original', choices=['original', 'unique_images', 'random_images'], type=str, help="wether the two images are augmented versions of the same image or are two unique images from the same class. In the latter the negative images will only be from other classes.")
+        parser.add_argument("--random_train", default=False, action="store_true", help="Use a random 45k subset of train for training.")
 
         # training params
         parser.add_argument("--fast_dev_run", default=1, type=int)
@@ -355,12 +380,12 @@ class SimCLR(LightningModule):
         parser.add_argument("--num_workers", default=8, type=int, help="num of workers per GPU")
         parser.add_argument("--optimizer", default="adam", type=str, help="choose between adam/lars")
         parser.add_argument("--exclude_bn_bias", action="store_true", help="exclude bn/bias from weight decay")
-        parser.add_argument("--max_epochs", default=100, type=int, help="number of total epochs to run")
+        parser.add_argument("--max_epochs", default=500, type=int, help="number of total epochs to run")
         parser.add_argument("--max_steps", default=-1, type=int, help="max steps")
         parser.add_argument("--warmup_epochs", default=10, type=int, help="number of warmup epochs")
         parser.add_argument("--batch_size", default=128, type=int, help="batch size per gpu")
 
-        parser.add_argument("--temperature", default=0.1, type=float, help="temperature parameter in training loss")
+        parser.add_argument("--temperature", default=0.5, type=float, help="temperature parameter in training loss")
         parser.add_argument("--weight_decay", default=1e-6, type=float, help="weight decay")
         parser.add_argument("--learning_rate", default=1e-3, type=float, help="base learning rate")
         parser.add_argument("--start_lr", default=0, type=float, help="initial warmup learning rate")
@@ -373,7 +398,13 @@ def cli_main():
     from pl_bolts.callbacks.ssl_online import SSLOnlineEvaluator
     from pl_bolts.datamodules import CIFAR10DataModule, ImagenetDataModule, STL10DataModule
     from pl_bolts.models.self_supervised.simclr.transforms import SimCLREvalDataTransform, SimCLRTrainDataTransform
-    from kiya_data_manipulations import single_images_train_transform, single_images_val_transform, CIFAR10DataModule_class_pairs
+    from kiya_data_manipulations import (single_images_train_transform, single_images_val_transform, 
+                                        CIFAR10DataModule_class_pairs, CIFAR10_use_all_train, Causal_3Dident
+                                        )
+    
+
+    
+
 
     parser = ArgumentParser()
 
@@ -408,9 +439,15 @@ def cli_main():
                 data_dir=args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers, val_split=val_split
             )
         elif args.augmentation_type in ['original', 'random_images']:
-            dm = CIFAR10DataModule(
-                data_dir=args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers, val_split=val_split
-            )
+            if args.random_train:
+                dm = CIFAR10DataModule(
+                    data_dir=args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers, val_split=val_split
+                )
+            else:
+                dm = CIFAR10_use_all_train(
+                    data_dir=args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers
+                )
+
 
         args.num_samples = dm.num_samples
 
@@ -423,6 +460,21 @@ def cli_main():
 
         args.gaussian_blur = False
         args.jitter_strength = 0.5
+    
+    elif args.dataset == '3dident':
+        # Note in the loader to match simclr I made changes so the validation loss is always 0 but the read out gives the actual linear readout result.
+        args.data_dir = '/home/kiarash_temp/adversarial-components/3dident_causal'
+        args.jitter_strength = 1
+        dm = Causal_3Dident(args.data_dir, args.jitter_strength, batch_size=args.batch_size, num_workers=args.num_workers)
+        args.num_samples = 250000 
+        
+        # the paper also reduces the resolution in the first conv and maxpool.
+        args.maxpool1 = True
+        args.first_conv = True
+        args.input_height = 224
+        args.temperature = 1
+
+        args.gaussian_blur = False
 
     elif args.dataset == "imagenet":
         args.maxpool1 = True
@@ -452,43 +504,45 @@ def cli_main():
 
 
     # avoid unnecessary calculations in the uniqe case by not calculating the second transform
-    if args.augmentation_type == 'unique_images': 
-        dm.train_transforms = single_images_train_transform(
-            input_height=args.input_height,
-            gaussian_blur=args.gaussian_blur,
-            jitter_strength=args.jitter_strength,
-            normalize=normalization,
-        )
-        dm.val_transforms = single_images_val_transform(
-            input_height=args.input_height,
-            gaussian_blur=args.gaussian_blur,
-            jitter_strength=args.jitter_strength,
-            normalize=normalization,
-        ) 
-        
+    # also 3dident dataset already returns 2 images 
+    if args.dataset != '3dident':
+        if args.augmentation_type == 'unique_images': 
+            dm.train_transforms = single_images_train_transform(
+                input_height=args.input_height,
+                gaussian_blur=args.gaussian_blur,
+                jitter_strength=args.jitter_strength,
+                normalize=normalization,
+            )
+            dm.val_transforms = single_images_val_transform(
+                input_height=args.input_height,
+                gaussian_blur=args.gaussian_blur,
+                jitter_strength=args.jitter_strength,
+                normalize=normalization,
+            ) 
+            
 
-    elif args.augmentation_type in ['original', 'random_images']:
-        dm.train_transforms = SimCLRTrainDataTransform(
-            input_height=args.input_height,
-            gaussian_blur=args.gaussian_blur,
-            jitter_strength=args.jitter_strength,
-            normalize=normalization,
-        )
-        dm.val_transforms = SimCLREvalDataTransform(
-            input_height=args.input_height,
-            gaussian_blur=args.gaussian_blur,
-            jitter_strength=args.jitter_strength,
-            normalize=normalization,
-        )
+        elif args.augmentation_type in ['original', 'random_images']:
+            dm.train_transforms = SimCLRTrainDataTransform(
+                input_height=args.input_height,
+                gaussian_blur=args.gaussian_blur,
+                jitter_strength=args.jitter_strength,
+                normalize=normalization,
+            )
+            dm.val_transforms = SimCLREvalDataTransform(
+                input_height=args.input_height,
+                gaussian_blur=args.gaussian_blur,
+                jitter_strength=args.jitter_strength,
+                normalize=normalization,
+            )
 
 
 
     model = SimCLR(**args.__dict__)
 
     online_evaluator = None
-    if args.online_ft:
+    if args.online_ft: #and args.dataset!='3dident': # the evalusators need to be rewritten for 
         # online eval
-        # (kiya)seperate the resnet18 case z_dim=512 (representation dim)
+        # seperate the resnet18 case z_dim=512 (representation dim)
         if args.arch == 'resnet18':
             online_evaluator = SSLOnlineEvaluator(
                 drop_p=0.0,
@@ -507,22 +561,25 @@ def cli_main():
             )
 
     lr_monitor = LearningRateMonitor(logging_interval="step")
-    save_path = f'./simclr/simCLR_{args.arch}_logs_and_chekpoints'
-    model_checkpoint = ModelCheckpoint(save_last=True, save_top_k=1, monitor="val_loss", filename='{epoch}-best_val_loss_{val_loss}')
-    interval_checkpoint = ModelCheckpoint(save_top_k=-1, every_n_epochs=5, filename="{epoch}-{val_loss:.2f}-{online_val_acc:.2f}")
-    callbacks = [model_checkpoint, online_evaluator, interval_checkpoint] if args.online_ft else [model_checkpoint]
+    save_path = f'./simclr/{args.dataset}_simCLR_{args.arch}_logs_and_chekpoints'
+    model_checkpoint = ModelCheckpoint(save_last=True, save_top_k=1, monitor="val_loss", filename='{epoch}_best_{val_loss}_{online_val_acc:.2f}')
+    interval_checkpoint = ModelCheckpoint(save_top_k=-1, every_n_epochs=40, filename="{epoch}-{val_loss:.2f}-{online_val_acc:.2f}")
+    callbacks = [model_checkpoint, online_evaluator, interval_checkpoint] if args.online_ft else [model_checkpoint, interval_checkpoint]
     callbacks.append(lr_monitor)
 
+
+    # profile the code
+    #from pytorch_lightning.profiler import PyTorchProfiler
+    #profiler = PyTorchProfiler(filename="profiling_data")
 
     trainer = Trainer(
         max_epochs=args.max_epochs,
         max_steps=None if args.max_steps == -1 else args.max_steps,
-        gpus=[args.gpus], # kiya edited so it is the gpu index not number of gpus
-        sync_batchnorm=True if args.gpus > 1 else False,
+        gpus=[args.gpus], # edited so it is the gpu index not number of gpus
         precision=32 if args.fp32 else 16,
         callbacks=callbacks,
         default_root_dir = save_path,
-        profiler="simple"
+        #profiler= 'simple' #profiler
         #fast_dev_run=args.fast_dev_run,
     )
 
@@ -532,13 +589,12 @@ def cli_main():
 if __name__ == "__main__":
     cli_main()
 
-    # (run from parent folder) command: python simclr/simclr_module.py --dataset cifar10 --arch resnet18 --gpus 1 --batch_size 256 --num_workers 16 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 800 --online_ft
-    
-    # (optimized for time params, use this !) python simclr/simclr_module.py --dataset cifar10 --arch resnet18 --gpus 1 --batch_size 4096  --num_workers 48 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 800 --online_ft --augmentation_type original
+    # (optimized for time params, use this, making the batch size too big (4096) can hurt time and performance!) 
+    # python simclr/simclr_module.py --gpus 4 --batch_size 1024  --num_workers 32 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 400 --online_ft --augmentation_type original
 
-    # (my version command) python simclr/simclr_module.py --dataset cifar10 --arch resnet18 --gpus 1 --batch_size 256  --num_workers 16 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 800 --online_ft --augmentation_type unique_images
+    # (unique_images version command) python simclr/simclr_module.py --dataset cifar10 --arch resnet18 --gpus 1 --batch_size 256  --num_workers 16 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 800 --online_ft --augmentation_type unique_images
 
-
+    # (3dident) python simclr/simclr_module.py --dataset 3dident --gpus 2 --batch_size 1024  --num_workers 32 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 1 --online_ft --augmentation_type original
 
 '''
 Visualize pair of images:
