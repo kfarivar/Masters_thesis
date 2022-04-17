@@ -1,5 +1,5 @@
 # Adversarial examples and unsupervised learning
 
-> The loss function is supposed to be a proxy for the accuracy measure used to analyse a model. But this proxy is not always perfect.
+* The loss function is supposed to be a proxy for the accuracy measure used to analyse a model. But this proxy is not always perfect.
 
-> I explore how the definition of the loss function and the specific method of learning used (self-supervised or supervised) affects the robustness of a model to adversarial examples.
+* I explore how the definition of the loss function and the specific method of learning used (self-supervised or supervised) affects the robustness of a model to adversarial examples.
