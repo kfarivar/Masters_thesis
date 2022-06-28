@@ -463,7 +463,7 @@ def cli_main():
     
     elif args.dataset == '3dident':
         # Note in the loader to match simclr I made changes so the validation loss is always 0 but the read out gives the actual linear readout result.
-        args.data_dir = '/home/kiarash_temp/adversarial-components/3dident_causal'
+        args.data_dir = '/home/kfarivar/adversarial-components/3dident_causal'
         args.jitter_strength = 1
         dm = Causal_3Dident(args.data_dir, args.jitter_strength, batch_size=args.batch_size, num_workers=args.num_workers)
         args.num_samples = 250000 
@@ -590,11 +590,11 @@ if __name__ == "__main__":
     cli_main()
 
     # (optimized for time params, use this, making the batch size too big (4096) can hurt time and performance!) 
-    # python simclr/simclr_module.py --gpus 4 --batch_size 1024  --num_workers 32 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 400 --online_ft --augmentation_type original
+    # python simclr/simclr_module.py --gpus 0 --batch_size 1024  --num_workers 32 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 800 --online_ft --augmentation_type original
 
-    # (unique_images version command) python simclr/simclr_module.py --dataset cifar10 --arch resnet18 --gpus 1 --batch_size 256  --num_workers 16 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 800 --online_ft --augmentation_type unique_images
+    # (unique_images version command) python simclr/simclr_module.py --dataset cifar10 --arch resnet18 --gpus 1 --batch_size 1024  --num_workers 16 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 800 --online_ft --augmentation_type unique_images
 
-    # (3dident) python simclr/simclr_module.py --dataset 3dident --gpus 2 --batch_size 1024  --num_workers 32 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 1 --online_ft --augmentation_type original
+    # (3dident) python simclr/simclr_module.py --dataset 3dident --gpus 2 --batch_size 1024  --num_workers 32 --optimizer lars --learning_rate 1.5 --exclude_bn_bias --max_epochs 420 --online_ft --augmentation_type original
 
 '''
 Visualize pair of images:

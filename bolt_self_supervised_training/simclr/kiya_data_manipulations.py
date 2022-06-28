@@ -202,8 +202,10 @@ class CIFAR10_use_all_train(CIFAR10DataModule):
         """
         return 10
 
+
+
 import sys
-sys.path.append('/home/kiarash_temp/adversarial-components/3dident_causal/kiya_3dident')
+sys.path.append('/home/kfarivar/adversarial-components/3dident_causal/kiya_3dident')
 from clevr_dataset import CausalDataset
 
 class Causal_3Dident (pl.LightningDataModule):
@@ -216,6 +218,7 @@ class Causal_3Dident (pl.LightningDataModule):
         self.num_workers = num_workers
     
         self.num_classes = 7
+
 
     def setup(self, stage: Optional[str] = None):
         mean_per_channel = [0.4327, 0.2689, 0.2839]
@@ -300,6 +303,7 @@ class Causal_3Dident (pl.LightningDataModule):
         return train_loader
 
     def val_dataloader(self):
+        # we use the val split to train the readout layer so I also shuffle this !
         val_loader = torch.utils.data.DataLoader(self.val_dataset, batch_size=self.batch_size, 
                                                 num_workers=self.num_workers,
                                                 pin_memory=True, shuffle=True)

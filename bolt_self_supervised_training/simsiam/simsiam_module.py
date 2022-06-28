@@ -6,7 +6,7 @@ from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torch.nn import functional as F
 
 from pl_bolts.models.self_supervised.resnets import resnet18, resnet50
-from .models import SiameseArm
+from models import SiameseArm
 from pl_bolts.optimizers.lars import LARS
 from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 from pl_bolts.transforms.dataset_normalizations import (

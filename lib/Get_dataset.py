@@ -115,12 +115,11 @@ class CIFAR10_module(pl.LightningDataModule):
         return 10
 
 
-from PIL import Image 
-import numpy as np                        
-import sys
-sys.path.append('/home/kiarash_temp/adversarial-components/3dident_causal/kiya_3dident')
-from clevr_dataset import CausalDataset
 
+from PIL import Image
+import sys
+sys.path.append('/home/kfarivar/adversarial-components/3dident_causal/kiya_3dident')
+from clevr_dataset import CausalDataset 
 
 
 class Causal_3Dident(pl.LightningDataModule):
@@ -149,6 +148,8 @@ class Causal_3Dident(pl.LightningDataModule):
         self.no_normalization = no_normalization
         self.train_include_index = train_include_index
         self.val_include_index = val_include_index
+
+        
 
     def setup(self, stage: Optional[str] = None):
         mean_per_channel = [0.4327, 0.2689, 0.2839]

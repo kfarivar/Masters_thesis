@@ -10,12 +10,12 @@ final_lr: 1.0e-06
 first_conv: false
 fp32: false
 gaussian_blur: false
-gpus: 4
+gpus: 0
 hidden_mlp: 2048
 input_height: 32
 jitter_strength: 0.5
 learning_rate: 1.5
-max_epochs: 600
+max_epochs: 800
 max_steps: -1
 maxpool1: false
 num_nodes: 1

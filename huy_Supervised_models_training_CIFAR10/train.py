@@ -45,7 +45,7 @@ def main(args):
             data = CIFAR10Data(args)
             model = CIFAR10Module(dataset_size=len(data.train_dataloader()), **args.__dict__)
         elif args.dataset == '3dident':
-            data = Causal_3Dident(data_dir='/home/kiarash_temp/adversarial-components/3dident_causal', 
+            data = Causal_3Dident(data_dir='/home/kfarivar/adversarial-components/3dident_causal', 
                                 augment_train=True, batch_size=args.batch_size, num_workers=args.num_workers,
                                 train_subset=args.train_ratio, val_subset=args.val_ratio)
             data.setup()
@@ -107,9 +107,9 @@ if __name__ == "__main__":
 
     parser.add_argument("--no_augmentation", action="store_true", help="whether to augment the data")
 
-    # command (run from adversarial-components): python -m huy_Supervised_models_training_CIFAR10.train --gpu_id 3 --max_epochs 200
+    # command (run from adversarial-components): python -m huy_Supervised_models_training_CIFAR10.train --gpu_id 4 --max_epochs 200
 
-    # (3dident) python -m huy_Supervised_models_training_CIFAR10.train --gpu_id 4 --dataset 3dident --train_ratio 0.04  --val_ratio 0.05 --max_epochs 200 --batch_size 256
+    # (3dident) python -m huy_Supervised_models_training_CIFAR10.train --gpu_id 4 --dataset 3dident --train_ratio 1  --val_ratio 1 --max_epochs 200 --batch_size 512
 
     args = parser.parse_args()
     main(args)

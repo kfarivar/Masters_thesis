@@ -18,10 +18,11 @@ bolt_self_supervised_training/ray_tuning/tune_simclr_asha/train_model_2354d_0000
 images/
 adv_images
 
-# ignore model checkpoints
+# ignore model checkpoints and saved tensors
 **/*.ckpt
 **/*.pth
 **/*.pt
+**/**/*.pt
 #barlow_twins_yao_training/bolt_resnet18_without_any_normalization/
 #Supervised_Robust_models_chpt/
 #model_checkpoints/
