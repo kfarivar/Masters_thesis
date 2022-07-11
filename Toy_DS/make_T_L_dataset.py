@@ -72,7 +72,7 @@ def save_dataset_to_file(root_path, images, labels, group_size, centering, scali
 
 
 def make_DS(include_epsilon_bounadry=False, epsilon=0.4, random_sample_boundary=False, 
-            calculate_normalization=0, symmetric_options=True, perturb_pattern_pixels_only=False):  
+            calculate_normalization=0, symmetric_options=True, perturb_pattern_pixels_only=False, exclude_std_images=False):  
     '''make the boundary L vs T pattern toy DS.
     The canvas is 4x4 and the patterns 3x3.
 
@@ -98,6 +98,9 @@ def make_DS(include_epsilon_bounadry=False, epsilon=0.4, random_sample_boundary=
     perturb_pattern_pixels_only:
         True: only perturb the pixels in the 3x3 pattern and not the whole 4x4 canvas
         False: perturb all pixels on the canvas
+
+    exclude_std_images:
+        True: exclude the 0 option for pixels (i.e. the standard images will not be in the dataset.)
 
     Each image only contains one of the patterns which can be shifted inside the canvas !
 
@@ -185,7 +188,11 @@ def make_DS(include_epsilon_bounadry=False, epsilon=0.4, random_sample_boundary=
                     # if we want to perturb all canvas pixels we do it here
                     # note the standard image is one of the options here
                     print("preturbing all canvas pixels symmetrically.")
-                    list_of_options = [torch.tensor([0.0, epsilon, -epsilon]) if pixel==0.0 else torch.tensor([0.0, -epsilon, epsilon]) for pixel in canvas.flatten()]
+                    if exclude_std_images:
+                        list_of_options = [torch.tensor([ epsilon, -epsilon]) if pixel==0.0 else torch.tensor([-epsilon, epsilon]) for pixel in canvas.flatten()]
+                    else:
+                        list_of_options = [torch.tensor([0.0, epsilon, -epsilon]) if pixel==0.0 else torch.tensor([0.0, -epsilon, epsilon]) for pixel in canvas.flatten()]
+                    
                     cartesian_of_options = cartesian_prod(*list_of_options)
 
                     # all possible potential advresarial images
@@ -195,11 +202,6 @@ def make_DS(include_epsilon_bounadry=False, epsilon=0.4, random_sample_boundary=
                     dataset_list.append(all_adv_images)
                     final_labels.append( torch.full((all_adv_images.shape[0],), label) ) # making them tensor here makes it faster
                     
-                    """ for option in cartesian_of_options:
-                        adv_perturbs = option.reshape(canvas_size, canvas_size)
-                        adv_pattern = canvas + adv_perturbs
-                        dataset_list.append(torch.unsqueeze(adv_pattern, 0))
-                        final_labels.append(label) """
                 
                 elif not perturb_pattern_pixels_only and not include_epsilon_bounadry:
                     print("only adding standard images in the dataset.")
@@ -248,17 +250,19 @@ def make_DS(include_epsilon_bounadry=False, epsilon=0.4, random_sample_boundary=
 if __name__ == '__main__':
     make_deterministic()
     # dataset size is 3^16 * 8 group size should be a multiple
-    group_size = 3**6
+    group_size = 2**6
     include_epsilon_bounadry= True
     epsilon = 0.41
     scaling = 100
     centering = 0.5
-    dataset_root_folder = f'L_T_dataset_groupsize_{group_size}_include_boundary{include_epsilon_bounadry}_epsilon{epsilon}_center_{centering}_scale_{scaling}'
+    exclude_std_images = True
+    dataset_root_folder = f'L_T_dataset_groupsize_{group_size}_include_boundary{include_epsilon_bounadry}_epsilon{epsilon}_center_{centering}_scale_{scaling}_exclude_std_images{exclude_std_images}'
     
     # do this first, don't pause the dataset creation !
     make_dataset_directory(dataset_root_folder)
 
-    images, labels, _, _ = make_DS(include_epsilon_bounadry=include_epsilon_bounadry, epsilon=epsilon)
+    images, labels, _, _ = make_DS(include_epsilon_bounadry=include_epsilon_bounadry, epsilon=epsilon, exclude_std_images=exclude_std_images)
     
+    print("total number of images: ", images.shape)
     
     save_dataset_to_file(dataset_root_folder, images, labels, group_size, centering, scaling)

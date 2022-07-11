@@ -257,7 +257,7 @@ def main():
                     './last_layer_training_robust_logs/correct_arch_supervised_supervised_simple_apgd_linear_avdersarial_training_logs/version2',
     ]
 
-    exp_name = 'Sup_correct_arch_' Set this !
+    exp_name = input("Name the experiment file: ")
 
     for sup_path, simclr_path in zip(sup_paths_std, ):
 

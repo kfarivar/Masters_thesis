@@ -1,3 +1,4 @@
+from matplotlib import projections
 import torch
 from torch import cartesian_prod, nn
 import torch.nn.functional as F
@@ -37,8 +38,8 @@ class Empty_model(nn.Module):
         # we don't need a bias !
         self.conv1 = nn.Conv2d(1, 2, pattern_size, bias=False)
         self.patter_size = pattern_size
-        self.data_mean = torch.nn.parameter.Parameter(data_mean, requires_grad=False) 
-        self.data_std = torch.nn.parameter.Parameter(data_std, requires_grad=False) 
+        self.data_mean = data_mean
+        self.data_std = data_std
 
 
     def forward(self, input):
@@ -282,7 +283,7 @@ def advresarial_evaluation(std_trained_model, std_data, std_labels, attack_epsil
     return adv_preds, x_adv, L_index, T_index
     
 
-def standard_training(epochs, lr, images, labels, mean, std, gpu_id):
+def standard_training(epochs, lr, images, labels, mean, std, gpu_id=-1):
     print()
     print(f"training standard model, max_epochs={epochs}, lr={lr} \n")
 
@@ -322,6 +323,212 @@ def standard_training(epochs, lr, images, labels, mean, std, gpu_id):
 
     return std_trained_model
 
+
+def create_noisy_samples(data, ds_eps, num):
+    '''
+    ds_eps: the amount of noise added. it is random uniform in [-ds_eps, ds_eps]
+    num: determins the number of noisy samples created. the total number is data_size  * num. 
+    '''
+    # add data repetitions along the batch dimension
+    repeated_data = data.repeat(num)
+    noise = torch.rand(repeated_data.size()) * 2*ds_eps - ds_eps
+    return repeated_data + noise 
+
+
+class Projection(nn.Module):
+    def __init__(self, input_dim=2048, hidden_dim=2048, output_dim=128):
+        super().__init__()
+        self.output_dim = output_dim
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+
+        self.model = nn.Sequential(
+            nn.Linear(self.input_dim, self.hidden_dim),
+            nn.BatchNorm1d(self.hidden_dim),
+            nn.ReLU(),
+            nn.Linear(self.hidden_dim, self.output_dim, bias=True),
+        )
+
+    def forward(self, x):
+        x = self.model(x)
+        return F.normalize(x, dim=1)
+
+
+def select_image_indexes(labels, num_classes=2):
+    ''' for each image select another random image from the same class.
+    returns the indexes of matching pairs. 
+    '''
+    labels = labels.numpy()
+    indexes = np.arange(labels.shape[0])
+    # we have num_classes classes  
+    classes = np.arange(num_classes)
+    # make a dict of class_number:array_of_indexes (mask)
+    class_index = {}
+    for c in classes:
+        class_index[c] = indexes[labels==c]
+    
+    #the corresponding elements in the 2 lists create the positive sample pair for simclr loss. 
+    indexes1 = []
+    indexes2 = []
+    for idx in indexes:
+        class_ = labels[idx]
+        # get the index array of all images from the same class
+        options = class_index[class_] 
+        # don't pair it with itself
+        options = options[options!= idx]
+        
+        # if this is the only sample from this class drop it from batch !
+        if options.size != 0:
+            indexes1.append(idx)
+            # randomly select one of options
+            idx2 = np.random.choice(options, 1)[0]
+            indexes2.append(idx2)
+        else:
+            raise ValueError("sample dropped this shouldn't happen in the toy dataset !")
+
+    return indexes1, indexes2
+
+def simclr_training(epochs, lr, images, labels, noisy_samples, temperature, readout_epochs, readout_lr, num_classes=2, gpu_id=-1):
+    '''
+    we use labels to train model with simclr
+    '''
+    print(f"SSL model training using labels and noise for extra negative samples, max_epochs={epochs}, lr={lr} \n")
+
+    
+    model = Empty_model(pattern_size=3, data_mean=0, data_std=1)
+    projection_head = Projection(input_dim=2, hidden_dim=2, output_dim=2)
+
+    if int(gpu_id) >= 0:
+        # move model and data to gpu
+        device = torch.device('cuda:'+gpu_id)
+        model.to(device)
+        projection_head.to(device)
+        images = images.to(device)
+        labels = labels.to(device)
+
+
+    # create positive image pairs
+    indexes1, indexes2 = select_image_indexes(labels, num_classes)
+
+    # should be all images
+    assert (indexes1 == np.arange(labels.shape[0])).all()
+    
+    # select pairs (the first image in pair are all the imags just select the second image in pair)
+    pair_imgs = images[indexes2]
+
+
+    optim = torch.optim.Adam(model.parameters(), lr=lr)
+    for epoch in tqdm(range(epochs)):
+
+        optim.zero_grad()
+
+        # get h representations
+        h1 = model(images)
+        h2 = model(pair_imgs)
+        # get z representations
+        z1 = projection_head(h1)
+        z2 = projection_head(h2)
+        
+        # these are only used as negative samples
+        noisy_z = projection_head(model(noisy_samples))
+
+        loss = label_based_xent_loss_with_noisy_samples(z1, z2, noisy_z, temperature, labels, num_classes)
+        loss.backward()
+        optim.step()
+
+        
+
+        if epoch% int(epochs/5) ==0 or (epoch== epochs-1):
+            # print report
+            # label_preds = torch.argmax(preds, dim=1) 
+            print(f"epoch {epoch} loss: {loss.item()}") #  , acc: {(labels==label_preds).sum()/labels.size(0)}, incorrectly classified: {(labels!=label_preds).sum()}")
+
+        """ if  (epoch== epochs-1): # or (epoch + 1)% int(epochs/2) == 0
+            adv_preds = advresarial_evaluation(std_trained_model, std_data, std_labels, attack_epsilon, alpha_ratio, steps)
+            print(f"\nAdvresarial evaluation results:\nstandardly trained model's adv acc: {(std_labels==adv_preds).sum()/std_labels.size(0)},\nCount of advresarial examples misclassified: {(std_labels!=adv_preds).sum()}")
+        """
+    
+    print("training readout layer:")
+    #fix encoder
+    for param in model.parameters():
+        param.requires_grad = False
+    readout_layer = nn.Linear(2, 2)
+
+    optim = torch.optim.Adam(readout_layer.parameters(), lr=readout_lr)
+    for epoch in tqdm(range(readout_epochs)):
+        optim.zero_grad()
+
+        preds = readout_layer(model(images))
+
+        loss_func = nn.CrossEntropyLoss()
+        loss = loss_func(preds, labels)
+        loss.backward()
+        optim.step()
+
+        
+
+        if epoch% int(epochs/5) ==0 or (epoch== epochs-1):
+            # print report
+            label_preds = torch.argmax(preds, dim=1) 
+            print(f"epoch {epoch} loss: {loss.item()}  , acc: {(labels==label_preds).sum()/labels.size(0)}, incorrectly classified: {(labels!=label_preds).sum()}")
+
+
+
+
+
+    return model
+
+def label_based_xent_loss_with_noisy_samples(self, out_1, out_2, noisy_out, temperature, labels, num_classes, eps=1e-6):
+        """
+        This loss uses extra noisy versions of images (using all of the dataset) as extra negative samples.
+        assume out_1 and out_2 and noisy_out are normalized (by projection head)
+        noisy_out is only used as negative samples.
+        out_1: [batch_size, dim]
+        out_2: [batch_size, dim]
+        noisy_out: [noisy_samples_size, dim]
+        This is the loss version where for each image I use the labels to select a positive sample randomly from the same class (already done in my data module)
+        Also the nagative samples are only from the other classes. 
+        """
+
+        # simclr loss numerators, positive samples
+        pos = torch.exp(torch.sum(out_1 * out_2, dim=-1) / temperature)
+
+        # we don't need to concatenate the two outputs since for denum calculation we just need representation of samples in the out_1.
+        # doing a concat will just produce repetative results. 
+        # Image B(out_2) is also among the set A images(out_1).
+        # And we don't want to use out_2 since it is randomly sampled and some images might not be there !
+
+        # calculate the inner product  
+        # for each row (after divide by temp and raise to e) the sum of off diagonal is the denum in simclr loss, (note the diagonal is all ones.) 
+        # we should add the noisy samples here !
+        cov = torch.mm(out_1, out_1.t().contiguous())
+        sims = torch.exp(cov / temperature)
+
+        # calculate similarity with noisy samples
+        noisy_inner_prod = torch.mm(out_1, noisy_out.t().contiguous())
+        noisy_sims = torch.exp(noisy_inner_prod / temperature)
+
+        # go through all classes and calculate the sum of similarities betweem 
+        # this image and other images not from the same class
+        neg = torch.zeros(sims.size(0), device=sims.device)
+        for c in range(num_classes):
+            # create a mask to select columns and rows
+            mask = torch.tensor(labels==c, device=sims.device)
+            # to calculate the sum of negative similarities we should exclude similarity with samples from the same class
+            neg[mask] = sims[mask, :][:,~mask].sum(dim=1)
+
+        # we still need to add the pos to negative to get the denum.
+        # for noisy samples we use all similarities in the denum as negative sampels
+        denum = neg + pos + noisy_sims.sum(dim=-1)
+        # clamp for numerical stability
+        denum = torch.clamp(denum, min=eps)  
+
+        loss = -torch.log(pos / (denum + eps)).mean()
+
+        return loss
+
+
+
 if __name__ == '__main__':
 
     # to make everything deterministic. 
@@ -330,7 +537,7 @@ if __name__ == '__main__':
     # note the dataset and attack epsilons are different since it should be the case that data_epsilon > attack_epsilon
     data_epsilon = 0.41
     calculate_normalization=0
-    data, labels, mean, std = make_DS(include_epsilon_bounadry=True, epsilon=data_epsilon, 
+    data, labels, mean, std = make_DS(include_epsilon_bounadry=False, epsilon=data_epsilon, 
                                         random_sample_boundary=False, calculate_normalization=calculate_normalization, 
                                         symmetric_options= True, perturb_pattern_pixels_only=False)
     if calculate_normalization == 1:
@@ -341,37 +548,25 @@ if __name__ == '__main__':
         print(f"1 is: {new_1}")
         print(f"threshold is: {(new_0 + new_1) /2}")
 
-    # PGD attack params
-    attack_epsilon = 0.4
-    alpha_ratio = 0.1
-    steps = 50
-    print(f"PGD ( attack_epsilon={attack_epsilon}, alpha_ratio={alpha_ratio}, steps={steps} )")
-    # I need to fetch a dataset that doesn't include the boundary samples for advresarial evaluation.
-    std_data, std_labels, _, _ = make_DS(include_epsilon_bounadry=False)
-
     print("dataset shape")
     print(data.shape)
     print("labels shape")
     print(labels.shape)
 
+    """ print("the dataset")
+    print(data)
+    print() """
 
-    epochs = 400
+
+    noisy_samples =  create_noisy_samples(data)
+
+    
+    epochs = 200
     lr= 0.1
-    std_trained_model = standard_training(epochs, lr, data, labels, mean, std, gpu_id='5')
 
-    
-    
-    adv_preds, adv_images, L_indexes, T_indexes = advresarial_evaluation(std_trained_model, std_data, std_labels, attack_epsilon, alpha_ratio, steps, inference=True)
-    print(f"""
-        Advresarial evaluation results:  
-        standardly trained model's adv acc: {(std_labels==adv_preds).sum()/std_labels.size(0)},
-        Count of advresarial examples misclassified: {(std_labels!=adv_preds).sum()}
-        """  )
-    
-    
+    #std_trained_model = standard_training(epochs, lr, data, labels, 0, 1, gpu_id=-1)
 
-    
-
+    simclr_model = simclr_training(data, labels, noisy_samples)
 
     print("conv filters:")
     print()
@@ -380,9 +575,24 @@ if __name__ == '__main__':
     print(std_trained_model.conv1.weight[0]) 
 
     print("T shape(1)")
-    print(std_trained_model.conv1.weight[1]) 
+    print(std_trained_model.conv1.weight[1])
 
-    # print all incorrectly classified adv images
+
+     
+    # PGD attack params
+    attack_epsilons = [.1, .2, .3, .4, .5]
+    alpha_ratio = 0.5
+    steps = 10
+    # I need to fetch a dataset that doesn't include the boundary samples for advresarial evaluation.
+    std_data, std_labels, _, _ = make_DS(include_epsilon_bounadry=False)
+
+    for eps in attack_epsilons:
+        print(f"PGD ( attack_epsilon={eps}, alpha_ratio={alpha_ratio}, steps={steps} )")
+        adv_preds, adv_images, L_indexes, T_indexes = advresarial_evaluation(std_trained_model, std_data, std_labels, eps, alpha_ratio, steps, inference=True)
+        print(f"Advresarial evaluation results:\n standardly trained model's adv acc: {(std_labels==adv_preds).sum()/std_labels.size(0)},\n Count of advresarial examples misclassified: {(std_labels!=adv_preds).sum()}")
+        
+     
+    """ # print all incorrectly classified adv images
     print('all incorrectly classified adv images:')
     for img, adv_img, label, pred, L_index, T_index in zip(std_data.squeeze(), adv_images.squeeze(), std_labels, adv_preds, L_indexes, T_indexes):
         if pred != label:
@@ -392,8 +602,17 @@ if __name__ == '__main__':
             print(img)
             print("advresarial")
             print(adv_img)
-            print(f"L_index: {L_index}, T_index: {T_index}")
+            print(f"L_index: {L_index}, T_index: {T_index}") """
 
+     
+   
+
+    
+
+
+    
+
+    
 
 
     '''

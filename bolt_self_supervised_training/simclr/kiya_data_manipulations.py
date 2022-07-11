@@ -34,10 +34,10 @@ class CIFAR10DataModule_class_pairs(CIFAR10DataModule):
         3. val images
         4. y labels
         '''
-        #if self.trainer.training or self.trainer.validating:
-        # do this for all cases
+        
+        # do this for both training and validation
 
-        # final image in tuple is for online eval don't modify
+        # final image in tuple is for online eval don't modify it !
         # I modified the transofmer so we only get a single image (other than val image)
         (img1, val_image), y = batch
 
@@ -57,10 +57,12 @@ class CIFAR10DataModule_class_pairs(CIFAR10DataModule):
             for c in classes:
                 class_index[c] = indexes[labels==c]
             
+            #the corresponding elements in the 2 lists create the positive sample pair for simclr loss. 
             indexes1 = []
             indexes2 = []
             for idx in indexes:
                 class_ = labels[idx]
+                # get the index array of all images from the same class
                 options = class_index[class_] 
                 # don't pair it with itself
                 options = options[options!= idx]
@@ -78,7 +80,8 @@ class CIFAR10DataModule_class_pairs(CIFAR10DataModule):
 
         img1_selected = img1[idx1]
         img2_seleted = img1[idx2]
-        # I also exclude the same images in val (don't think this really matters)
+        #For images that only have themselves from the same class in this batch  
+        #I also exclude them from val (don't think this really matters since there is low probability with high batch size.)
         val_image_selected = val_image[idx1]
         y_selected = y[idx1]
 

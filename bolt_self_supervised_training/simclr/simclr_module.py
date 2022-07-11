@@ -307,19 +307,23 @@ class SimCLR(LightningModule):
     
     def label_based_xent_loss(self, out_1, out_2, temperature, labels, eps=1e-6):
         """
-        assume out_1 and out_2 are normalized
+        assume out_1 and out_2 are normalized (by projection head)
         out_1: [batch_size, dim]
         out_2: [batch_size, dim]
         This is the loss version where for each image I use the labels to select a positive sample randomly from the same class (already done in my data module)
         Also the nagative samples are only from the other classes. 
         """
 
+        # simclr loss numerators 
         pos = torch.exp(torch.sum(out_1 * out_2, dim=-1) / temperature)
 
         # we don't need to concatenate the two outputs since for denum calculation we just need representation of samples in the out_1.
         # doing a concat will just produce repetative results. 
         # Image B(out_2) is also among the set A images(out_1).
-        # And we don't want to use out_2 since it is randomly samples and some images might not be there !
+        # And we don't want to use out_2 since it is randomly sampled and some images might not be there !
+
+        # calculate the inner product 
+        # for each row for each row (after divide by temp and raise to e) the sum of off diagonal is the denum in simclr loss, (note the diagonal is all ones.) 
         cov = torch.mm(out_1, out_1.t().contiguous())
         sims = torch.exp(cov / temperature)
 
@@ -434,6 +438,7 @@ def cli_main():
             val_split = args.num_nodes * args.gpus * args.batch_size
 
         if args.augmentation_type == 'unique_images':
+            # using labels select positive pairs from the dataset
             # set the on_after_batch_transfer by using my module !!
             dm = CIFAR10DataModule_class_pairs(
                 data_dir=args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers, val_split=val_split

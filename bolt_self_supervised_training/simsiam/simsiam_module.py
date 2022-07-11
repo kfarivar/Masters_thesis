@@ -20,7 +20,7 @@ from pl_bolts.transforms.dataset_normalizations import (
 class SimSiam(LightningModule):
     """PyTorch Lightning implementation of Exploring Simple Siamese Representation Learning (SimSiam_)
 
-    Model refactored by Kiya and works correctly on CIFAR10
+    Model refactored by Kiya and works correctly on CIFAR10.
 
     .. _SimSiam: https://arxiv.org/pdf/2011.10566v1.pdf
     """
@@ -172,7 +172,7 @@ class SimSiam(LightningModule):
             optimizer = torch.optim.Adam(params, lr=self.learning_rate, weight_decay=self.weight_decay)
 
         elif self.optim == 'sgd':
-            # kiya: the paper suggested optimizer. 
+            # kiya: the paper suggested sgd. 
             optimizer = torch.optim.SGD(params, lr=self.learning_rate, weight_decay=self.weight_decay, momentum=0.9)
 
         warmup_steps = self.train_iters_per_epoch * self.warmup_epochs
@@ -304,7 +304,7 @@ def cli_main():
         args.num_samples = dm.num_samples
         args.input_height = dm.size()[-1]
     else:
-        raise NotImplementedError("other datasets have not been implemented till now")
+        raise NotImplementedError("other datasets have not been implemented yet.")
 
     dm.train_transforms = SimCLRTrainDataTransform(
         input_height=args.input_height,

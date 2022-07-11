@@ -298,23 +298,24 @@ def evaluate_std_model(epsilon):
 
 def main():
     # the ball size
-    epsilon = float(input("choose epsilon: "))
+    #epsilon = float(input("choose epsilon: "))
 
     # to get consistent results I should call make_deterministic() before evaluating each model 
-    """ make_deterministic()
-    evaluate_hand_made_model(epsilon) """
+    make_deterministic()
+    #evaluate_hand_made_model(epsilon)
 
     make_deterministic()
-    evaluate_std_model(epsilon)
+    #evaluate_std_model(epsilon)
 
 
     
-    """ # adversarialy train an empty model
+    # adversarialy train an empty model
     empty_model = Empty_model()
     optim = torch.optim.Adam(empty_model.parameters(), lr=0.01)
     epochs = 40
-    fgsm = torchattacks.FGSM(empty_model, eps=0.1)
+    fgsm = torchattacks.FGSM(empty_model, eps=0.2)
     fgsm.set_mode_targeted_least_likely()
+    
     
 
     for epoch in range(epochs):
@@ -358,7 +359,7 @@ def main():
     adv_preds = torch.argmax(adv_activs, dim=1) 
 
     print('Random empty model adv acc: ', (labels==adv_preds).sum()/labels.size(0) )
- """
+
     
     
     
@@ -378,22 +379,4 @@ if __name__=='__main__':
     
     
     
-    """ DataLoader
-
-    DataLoader will reseed workers following Randomness in multi-process data loading algorithm. Use worker_init_fn() and generator to preserve reproducibility:
-
-    def seed_worker(worker_id):
-        worker_seed = torch.initial_seed() % 2**32
-        numpy.random.seed(worker_seed)
-        random.seed(worker_seed)
-
-    g = torch.Generator()
-    g.manual_seed(0)
-
-    DataLoader(
-        train_dataset,
-        batch_size=batch_size,
-        num_workers=num_workers,
-        worker_init_fn=seed_worker,
-        generator=g,
-    ) """
+    
