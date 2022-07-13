@@ -8,4 +8,4 @@
 
 * I also create simple toy datasets for furthur comparision.
 
-* for report see: 
+* for more information see [report](https://github.com/kfarivar/Masters_thesis/blob/main/thesis.pdf).
