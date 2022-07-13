@@ -1,4 +1,4 @@
-# Adversarial examples and self-supervised learning
+# Experiments on Adversarial robustness and Self-supervised learning
 
 * The loss function is supposed to be a proxy for the accuracy measure used to analyse a model. But this proxy is not always perfect.
 
