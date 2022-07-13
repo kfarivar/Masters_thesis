@@ -6,6 +6,6 @@
 
 * A synthetic dataset such as 3dident could help us isolate the factors that contribute to adversarial susceptibility. 
 
-* I also create simple toy datasets for furthur comparision.
+* I also create simple toy datasets and showed that it is possible to train a 100\% robust model using the standard supervised training pipeline.
 
 * for more information see [report](https://github.com/kfarivar/Masters_thesis/blob/main/thesis.pdf).
