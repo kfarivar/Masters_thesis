@@ -1,0 +1,1947 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.1 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global}
+    \entry{excessive_invariance}{article}{}
+      \name{author}{4}{}{%
+        {{hash=6f99ba45e4077ee472c0e76123ab977a}{%
+           family={Jacobsen},
+           familyi={J\bibinitperiod},
+           given={Jörn-Henrik},
+           giveni={J\bibinithyphendelim H\bibinitperiod}}}%
+        {{hash=40e350182282882f64106230fd6c37f2}{%
+           family={Behrmann},
+           familyi={B\bibinitperiod},
+           given={Jens},
+           giveni={J\bibinitperiod}}}%
+        {{hash=77a44166b8233ae29b20f292779447e0}{%
+           family={Zemel},
+           familyi={Z\bibinitperiod},
+           given={Richard},
+           giveni={R\bibinitperiod}}}%
+        {{hash=653ad8c2337d9615a186b743cc8d69a5}{%
+           family={Bethge},
+           familyi={B\bibinitperiod},
+           given={Matthias},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{db4f442666b465b64133572812067ca0}
+      \strng{fullhash}{2ab23877819edb06a5a729fa1e4467ba}
+      \strng{bibnamehash}{db4f442666b465b64133572812067ca0}
+      \strng{authorbibnamehash}{db4f442666b465b64133572812067ca0}
+      \strng{authornamehash}{db4f442666b465b64133572812067ca0}
+      \strng{authorfullhash}{2ab23877819edb06a5a729fa1e4467ba}
+      \field{labelalpha}{Jac+18}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Excessive Invariance Causes Adversarial Vulnerability}
+      \field{year}{2018}
+      \verb{doi}
+      \verb 10.48550/ARXIV.1811.00401
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1811.00401
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1811.00401
+      \endverb
+      \keyw{Machine Learning (cs.LG),Artificial Intelligence (cs.AI),Computer Vision and Pattern Recognition (cs.CV),Machine Learning (stat.ML),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{adv_exp_original_paper}{misc}{}
+      \name{author}{7}{}{%
+        {{hash=ed568d9c3bb059e6bf22899fbf170f86}{%
+           family={Szegedy},
+           familyi={S\bibinitperiod},
+           given={Christian},
+           giveni={C\bibinitperiod}}}%
+        {{hash=e9fec85bbce1b087a6ebefe26e73f7bf}{%
+           family={Zaremba},
+           familyi={Z\bibinitperiod},
+           given={Wojciech},
+           giveni={W\bibinitperiod}}}%
+        {{hash=8d569d1d5b8b5a7836017a98b430f959}{%
+           family={Sutskever},
+           familyi={S\bibinitperiod},
+           given={Ilya},
+           giveni={I\bibinitperiod}}}%
+        {{hash=c83b564e32475f10dcc91be7e66d3e81}{%
+           family={Bruna},
+           familyi={B\bibinitperiod},
+           given={Joan},
+           giveni={J\bibinitperiod}}}%
+        {{hash=8bbc4c5d96f205bada839e74e0202146}{%
+           family={Erhan},
+           familyi={E\bibinitperiod},
+           given={Dumitru},
+           giveni={D\bibinitperiod}}}%
+        {{hash=5d2585c11210cf1d4512e6e0a03ec315}{%
+           family={Goodfellow},
+           familyi={G\bibinitperiod},
+           given={Ian},
+           giveni={I\bibinitperiod}}}%
+        {{hash=a6784304d1cc890b2cb6c6c7f2f3fd76}{%
+           family={Fergus},
+           familyi={F\bibinitperiod},
+           given={Rob},
+           giveni={R\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{80f8e6bfc3aff3e75b2807a6f6962740}
+      \strng{fullhash}{c8c3e9b8f095d055ce92294b35ff475c}
+      \strng{bibnamehash}{80f8e6bfc3aff3e75b2807a6f6962740}
+      \strng{authorbibnamehash}{80f8e6bfc3aff3e75b2807a6f6962740}
+      \strng{authornamehash}{80f8e6bfc3aff3e75b2807a6f6962740}
+      \strng{authorfullhash}{c8c3e9b8f095d055ce92294b35ff475c}
+      \field{labelalpha}{Sze+13}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Intriguing properties of neural networks}
+      \field{year}{2013}
+      \verb{doi}
+      \verb 10.48550/ARXIV.1312.6199
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1312.6199
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1312.6199
+      \endverb
+      \keyw{Computer Vision and Pattern Recognition (cs.CV),Machine Learning (cs.LG),Neural and Evolutionary Computing (cs.NE),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{3dident}{article}{}
+      \name{author}{7}{}{%
+        {{hash=bf31bd43e1df15832e3c3b82c141db48}{%
+           family={Kügelgen},
+           familyi={K\bibinitperiod},
+           given={Julius},
+           giveni={J\bibinitperiod},
+           prefix={von},
+           prefixi={v\bibinitperiod}}}%
+        {{hash=1349d05adfb40ff0d344ee942288c81d}{%
+           family={Sharma},
+           familyi={S\bibinitperiod},
+           given={Yash},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=05749170b91465c449fdbc9077bf4001}{%
+           family={Gresele},
+           familyi={G\bibinitperiod},
+           given={Luigi},
+           giveni={L\bibinitperiod}}}%
+        {{hash=8a7f657701e94ae3c82e5c742f585592}{%
+           family={Brendel},
+           familyi={B\bibinitperiod},
+           given={Wieland},
+           giveni={W\bibinitperiod}}}%
+        {{hash=ca31cc11ec9370460148c3a9c48fce45}{%
+           family={Schölkopf},
+           familyi={S\bibinitperiod},
+           given={Bernhard},
+           giveni={B\bibinitperiod}}}%
+        {{hash=2412c6c9d4132caa26b8a902024fd398}{%
+           family={Besserve},
+           familyi={B\bibinitperiod},
+           given={Michel},
+           giveni={M\bibinitperiod}}}%
+        {{hash=c1fe97b077a5720d9fd9483464391fe6}{%
+           family={Locatello},
+           familyi={L\bibinitperiod},
+           given={Francesco},
+           giveni={F\bibinitperiod}}}%
+      }
+      \strng{namehash}{7be2059488456a9d58f64b4d20ca912e}
+      \strng{fullhash}{91e787993c35518f3e484a3a870839b7}
+      \strng{bibnamehash}{7be2059488456a9d58f64b4d20ca912e}
+      \strng{authorbibnamehash}{7be2059488456a9d58f64b4d20ca912e}
+      \strng{authornamehash}{7be2059488456a9d58f64b4d20ca912e}
+      \strng{authorfullhash}{91e787993c35518f3e484a3a870839b7}
+      \field{labelalpha}{Küg+21}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Self-supervised representation learning has shown remarkable success in a number of domains. A common practice is to perform data augmentation via hand-crafted transformations intended to leave the semantics of the data invariant. We seek to understand the empirical success of this approach from a theoretical perspective. We formulate the augmentation process as a latent variable model by postulating a partition of the latent representation into a content component, which is assumed invariant to augmentation, and a style component, which is allowed to change. Unlike prior work on disentanglement and independent component analysis, we allow for both nontrivial statistical and causal dependencies in the latent space. We study the identifiability of the latent representation based on pairs of views of the observations and prove sufficient conditions that allow us to identify the invariant content partition up to an invertible mapping in both generative and discriminative settings. We find numerical simulations with dependent latent variables are consistent with our theory. Lastly, we introduce Causal3DIdent, a dataset of high-dimensional, visually complex images with rich causal dependencies, which we use to study the effect of data augmentations performed in practice.}
+      \field{journaltitle}{arXiv:2106.04619 [cs, stat]}
+      \field{month}{10}
+      \field{note}{arXiv: 2106.04619}
+      \field{title}{Self-{Supervised} {Learning} with {Data} {Augmentations} {Provably} {Isolates} {Content} from {Style}}
+      \field{urlday}{17}
+      \field{urlmonth}{12}
+      \field{urlyear}{2021}
+      \field{year}{2021}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb arXiv Fulltext PDF:/home/kiyarash/Zotero/storage/5JHUQPK6/von Kügelgen et al. - 2021 - Self-Supervised Learning with Data Augmentations P.pdf:application/pdf;arXiv.org Snapshot:/home/kiyarash/Zotero/storage/6UT9L4WL/2106.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/2106.04619
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/2106.04619
+      \endverb
+      \keyw{Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Statistics - Machine Learning,Computer Science - Artificial Intelligence}
+    \endentry
+    \entry{grad_align}{misc}{}
+      \name{author}{2}{}{%
+        {{hash=37eab590a70071733a7207c69c1de93b}{%
+           family={Andriushchenko},
+           familyi={A\bibinitperiod},
+           given={Maksym},
+           giveni={M\bibinitperiod}}}%
+        {{hash=e2d7053f85144a452931150e4ba9f19c}{%
+           family={Flammarion},
+           familyi={F\bibinitperiod},
+           given={Nicolas},
+           giveni={N\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{ad25e220a60302d949a1dcd367074e54}
+      \strng{fullhash}{ad25e220a60302d949a1dcd367074e54}
+      \strng{bibnamehash}{ad25e220a60302d949a1dcd367074e54}
+      \strng{authorbibnamehash}{ad25e220a60302d949a1dcd367074e54}
+      \strng{authornamehash}{ad25e220a60302d949a1dcd367074e54}
+      \strng{authorfullhash}{ad25e220a60302d949a1dcd367074e54}
+      \field{labelalpha}{AF20}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Understanding and Improving Fast Adversarial Training}
+      \field{year}{2020}
+      \verb{doi}
+      \verb 10.48550/ARXIV.2007.02617
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2007.02617
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2007.02617
+      \endverb
+      \keyw{Machine Learning (cs.LG),Cryptography and Security (cs.CR),Computer Vision and Pattern Recognition (cs.CV),Machine Learning (stat.ML),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{cure}{misc}{}
+      \name{author}{4}{}{%
+        {{hash=b2a80319cbff4700e4d19ca2cd795eaf}{%
+           family={Moosavi-Dezfooli},
+           familyi={M\bibinithyphendelim D\bibinitperiod},
+           given={Seyed-Mohsen},
+           giveni={S\bibinithyphendelim M\bibinitperiod}}}%
+        {{hash=8d0a51ac9b8292a50431f9ee0b663937}{%
+           family={Fawzi},
+           familyi={F\bibinitperiod},
+           given={Alhussein},
+           giveni={A\bibinitperiod}}}%
+        {{hash=2ddaa39a1fe4bc75993aba93ddcd89cf}{%
+           family={Uesato},
+           familyi={U\bibinitperiod},
+           given={Jonathan},
+           giveni={J\bibinitperiod}}}%
+        {{hash=e3ffdb452de6d0eeff420ceb94f14446}{%
+           family={Frossard},
+           familyi={F\bibinitperiod},
+           given={Pascal},
+           giveni={P\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{09888e39dac2e8fd140a67c446ef1150}
+      \strng{fullhash}{1802d8ebb7a3f7297e11c327b885f482}
+      \strng{bibnamehash}{09888e39dac2e8fd140a67c446ef1150}
+      \strng{authorbibnamehash}{09888e39dac2e8fd140a67c446ef1150}
+      \strng{authornamehash}{09888e39dac2e8fd140a67c446ef1150}
+      \strng{authorfullhash}{1802d8ebb7a3f7297e11c327b885f482}
+      \field{labelalpha}{Moo+18}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Robustness via curvature regularization, and vice versa}
+      \field{year}{2018}
+      \verb{doi}
+      \verb 10.48550/ARXIV.1811.09716
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1811.09716
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1811.09716
+      \endverb
+      \keyw{Machine Learning (cs.LG),Computer Vision and Pattern Recognition (cs.CV),Machine Learning (stat.ML),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{features_not_bugs_madry}{misc}{}
+      \name{author}{6}{}{%
+        {{hash=924b414be21dcfc4f4f9f08196520746}{%
+           family={Ilyas},
+           familyi={I\bibinitperiod},
+           given={Andrew},
+           giveni={A\bibinitperiod}}}%
+        {{hash=bb66a5fcd7966034f5477f12cf059156}{%
+           family={Santurkar},
+           familyi={S\bibinitperiod},
+           given={Shibani},
+           giveni={S\bibinitperiod}}}%
+        {{hash=240422b4c9d0d047da2b6f51d9220b59}{%
+           family={Tsipras},
+           familyi={T\bibinitperiod},
+           given={Dimitris},
+           giveni={D\bibinitperiod}}}%
+        {{hash=52a9eb75d8ed34150ce01eb9e4c43027}{%
+           family={Engstrom},
+           familyi={E\bibinitperiod},
+           given={Logan},
+           giveni={L\bibinitperiod}}}%
+        {{hash=6dfbfd86b5e4b1c35eaece5fa58840ec}{%
+           family={Tran},
+           familyi={T\bibinitperiod},
+           given={Brandon},
+           giveni={B\bibinitperiod}}}%
+        {{hash=155359c985c7d112498d27d32ad89bfe}{%
+           family={Madry},
+           familyi={M\bibinitperiod},
+           given={Aleksander},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{f813698d8f340f336c185e9057a3cbc4}
+      \strng{fullhash}{118ebda35586fb69d6c927e16253d27c}
+      \strng{bibnamehash}{f813698d8f340f336c185e9057a3cbc4}
+      \strng{authorbibnamehash}{f813698d8f340f336c185e9057a3cbc4}
+      \strng{authornamehash}{f813698d8f340f336c185e9057a3cbc4}
+      \strng{authorfullhash}{118ebda35586fb69d6c927e16253d27c}
+      \field{labelalpha}{Ily+19}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Adversarial Examples Are Not Bugs, They Are Features}
+      \field{year}{2019}
+      \verb{doi}
+      \verb 10.48550/ARXIV.1905.02175
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1905.02175
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1905.02175
+      \endverb
+      \keyw{Machine Learning (stat.ML),Cryptography and Security (cs.CR),Computer Vision and Pattern Recognition (cs.CV),Machine Learning (cs.LG),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{adv_training_plus_ssl_training}{article}{}
+      \name{author}{4}{}{%
+        {{hash=86d0b4ecd6b6066d49e7aecde6e5e630}{%
+           family={Hendrycks},
+           familyi={H\bibinitperiod},
+           given={Dan},
+           giveni={D\bibinitperiod}}}%
+        {{hash=cf291551acefa6a31206eb6853b65648}{%
+           family={Mazeika},
+           familyi={M\bibinitperiod},
+           given={Mantas},
+           giveni={M\bibinitperiod}}}%
+        {{hash=ae50339c3e9c1418ade64e74fa002ef5}{%
+           family={Kadavath},
+           familyi={K\bibinitperiod},
+           given={Saurav},
+           giveni={S\bibinitperiod}}}%
+        {{hash=d458d5f9b64652055bd81d57e4777b22}{%
+           family={Song},
+           familyi={S\bibinitperiod},
+           given={Dawn},
+           giveni={D\bibinitperiod}}}%
+      }
+      \strng{namehash}{f461c117afa272374439d2db3ee67282}
+      \strng{fullhash}{75e21ffe180f56a985e829a83a555bf6}
+      \strng{bibnamehash}{f461c117afa272374439d2db3ee67282}
+      \strng{authorbibnamehash}{f461c117afa272374439d2db3ee67282}
+      \strng{authornamehash}{f461c117afa272374439d2db3ee67282}
+      \strng{authorfullhash}{75e21ffe180f56a985e829a83a555bf6}
+      \field{labelalpha}{Hen+19}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arXiv}
+      \field{journaltitle}{CoRR}
+      \field{title}{Using Self-Supervised Learning Can Improve Model Robustness and Uncertainty}
+      \field{volume}{abs/1906.12340}
+      \field{year}{2019}
+      \verb{eprint}
+      \verb 1906.12340
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1906.12340
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1906.12340
+      \endverb
+    \endentry
+    \entry{contrast_to_divide}{inproceedings}{}
+      \name{author}{5}{}{%
+        {{hash=677617c6bb9f37857f98349c2b16da2a}{%
+           family={Zheltonozhskii},
+           familyi={Z\bibinitperiod},
+           given={Evgenii},
+           giveni={E\bibinitperiod}}}%
+        {{hash=ca7448aa156a17135aea399926675d28}{%
+           family={Baskin},
+           familyi={B\bibinitperiod},
+           given={Chaim},
+           giveni={C\bibinitperiod}}}%
+        {{hash=67a9607fa43ad77eb54d2cd37af47b0d}{%
+           family={Mendelson},
+           familyi={M\bibinitperiod},
+           given={Avi},
+           giveni={A\bibinitperiod}}}%
+        {{hash=07067d223af2cd1402927636c1f87d3d}{%
+           family={Bronstein},
+           familyi={B\bibinitperiod},
+           given={Alex\bibnamedelima M.},
+           giveni={A\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=97f1d0f931346a5724f2c5ed6e335191}{%
+           family={Litany},
+           familyi={L\bibinitperiod},
+           given={Or},
+           giveni={O\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{f44c295b92514ebb53a1e64af6b4cda0}
+      \strng{fullhash}{cd6342be77ccc370c1deb4f3ae49e745}
+      \strng{bibnamehash}{f44c295b92514ebb53a1e64af6b4cda0}
+      \strng{authorbibnamehash}{f44c295b92514ebb53a1e64af6b4cda0}
+      \strng{authornamehash}{f44c295b92514ebb53a1e64af6b4cda0}
+      \strng{authorfullhash}{cd6342be77ccc370c1deb4f3ae49e745}
+      \field{labelalpha}{Zhe+22}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2022 {IEEE}/{CVF} Winter Conference on Applications of Computer Vision ({WACV})}
+      \field{month}{1}
+      \field{title}{Contrast to Divide: Self-Supervised Pre-Training for Learning with Noisy Labels}
+      \field{year}{2022}
+      \verb{doi}
+      \verb 10.1109/wacv51458.2022.00046
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1109%2Fwacv51458.2022.00046
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1109%2Fwacv51458.2022.00046
+      \endverb
+    \endentry
+    \entry{label_noise_contrastive_learning}{article}{}
+      \name{author}{3}{}{%
+        {{hash=203b807f54aa0e078b0696bf993e64db}{%
+           family={Xue},
+           familyi={X\bibinitperiod},
+           given={Yihao},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=cbaeacd20a78fe4096a55e21f695cd41}{%
+           family={Whitecross},
+           familyi={W\bibinitperiod},
+           given={Kyle},
+           giveni={K\bibinitperiod}}}%
+        {{hash=af125b4e401e1cef5286423b9a7fbe52}{%
+           family={Mirzasoleiman},
+           familyi={M\bibinitperiod},
+           given={Baharan},
+           giveni={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{55134a12741c9aba90dfc85b4029b2ef}
+      \strng{fullhash}{55134a12741c9aba90dfc85b4029b2ef}
+      \strng{bibnamehash}{55134a12741c9aba90dfc85b4029b2ef}
+      \strng{authorbibnamehash}{55134a12741c9aba90dfc85b4029b2ef}
+      \strng{authornamehash}{55134a12741c9aba90dfc85b4029b2ef}
+      \strng{authorfullhash}{55134a12741c9aba90dfc85b4029b2ef}
+      \field{labelalpha}{XWM22}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arXiv}
+      \field{journaltitle}{CoRR}
+      \field{title}{Investigating Why Contrastive Learning Benefits Robustness Against Label Noise}
+      \field{volume}{abs/2201.12498}
+      \field{year}{2022}
+      \verb{eprint}
+      \verb 2201.12498
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2201.12498
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2201.12498
+      \endverb
+    \endentry
+    \entry{goodfellow_fgsm}{misc}{}
+      \name{author}{3}{}{%
+        {{hash=d4f74ef4c79f3bb1e51e378184d8850e}{%
+           family={Goodfellow},
+           familyi={G\bibinitperiod},
+           given={Ian\bibnamedelima J.},
+           giveni={I\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=8f128e70084608a2c29c497ebd794f87}{%
+           family={Shlens},
+           familyi={S\bibinitperiod},
+           given={Jonathon},
+           giveni={J\bibinitperiod}}}%
+        {{hash=ed568d9c3bb059e6bf22899fbf170f86}{%
+           family={Szegedy},
+           familyi={S\bibinitperiod},
+           given={Christian},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{07b2928cf9addb6cf2d09332e9d7ce18}
+      \strng{fullhash}{07b2928cf9addb6cf2d09332e9d7ce18}
+      \strng{bibnamehash}{07b2928cf9addb6cf2d09332e9d7ce18}
+      \strng{authorbibnamehash}{07b2928cf9addb6cf2d09332e9d7ce18}
+      \strng{authornamehash}{07b2928cf9addb6cf2d09332e9d7ce18}
+      \strng{authorfullhash}{07b2928cf9addb6cf2d09332e9d7ce18}
+      \field{labelalpha}{GSS14}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Explaining and Harnessing Adversarial Examples}
+      \field{year}{2014}
+      \verb{doi}
+      \verb 10.48550/ARXIV.1412.6572
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1412.6572
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1412.6572
+      \endverb
+      \keyw{Machine Learning (stat.ML),Machine Learning (cs.LG),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{autoattack}{misc}{}
+      \name{author}{2}{}{%
+        {{hash=4aa1c6d22c8d3aad56c30c5c0d361b7a}{%
+           family={Croce},
+           familyi={C\bibinitperiod},
+           given={Francesco},
+           giveni={F\bibinitperiod}}}%
+        {{hash=9e3f4c60354fda4d9127485afba87230}{%
+           family={Hein},
+           familyi={H\bibinitperiod},
+           given={Matthias},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{08672dd56414ce5a5812f13b4902537b}
+      \strng{fullhash}{08672dd56414ce5a5812f13b4902537b}
+      \strng{bibnamehash}{08672dd56414ce5a5812f13b4902537b}
+      \strng{authorbibnamehash}{08672dd56414ce5a5812f13b4902537b}
+      \strng{authornamehash}{08672dd56414ce5a5812f13b4902537b}
+      \strng{authorfullhash}{08672dd56414ce5a5812f13b4902537b}
+      \field{labelalpha}{CH20}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{extraalpha}{1}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Reliable evaluation of adversarial robustness with an ensemble of diverse parameter-free attacks}
+      \field{year}{2020}
+      \verb{doi}
+      \verb 10.48550/ARXIV.2003.01690
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2003.01690
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2003.01690
+      \endverb
+      \keyw{Machine Learning (cs.LG),Computer Vision and Pattern Recognition (cs.CV),Machine Learning (stat.ML),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{adv_training_madry}{misc}{}
+      \name{author}{5}{}{%
+        {{hash=155359c985c7d112498d27d32ad89bfe}{%
+           family={Madry},
+           familyi={M\bibinitperiod},
+           given={Aleksander},
+           giveni={A\bibinitperiod}}}%
+        {{hash=0cbd9bf3ec2c5306948fe3da351748fc}{%
+           family={Makelov},
+           familyi={M\bibinitperiod},
+           given={Aleksandar},
+           giveni={A\bibinitperiod}}}%
+        {{hash=bca2cf46e9eed1a3bcc54f4286b4e013}{%
+           family={Schmidt},
+           familyi={S\bibinitperiod},
+           given={Ludwig},
+           giveni={L\bibinitperiod}}}%
+        {{hash=240422b4c9d0d047da2b6f51d9220b59}{%
+           family={Tsipras},
+           familyi={T\bibinitperiod},
+           given={Dimitris},
+           giveni={D\bibinitperiod}}}%
+        {{hash=097451a2aff1de6e5880f0cb1d8b6030}{%
+           family={Vladu},
+           familyi={V\bibinitperiod},
+           given={Adrian},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{4530e2a23ee0240ba27644964b0d760f}
+      \strng{fullhash}{e33786bf52938f374c7e70f07a5fd7fb}
+      \strng{bibnamehash}{4530e2a23ee0240ba27644964b0d760f}
+      \strng{authorbibnamehash}{4530e2a23ee0240ba27644964b0d760f}
+      \strng{authornamehash}{4530e2a23ee0240ba27644964b0d760f}
+      \strng{authorfullhash}{e33786bf52938f374c7e70f07a5fd7fb}
+      \field{labelalpha}{Mad+19}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{stat.ML}
+      \field{eprinttype}{arXiv}
+      \field{title}{Towards Deep Learning Models Resistant to Adversarial Attacks}
+      \field{year}{2019}
+      \verb{eprint}
+      \verb 1706.06083
+      \endverb
+    \endentry
+    \entry{on_manifold_off_manifold}{article}{}
+      \name{author}{3}{}{%
+        {{hash=38d78a7ede21a7daa1bc6ab12af5b209}{%
+           family={Stutz},
+           familyi={S\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+        {{hash=9e3f4c60354fda4d9127485afba87230}{%
+           family={Hein},
+           familyi={H\bibinitperiod},
+           given={Matthias},
+           giveni={M\bibinitperiod}}}%
+        {{hash=457dd3049a60059cf69e775a47f0c154}{%
+           family={Schiele},
+           familyi={S\bibinitperiod},
+           given={Bernt},
+           giveni={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{5cb2bfabda8e9b3170922feab7893adc}
+      \strng{fullhash}{5cb2bfabda8e9b3170922feab7893adc}
+      \strng{bibnamehash}{5cb2bfabda8e9b3170922feab7893adc}
+      \strng{authorbibnamehash}{5cb2bfabda8e9b3170922feab7893adc}
+      \strng{authornamehash}{5cb2bfabda8e9b3170922feab7893adc}
+      \strng{authorfullhash}{5cb2bfabda8e9b3170922feab7893adc}
+      \field{labelalpha}{SHS19}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Obtaining deep networks that are robust against adversarial examples and generalize well is an open problem. A recent hypothesis even states that both robust and accurate models are impossible, i.e., adversarial robustness and generalization are conflicting goals. In an effort to clarify the relationship between robustness and generalization, we assume an underlying, low-dimensional data manifold and show that: 1. regular adversarial examples leave the manifold; 2. adversarial examples constrained to the manifold, i.e., on-manifold adversarial examples, exist; 3. on-manifold adversarial examples are generalization errors, and on-manifold adversarial training boosts generalization; 4. regular robustness and generalization are not necessarily contradicting goals. These assumptions imply that both robust and accurate models are possible. However, different models (architectures, training strategies etc.) can exhibit different robustness and generalization characteristics. To confirm our claims, we present extensive experiments on synthetic data (with known manifold) as well as on EMNIST, Fashion-MNIST and CelebA.}
+      \field{journaltitle}{arXiv:1812.00740 [cs, stat]}
+      \field{month}{4}
+      \field{note}{arXiv: 1812.00740}
+      \field{title}{Disentangling {Adversarial} {Robustness} and {Generalization}}
+      \field{urlday}{17}
+      \field{urlmonth}{11}
+      \field{urlyear}{2021}
+      \field{year}{2019}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb arXiv Fulltext PDF:/home/kiyarash/Zotero/storage/DTBKTBV3/Stutz et al. - 2019 - Disentangling Adversarial Robustness and Generaliz.pdf:application/pdf;arXiv.org Snapshot:/home/kiyarash/Zotero/storage/QDVRMQDS/1812.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1812.00740
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1812.00740
+      \endverb
+      \keyw{Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Statistics - Machine Learning,Computer Science - Cryptography and Security}
+    \endentry
+    \entry{rotation_gidaris_unsupervised_2018}{article}{}
+      \name{author}{3}{}{%
+        {{hash=46e96c4d02697413846440921900e9ce}{%
+           family={Gidaris},
+           familyi={G\bibinitperiod},
+           given={Spyros},
+           giveni={S\bibinitperiod}}}%
+        {{hash=f12bafa3883b5e94ed5bbcab458128c4}{%
+           family={Singh},
+           familyi={S\bibinitperiod},
+           given={Praveer},
+           giveni={P\bibinitperiod}}}%
+        {{hash=1b19df6325edc9e76749ac30a9d962c7}{%
+           family={Komodakis},
+           familyi={K\bibinitperiod},
+           given={Nikos},
+           giveni={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{6803481e0cd09c5bddcfc136edc99d2b}
+      \strng{fullhash}{6803481e0cd09c5bddcfc136edc99d2b}
+      \strng{bibnamehash}{6803481e0cd09c5bddcfc136edc99d2b}
+      \strng{authorbibnamehash}{6803481e0cd09c5bddcfc136edc99d2b}
+      \strng{authornamehash}{6803481e0cd09c5bddcfc136edc99d2b}
+      \strng{authorfullhash}{6803481e0cd09c5bddcfc136edc99d2b}
+      \field{labelalpha}{GSK18}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Over the last years, deep convolutional neural networks (ConvNets) have transformed the field of computer vision thanks to their unparalleled capacity to learn high level semantic image features. However, in order to successfully learn those features, they usually require massive amounts of manually labeled data, which is both expensive and impractical to scale. Therefore, unsupervised semantic feature learning, i.e., learning without requiring manual annotation effort, is of crucial importance in order to successfully harvest the vast amount of visual data that are available today. In our work we propose to learn image features by training ConvNets to recognize the 2d rotation that is applied to the image that it gets as input. We demonstrate both qualitatively and quantitatively that this apparently simple task actually provides a very powerful supervisory signal for semantic feature learning. We exhaustively evaluate our method in various unsupervised feature learning benchmarks and we exhibit in all of them state-of-the-art performance. Specifically, our results on those benchmarks demonstrate dramatic improvements w.r.t. prior state-of-the-art approaches in unsupervised representation learning and thus significantly close the gap with supervised feature learning. For instance, in PASCAL VOC 2007 detection task our unsupervised pre-trained AlexNet model achieves the state-of-the-art (among unsupervised methods) mAP of 54.4\% that is only 2.4 points lower from the supervised case. We get similarly striking results when we transfer our unsupervised learned features on various other tasks, such as ImageNet classification, PASCAL classification, PASCAL segmentation, and CIFAR-10 classification. The code and models of our paper will be published on: https://github.com/gidariss/FeatureLearningRotNet .}
+      \field{journaltitle}{arXiv:1803.07728 [cs]}
+      \field{month}{3}
+      \field{note}{arXiv: 1803.07728}
+      \field{title}{Unsupervised {Representation} {Learning} by {Predicting} {Image} {Rotations}}
+      \field{urlday}{2}
+      \field{urlmonth}{8}
+      \field{urlyear}{2021}
+      \field{year}{2018}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb arXiv Fulltext PDF:/home/kiyarash/Zotero/storage/7WUZUYAQ/Gidaris et al. - 2018 - Unsupervised Representation Learning by Predicting.pdf:application/pdf;arXiv.org Snapshot:/home/kiyarash/Zotero/storage/KNPAFQH6/1803.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1803.07728
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1803.07728
+      \endverb
+      \keyw{Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning}
+    \endentry
+    \entry{arora_theoretical_2019}{article}{}
+      \name{author}{5}{}{%
+        {{hash=8e08b59145b9531815169c7ed0a0b055}{%
+           family={Arora},
+           familyi={A\bibinitperiod},
+           given={Sanjeev},
+           giveni={S\bibinitperiod}}}%
+        {{hash=6b8e7a4f88aec3c887ed5b52c49ef7c8}{%
+           family={Khandeparkar},
+           familyi={K\bibinitperiod},
+           given={Hrishikesh},
+           giveni={H\bibinitperiod}}}%
+        {{hash=9321b4e90c2fd1051c138192a45c6ea9}{%
+           family={Khodak},
+           familyi={K\bibinitperiod},
+           given={Mikhail},
+           giveni={M\bibinitperiod}}}%
+        {{hash=7d933382fde22061aa8cf9cd65808635}{%
+           family={Plevrakis},
+           familyi={P\bibinitperiod},
+           given={Orestis},
+           giveni={O\bibinitperiod}}}%
+        {{hash=df0d188817eb59196f20b391c4e5080f}{%
+           family={Saunshi},
+           familyi={S\bibinitperiod},
+           given={Nikunj},
+           giveni={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{ab405688b3c276098991bcafe5da7076}
+      \strng{fullhash}{6eec4753d009607723b7dbcb6b4c8507}
+      \strng{bibnamehash}{ab405688b3c276098991bcafe5da7076}
+      \strng{authorbibnamehash}{ab405688b3c276098991bcafe5da7076}
+      \strng{authornamehash}{ab405688b3c276098991bcafe5da7076}
+      \strng{authorfullhash}{6eec4753d009607723b7dbcb6b4c8507}
+      \field{labelalpha}{Aro+19}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Recent empirical works have successfully used unlabeled data to learn feature representations that are broadly useful in downstream classification tasks. Several of these methods are reminiscent of the well-known word2vec embedding algorithm: leveraging availability of pairs of semantically "similar" data points and "negative samples," the learner forces the inner product of representations of similar pairs with each other to be higher on average than with negative samples. The current paper uses the term contrastive learning for such algorithms and presents a theoretical framework for analyzing them by introducing latent classes and hypothesizing that semantically similar points are sampled from the same latent class. This framework allows us to show provable guarantees on the performance of the learned representations on the average classification task that is comprised of a subset of the same set of latent classes. Our generalization bound also shows that learned representations can reduce (labeled) sample complexity on downstream tasks. We conduct controlled experiments in both the text and image domains to support the theory.}
+      \field{journaltitle}{arXiv:1902.09229 [cs, stat]}
+      \field{month}{2}
+      \field{note}{arXiv: 1902.09229}
+      \field{title}{A {Theoretical} {Analysis} of {Contrastive} {Unsupervised} {Representation} {Learning}}
+      \field{urlday}{1}
+      \field{urlmonth}{8}
+      \field{urlyear}{2021}
+      \field{year}{2019}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb arXiv Fulltext PDF:/home/kiyarash/Zotero/storage/8TB6IGJV/Arora et al. - 2019 - A Theoretical Analysis of Contrastive Unsupervised.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1902.09229
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1902.09229
+      \endverb
+      \keyw{Computer Science - Machine Learning,Statistics - Machine Learning,Computer Science - Artificial Intelligence}
+    \endentry
+    \entry{simclr_chen_simple_2020}{article}{}
+      \name{author}{4}{}{%
+        {{hash=b240c653612b8157a41dd4282347398a}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Ting},
+           giveni={T\bibinitperiod}}}%
+        {{hash=7fc0edf04cce351dda404579ede3d0d1}{%
+           family={Kornblith},
+           familyi={K\bibinitperiod},
+           given={Simon},
+           giveni={S\bibinitperiod}}}%
+        {{hash=e34c5aa67281924804d54d88e58ca38a}{%
+           family={Norouzi},
+           familyi={N\bibinitperiod},
+           given={Mohammad},
+           giveni={M\bibinitperiod}}}%
+        {{hash=9a8750ccdb2a4cf14d2655face1ce016}{%
+           family={Hinton},
+           familyi={H\bibinitperiod},
+           given={Geoffrey},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{3dc8ec697e4145870100b5dc50b300b9}
+      \strng{fullhash}{584a9ff5d36bb27e8e9ed9ee39cb795e}
+      \strng{bibnamehash}{3dc8ec697e4145870100b5dc50b300b9}
+      \strng{authorbibnamehash}{3dc8ec697e4145870100b5dc50b300b9}
+      \strng{authornamehash}{3dc8ec697e4145870100b5dc50b300b9}
+      \strng{authorfullhash}{584a9ff5d36bb27e8e9ed9ee39cb795e}
+      \field{labelalpha}{Che+20}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This paper presents SimCLR: a simple framework for contrastive learning of visual representations. We simplify recently proposed contrastive self-supervised learning algorithms without requiring specialized architectures or a memory bank. In order to understand what enables the contrastive prediction tasks to learn useful representations, we systematically study the major components of our framework. We show that (1) composition of data augmentations plays a critical role in defining effective predictive tasks, (2) introducing a learnable nonlinear transformation between the representation and the contrastive loss substantially improves the quality of the learned representations, and (3) contrastive learning benefits from larger batch sizes and more training steps compared to supervised learning. By combining these findings, we are able to considerably outperform previous methods for self-supervised and semi-supervised learning on ImageNet. A linear classifier trained on self-supervised representations learned by SimCLR achieves 76.5\% top-1 accuracy, which is a 7\% relative improvement over previous state-of-the-art, matching the performance of a supervised ResNet-50. When fine-tuned on only 1\% of the labels, we achieve 85.8\% top-5 accuracy, outperforming AlexNet with 100X fewer labels.}
+      \field{journaltitle}{arXiv:2002.05709 [cs, stat]}
+      \field{month}{6}
+      \field{note}{arXiv: 2002.05709}
+      \field{title}{A {Simple} {Framework} for {Contrastive} {Learning} of {Visual} {Representations}}
+      \field{urlday}{14}
+      \field{urlmonth}{9}
+      \field{urlyear}{2021}
+      \field{year}{2020}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb arXiv Fulltext PDF:/home/kiyarash/Zotero/storage/MFP6RPQJ/Chen et al. - 2020 - A Simple Framework for Contrastive Learning of Vis.pdf:application/pdf;arXiv.org Snapshot:/home/kiyarash/Zotero/storage/SYBHKA9N/2002.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/2002.05709
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/2002.05709
+      \endverb
+      \keyw{Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Statistics - Machine Learning}
+    \endentry
+    \entry{barlow_twins}{misc}{}
+      \name{author}{5}{}{%
+        {{hash=4bcf577f96d6a28d5adff7f31f23ecce}{%
+           family={Zbontar},
+           familyi={Z\bibinitperiod},
+           given={Jure},
+           giveni={J\bibinitperiod}}}%
+        {{hash=e185e98ee3d0228730eb44d3476c64be}{%
+           family={Jing},
+           familyi={J\bibinitperiod},
+           given={Li},
+           giveni={L\bibinitperiod}}}%
+        {{hash=4ada721a93e1592ecdc3df0fc9876469}{%
+           family={Misra},
+           familyi={M\bibinitperiod},
+           given={Ishan},
+           giveni={I\bibinitperiod}}}%
+        {{hash=6a1aa6b7eab12b931ca7c7e3f927231d}{%
+           family={LeCun},
+           familyi={L\bibinitperiod},
+           given={Yann},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=f1aa4da8c7d7d5bc8f0ca370984adbe2}{%
+           family={Deny},
+           familyi={D\bibinitperiod},
+           given={Stéphane},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{4b1b5ba833822b804c9cc20a04ff54a7}
+      \strng{fullhash}{448987b6a5837c74b7554774f2cc60bf}
+      \strng{bibnamehash}{4b1b5ba833822b804c9cc20a04ff54a7}
+      \strng{authorbibnamehash}{4b1b5ba833822b804c9cc20a04ff54a7}
+      \strng{authornamehash}{4b1b5ba833822b804c9cc20a04ff54a7}
+      \strng{authorfullhash}{448987b6a5837c74b7554774f2cc60bf}
+      \field{labelalpha}{Zbo+21}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Barlow Twins: Self-Supervised Learning via Redundancy Reduction}
+      \field{year}{2021}
+      \verb{doi}
+      \verb 10.48550/ARXIV.2103.03230
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2103.03230
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2103.03230
+      \endverb
+      \keyw{Computer Vision and Pattern Recognition (cs.CV),Artificial Intelligence (cs.AI),Machine Learning (cs.LG),Neurons and Cognition (q-bio.NC),FOS: Computer and information sciences,FOS: Computer and information sciences,FOS: Biological sciences,FOS: Biological sciences}
+    \endentry
+    \entry{contrastive_learning_spectral_proof}{misc}{}
+      \name{author}{4}{}{%
+        {{hash=801ca70c89f3be997d6b24b2812eb3ab}{%
+           family={HaoChen},
+           familyi={H\bibinitperiod},
+           given={Jeff\bibnamedelima Z.},
+           giveni={J\bibinitperiod\bibinitdelim Z\bibinitperiod}}}%
+        {{hash=f82aaeda30fe4e41d8d329eafa383e52}{%
+           family={Wei},
+           familyi={W\bibinitperiod},
+           given={Colin},
+           giveni={C\bibinitperiod}}}%
+        {{hash=4310b5568f7680f83c3e4c70d4f4d7a1}{%
+           family={Gaidon},
+           familyi={G\bibinitperiod},
+           given={Adrien},
+           giveni={A\bibinitperiod}}}%
+        {{hash=5bd4a91e09b499d15e82bc929acf1e34}{%
+           family={Ma},
+           familyi={M\bibinitperiod},
+           given={Tengyu},
+           giveni={T\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{7f4b83c7f57b63546a9718ce74551898}
+      \strng{fullhash}{a090d064a100587b007184967ee4975d}
+      \strng{bibnamehash}{7f4b83c7f57b63546a9718ce74551898}
+      \strng{authorbibnamehash}{7f4b83c7f57b63546a9718ce74551898}
+      \strng{authornamehash}{7f4b83c7f57b63546a9718ce74551898}
+      \strng{authorfullhash}{a090d064a100587b007184967ee4975d}
+      \field{labelalpha}{Hao+21}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Provable Guarantees for Self-Supervised Deep Learning with Spectral Contrastive Loss}
+      \field{year}{2021}
+      \verb{doi}
+      \verb 10.48550/ARXIV.2106.04156
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2106.04156
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2106.04156
+      \endverb
+      \keyw{Machine Learning (cs.LG),Machine Learning (stat.ML),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{supervised_texture_bias}{misc}{}
+      \name{author}{6}{}{%
+        {{hash=f5e971834fd0fe06b8684443a90021c6}{%
+           family={Geirhos},
+           familyi={G\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod}}}%
+        {{hash=d3eebd65bcc8c0447ac34d1601102a3b}{%
+           family={Rubisch},
+           familyi={R\bibinitperiod},
+           given={Patricia},
+           giveni={P\bibinitperiod}}}%
+        {{hash=b52892333d083e64c33b43b65a565bb3}{%
+           family={Michaelis},
+           familyi={M\bibinitperiod},
+           given={Claudio},
+           giveni={C\bibinitperiod}}}%
+        {{hash=653ad8c2337d9615a186b743cc8d69a5}{%
+           family={Bethge},
+           familyi={B\bibinitperiod},
+           given={Matthias},
+           giveni={M\bibinitperiod}}}%
+        {{hash=20afa03815f57165428b0c34ca89aafc}{%
+           family={Wichmann},
+           familyi={W\bibinitperiod},
+           given={Felix\bibnamedelima A.},
+           giveni={F\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=8a7f657701e94ae3c82e5c742f585592}{%
+           family={Brendel},
+           familyi={B\bibinitperiod},
+           given={Wieland},
+           giveni={W\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{156e4e1f6d61cfd3930e52380fc49ea5}
+      \strng{fullhash}{6abc7223dbf3f7c1df6ff1c55db2c7dd}
+      \strng{bibnamehash}{156e4e1f6d61cfd3930e52380fc49ea5}
+      \strng{authorbibnamehash}{156e4e1f6d61cfd3930e52380fc49ea5}
+      \strng{authornamehash}{156e4e1f6d61cfd3930e52380fc49ea5}
+      \strng{authorfullhash}{6abc7223dbf3f7c1df6ff1c55db2c7dd}
+      \field{labelalpha}{Gei+18}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{ImageNet-trained CNNs are biased towards texture; increasing shape bias improves accuracy and robustness}
+      \field{year}{2018}
+      \verb{doi}
+      \verb 10.48550/ARXIV.1811.12231
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1811.12231
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1811.12231
+      \endverb
+      \keyw{Computer Vision and Pattern Recognition (cs.CV),Artificial Intelligence (cs.AI),Machine Learning (cs.LG),Neurons and Cognition (q-bio.NC),Machine Learning (stat.ML),FOS: Computer and information sciences,FOS: Computer and information sciences,FOS: Biological sciences,FOS: Biological sciences}
+    \endentry
+    \entry{contrastive_loss_shortcut_solutions}{misc}{}
+      \name{author}{3}{}{%
+        {{hash=b240c653612b8157a41dd4282347398a}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Ting},
+           giveni={T\bibinitperiod}}}%
+        {{hash=3880846cafedf652049a38120af4ec77}{%
+           family={Luo},
+           familyi={L\bibinitperiod},
+           given={Calvin},
+           giveni={C\bibinitperiod}}}%
+        {{hash=0bde480b669967bb3a864e27dbd502cf}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Lala},
+           giveni={L\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{fullhash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{bibnamehash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{authorbibnamehash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{authornamehash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{authorfullhash}{c031f826aa27e23140cd60d5e388407d}
+      \field{extraname}{1}
+      \field{labelalpha}{CLL20}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Intriguing Properties of Contrastive Losses}
+      \field{year}{2020}
+      \verb{doi}
+      \verb 10.48550/ARXIV.2011.02803
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2011.02803
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2011.02803
+      \endverb
+      \keyw{Machine Learning (cs.LG),Artificial Intelligence (cs.AI),Computer Vision and Pattern Recognition (cs.CV),Machine Learning (stat.ML),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{ELR}{misc}{}
+      \name{author}{4}{}{%
+        {{hash=b51d008c8f8b480734bdad360774940e}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Sheng},
+           giveni={S\bibinitperiod}}}%
+        {{hash=7e28afc4c2e53bb64c772ca0a39076b7}{%
+           family={Niles-Weed},
+           familyi={N\bibinithyphendelim W\bibinitperiod},
+           given={Jonathan},
+           giveni={J\bibinitperiod}}}%
+        {{hash=f995cc373648e41ec7f6a43ec41cc8d3}{%
+           family={Razavian},
+           familyi={R\bibinitperiod},
+           given={Narges},
+           giveni={N\bibinitperiod}}}%
+        {{hash=475ad4a7f8af41b981136c93155745e5}{%
+           family={Fernandez-Granda},
+           familyi={F\bibinithyphendelim G\bibinitperiod},
+           given={Carlos},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{e564a771cd85fba57e2fa581f64dc31b}
+      \strng{fullhash}{2ff880a59c41512b056f49bd727ebae0}
+      \strng{bibnamehash}{e564a771cd85fba57e2fa581f64dc31b}
+      \strng{authorbibnamehash}{e564a771cd85fba57e2fa581f64dc31b}
+      \strng{authornamehash}{e564a771cd85fba57e2fa581f64dc31b}
+      \strng{authorfullhash}{2ff880a59c41512b056f49bd727ebae0}
+      \field{labelalpha}{Liu+20}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Early-Learning Regularization Prevents Memorization of Noisy Labels}
+      \field{year}{2020}
+      \verb{doi}
+      \verb 10.48550/ARXIV.2007.00151
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2007.00151
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2007.00151
+      \endverb
+      \keyw{Machine Learning (cs.LG),Computer Vision and Pattern Recognition (cs.CV),Machine Learning (stat.ML),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{ifm_ssl_avoid_shortcuts}{article}{}
+      \name{author}{6}{}{%
+        {{hash=f87e46956617a1374bf7eb85040c7b31}{%
+           family={Robinson},
+           familyi={R\bibinitperiod},
+           given={Joshua},
+           giveni={J\bibinitperiod}}}%
+        {{hash=18f2ca94eab66e99fbcfaca400a36215}{%
+           family={Sun},
+           familyi={S\bibinitperiod},
+           given={Li},
+           giveni={L\bibinitperiod}}}%
+        {{hash=188de48edeb47cc2aa35005615c73965}{%
+           family={Yu},
+           familyi={Y\bibinitperiod},
+           given={Ke},
+           giveni={K\bibinitperiod}}}%
+        {{hash=0596a69a4b573897f7ae250af6b4cbae}{%
+           family={Batmanghelich},
+           familyi={B\bibinitperiod},
+           given={Kayhan},
+           giveni={K\bibinitperiod}}}%
+        {{hash=83a44c18acfaa38fa9f6ba76cfdc0132}{%
+           family={Jegelka},
+           familyi={J\bibinitperiod},
+           given={Stefanie},
+           giveni={S\bibinitperiod}}}%
+        {{hash=533357302a33eccdc40c943cd97d2edc}{%
+           family={Sra},
+           familyi={S\bibinitperiod},
+           given={Suvrit},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{4f95744cc8878e8c2c3332dc84dd49be}
+      \strng{fullhash}{9e5e3857022a1eb3d285da03ba1a1cf0}
+      \strng{bibnamehash}{4f95744cc8878e8c2c3332dc84dd49be}
+      \strng{authorbibnamehash}{4f95744cc8878e8c2c3332dc84dd49be}
+      \strng{authornamehash}{4f95744cc8878e8c2c3332dc84dd49be}
+      \strng{authorfullhash}{9e5e3857022a1eb3d285da03ba1a1cf0}
+      \field{labelalpha}{Rob+21}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{The generalization of representations learned via contrastive learning depends crucially on what features of the data are extracted. However, we observe that the contrastive loss does not always sufficiently guide which features are extracted, a behavior that can negatively impact the performance on downstream tasks via "shortcuts", i.e., by inadvertently suppressing important predictive features. We find that feature extraction is influenced by the difficulty of the so-called instance discrimination task (i.e., the task of discriminating pairs of similar points from pairs of dissimilar ones). Although harder pairs improve the representation of some features, the improvement comes at the cost of suppressing previously well represented features. In response, we propose implicit feature modification (IFM), a method for altering positive and negative samples in order to guide contrastive models towards capturing a wider variety of predictive features. Empirically, we observe that IFM reduces feature suppression, and as a result improves performance on vision and medical imaging tasks. The code is available at: {\textbackslash}url\{https://github.com/joshr17/IFM\}.}
+      \field{journaltitle}{arXiv:2106.11230 [cs]}
+      \field{month}{6}
+      \field{note}{arXiv: 2106.11230}
+      \field{title}{Can contrastive learning avoid shortcut solutions?}
+      \field{urlday}{12}
+      \field{urlmonth}{10}
+      \field{urlyear}{2021}
+      \field{year}{2021}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Robinson et al. - 2021 - Can contrastive learning avoid shortcut solutions.pdf:/home/kiyarash/Zotero/storage/FY3B3ABH/Robinson et al. - 2021 - Can contrastive learning avoid shortcut solutions.pdf:application/pdf;adv_input_vs_IFM.jpg:/home/kiyarash/Zotero/storage/D4CFYYKH/adv_input_vs_IFM.jpg:image/jpeg
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/2106.11230
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/2106.11230
+      \endverb
+      \keyw{Computer Science - Machine Learning}
+    \endentry
+    \entry{ACL_Adversarial_Contrastive_Learning_2020}{article}{}
+      \name{author}{4}{}{%
+        {{hash=4b77668b134eb6dcf280d1557d516886}{%
+           family={Jiang},
+           familyi={J\bibinitperiod},
+           given={Ziyu},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=d30571882fcf746c466a57da914b08ad}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Tianlong},
+           giveni={T\bibinitperiod}}}%
+        {{hash=b240c653612b8157a41dd4282347398a}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Ting},
+           giveni={T\bibinitperiod}}}%
+        {{hash=4f87ba962b43f4d664922e1f3c38c9c0}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Zhangyang},
+           giveni={Z\bibinitperiod}}}%
+      }
+      \strng{namehash}{fa029eed56b2c21055911f35a88338f6}
+      \strng{fullhash}{87dbce053006b3f77a32fbf8878416e4}
+      \strng{bibnamehash}{fa029eed56b2c21055911f35a88338f6}
+      \strng{authorbibnamehash}{fa029eed56b2c21055911f35a88338f6}
+      \strng{authornamehash}{fa029eed56b2c21055911f35a88338f6}
+      \strng{authorfullhash}{87dbce053006b3f77a32fbf8878416e4}
+      \field{labelalpha}{Jia+20}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Recent work has shown that, when integrated with adversarial training, self-supervised pre-training can lead to state-of-the-art robustness In this work, we improve robustness-aware self-supervised pre-training by learning representations that are consistent under both data augmentations and adversarial perturbations. Our approach leverages a recent contrastive learning framework, which learns representations by maximizing feature consistency under differently augmented views. This fits particularly well with the goal of adversarial robustness, as one cause of adversarial fragility is the lack of feature invariance, i.e., small input perturbations can result in undesirable large changes in features or even predicted labels. We explore various options to formulate the contrastive task, and demonstrate that by injecting adversarial perturbations, contrastive pre-training can lead to models that are both label-efficient and robust. We empirically evaluate the proposed Adversarial Contrastive Learning (ACL) and show it can consistently outperform existing methods. For example on the CIFAR-10 dataset, ACL outperforms the previous state-of-the-art unsupervised robust pre-training approach by 2.99\% on robust accuracy and 2.14\% on standard accuracy. We further demonstrate that ACL pre-training can improve semi-supervised adversarial training, even when only a few labeled examples are available. Our codes and pre-trained models have been released at: https://github.com/VITA-Group/Adversarial-Contrastive-Learning.}
+      \field{journaltitle}{arXiv:2010.13337 [cs]}
+      \field{month}{10}
+      \field{note}{arXiv: 2010.13337}
+      \field{title}{Robust {Pre}-{Training} by {Adversarial} {Contrastive} {Learning}}
+      \field{urlday}{4}
+      \field{urlmonth}{11}
+      \field{urlyear}{2021}
+      \field{year}{2020}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb arXiv Fulltext PDF:/home/kiyarash/Zotero/storage/MPT5FWPN/Jiang et al. - 2020 - Robust Pre-Training by Adversarial Contrastive Lea.pdf:application/pdf;arXiv.org Snapshot:/home/kiyarash/Zotero/storage/GLYRKS2F/2010.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/2010.13337
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/2010.13337
+      \endverb
+      \keyw{Computer Science - Computer Vision and Pattern Recognition}
+    \endentry
+    \entry{shortcut_in_contrastive_losses}{article}{}
+      \name{author}{3}{}{%
+        {{hash=b240c653612b8157a41dd4282347398a}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Ting},
+           giveni={T\bibinitperiod}}}%
+        {{hash=3880846cafedf652049a38120af4ec77}{%
+           family={Luo},
+           familyi={L\bibinitperiod},
+           given={Calvin},
+           giveni={C\bibinitperiod}}}%
+        {{hash=0bde480b669967bb3a864e27dbd502cf}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Lala},
+           giveni={L\bibinitperiod}}}%
+      }
+      \strng{namehash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{fullhash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{bibnamehash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{authorbibnamehash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{authornamehash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{authorfullhash}{c031f826aa27e23140cd60d5e388407d}
+      \field{extraname}{2}
+      \field{labelalpha}{CLL21}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{extraalpha}{1}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We study three intriguing properties of contrastive learning. First, we generalize the standard contrastive loss to a broader family of losses, and we find that various instantiations of the generalized loss perform similarly under the presence of a multi-layer non-linear projection head. Second, we study if instance-based contrastive learning (with a global image representation) can learn well on images with multiple objects present. We find that meaningful hierarchical local features can be learned despite the fact that these objectives operate on global instance-level features. Finally, we study the phenomenon of feature suppression among competing features shared across augmented views, such as "color distribution" vs "object class". We construct datasets with explicit and controllable competing features, and show that, for contrastive learning, a few bits of easy-to-learn shared features can suppress, and even fully prevent, the learning of other sets of competing features. In scenarios where there are multiple objects in an image, the dominant object would suppress the learning of smaller objects. Existing contrastive learning methods critically rely on data augmentation to favor certain sets of features over others, and could suffer from learning saturation for scenarios where existing augmentations cannot fully address the feature suppression. This poses open challenges to existing contrastive learning techniques.}
+      \field{journaltitle}{arXiv:2011.02803 [cs, stat]}
+      \field{month}{10}
+      \field{note}{arXiv: 2011.02803}
+      \field{title}{Intriguing {Properties} of {Contrastive} {Losses}}
+      \field{urlday}{4}
+      \field{urlmonth}{11}
+      \field{urlyear}{2021}
+      \field{year}{2021}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb arXiv Fulltext PDF:/home/kiyarash/Zotero/storage/IL2CAREF/Chen et al. - 2021 - Intriguing Properties of Contrastive Losses.pdf:application/pdf;arXiv.org Snapshot:/home/kiyarash/Zotero/storage/DFVZV3EQ/2011.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/2011.02803
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/2011.02803
+      \endverb
+      \keyw{Computer Science - Artificial Intelligence,Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Statistics - Machine Learning}
+    \endentry
+    \entry{robustness_at_odds_madry}{article}{}
+      \name{author}{5}{}{%
+        {{hash=240422b4c9d0d047da2b6f51d9220b59}{%
+           family={Tsipras},
+           familyi={T\bibinitperiod},
+           given={Dimitris},
+           giveni={D\bibinitperiod}}}%
+        {{hash=bb66a5fcd7966034f5477f12cf059156}{%
+           family={Santurkar},
+           familyi={S\bibinitperiod},
+           given={Shibani},
+           giveni={S\bibinitperiod}}}%
+        {{hash=52a9eb75d8ed34150ce01eb9e4c43027}{%
+           family={Engstrom},
+           familyi={E\bibinitperiod},
+           given={Logan},
+           giveni={L\bibinitperiod}}}%
+        {{hash=78f050f126d97fdc69dd55aea7678eaa}{%
+           family={Turner},
+           familyi={T\bibinitperiod},
+           given={Alexander},
+           giveni={A\bibinitperiod}}}%
+        {{hash=155359c985c7d112498d27d32ad89bfe}{%
+           family={Madry},
+           familyi={M\bibinitperiod},
+           given={Aleksander},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{23904af689c291ed2c9c7d23c1985499}
+      \strng{fullhash}{3664130a77dae3cef68a3112ad6375a8}
+      \strng{bibnamehash}{23904af689c291ed2c9c7d23c1985499}
+      \strng{authorbibnamehash}{23904af689c291ed2c9c7d23c1985499}
+      \strng{authornamehash}{23904af689c291ed2c9c7d23c1985499}
+      \strng{authorfullhash}{3664130a77dae3cef68a3112ad6375a8}
+      \field{labelalpha}{Tsi+19}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We show that there may exist an inherent tension between the goal of adversarial robustness and that of standard generalization. Specifically, training robust models may not only be more resource-consuming, but also lead to a reduction of standard accuracy. We demonstrate that this trade-off between the standard accuracy of a model and its robustness to adversarial perturbations provably exists in a fairly simple and natural setting. These findings also corroborate a similar phenomenon observed empirically in more complex settings. Further, we argue that this phenomenon is a consequence of robust classifiers learning fundamentally different feature representations than standard classifiers. These differences, in particular, seem to result in unexpected benefits: the representations learned by robust models tend to align better with salient data characteristics and human perception.}
+      \field{journaltitle}{arXiv:1805.12152 [cs, stat]}
+      \field{month}{9}
+      \field{note}{arXiv: 1805.12152}
+      \field{title}{Robustness {May} {Be} at {Odds} with {Accuracy}}
+      \field{urlday}{1}
+      \field{urlmonth}{10}
+      \field{urlyear}{2021}
+      \field{year}{2019}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb arXiv Fulltext PDF:/home/kiyarash/Zotero/storage/LPJV4SB2/Tsipras et al. - 2019 - Robustness May Be at Odds with Accuracy.pdf:application/pdf;arXiv.org Snapshot:/home/kiyarash/Zotero/storage/TIZ6PBTT/1805.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1805.12152
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1805.12152
+      \endverb
+      \keyw{Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing,Statistics - Machine Learning}
+    \endentry
+    \entry{bolts}{article}{}
+      \name{author}{2}{}{%
+        {{hash=c79553dc17ef05e7d1ef9e6149db42c5}{%
+           family={Falcon},
+           familyi={F\bibinitperiod},
+           given={William},
+           giveni={W\bibinitperiod}}}%
+        {{hash=3da7501a79d9346572c7fd6e41b615df}{%
+           family={Cho},
+           familyi={C\bibinitperiod},
+           given={Kyunghyun},
+           giveni={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{f691578365fe18f19bac83001256f09d}
+      \strng{fullhash}{f691578365fe18f19bac83001256f09d}
+      \strng{bibnamehash}{f691578365fe18f19bac83001256f09d}
+      \strng{authorbibnamehash}{f691578365fe18f19bac83001256f09d}
+      \strng{authornamehash}{f691578365fe18f19bac83001256f09d}
+      \strng{authorfullhash}{f691578365fe18f19bac83001256f09d}
+      \field{labelalpha}{FC20}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{arXiv preprint arXiv:2009.00104}
+      \field{title}{A Framework For Contrastive Self-Supervised Learning And Designing A New Approach}
+      \field{year}{2020}
+    \endentry
+    \entry{huy_phan_2021_4431043}{software}{}
+      \name{author}{1}{}{%
+        {{hash=d923a74800914eb8f2a8c5e873da9136}{%
+           family={Phan},
+           familyi={P\bibinitperiod},
+           given={Huy},
+           giveni={H\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Zenodo}%
+      }
+      \strng{namehash}{d923a74800914eb8f2a8c5e873da9136}
+      \strng{fullhash}{d923a74800914eb8f2a8c5e873da9136}
+      \strng{bibnamehash}{d923a74800914eb8f2a8c5e873da9136}
+      \strng{authorbibnamehash}{d923a74800914eb8f2a8c5e873da9136}
+      \strng{authornamehash}{d923a74800914eb8f2a8c5e873da9136}
+      \strng{authorfullhash}{d923a74800914eb8f2a8c5e873da9136}
+      \field{labelalpha}{Pha21}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{1}
+      \field{title}{huyvnphan/PyTorch\_CIFAR10}
+      \field{version}{v3.0.1}
+      \field{year}{2021}
+      \verb{doi}
+      \verb 10.5281/zenodo.4431043
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.5281/zenodo.4431043
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.5281/zenodo.4431043
+      \endverb
+    \endentry
+    \entry{simsiam}{misc}{}
+      \name{author}{2}{}{%
+        {{hash=ce10870c303bf2f78994acd2df305b39}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Xinlei},
+           giveni={X\bibinitperiod}}}%
+        {{hash=6b4b60e909e78633945f3f9c9dc83e01}{%
+           family={He},
+           familyi={H\bibinitperiod},
+           given={Kaiming},
+           giveni={K\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{61962cb16a5a83c9961a624ef2c87fb9}
+      \strng{fullhash}{61962cb16a5a83c9961a624ef2c87fb9}
+      \strng{bibnamehash}{61962cb16a5a83c9961a624ef2c87fb9}
+      \strng{authorbibnamehash}{61962cb16a5a83c9961a624ef2c87fb9}
+      \strng{authornamehash}{61962cb16a5a83c9961a624ef2c87fb9}
+      \strng{authorfullhash}{61962cb16a5a83c9961a624ef2c87fb9}
+      \field{labelalpha}{CH20}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{extraalpha}{2}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Exploring Simple Siamese Representation Learning}
+      \field{year}{2020}
+      \verb{doi}
+      \verb 10.48550/ARXIV.2011.10566
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2011.10566
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2011.10566
+      \endverb
+      \keyw{Computer Vision and Pattern Recognition (cs.CV),Machine Learning (cs.LG),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{lars}{misc}{}
+      \name{author}{3}{}{%
+        {{hash=4fa898010bbb713d0f7a57349d093368}{%
+           family={You},
+           familyi={Y\bibinitperiod},
+           given={Yang},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=3ebf1483613fa32fd2310a1840e1479f}{%
+           family={Gitman},
+           familyi={G\bibinitperiod},
+           given={Igor},
+           giveni={I\bibinitperiod}}}%
+        {{hash=57b6ee8703cf89267a2d51429a4e61a7}{%
+           family={Ginsburg},
+           familyi={G\bibinitperiod},
+           given={Boris},
+           giveni={B\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{812c93ae188e80d0a0da93edef704ac3}
+      \strng{fullhash}{812c93ae188e80d0a0da93edef704ac3}
+      \strng{bibnamehash}{812c93ae188e80d0a0da93edef704ac3}
+      \strng{authorbibnamehash}{812c93ae188e80d0a0da93edef704ac3}
+      \strng{authornamehash}{812c93ae188e80d0a0da93edef704ac3}
+      \strng{authorfullhash}{812c93ae188e80d0a0da93edef704ac3}
+      \field{labelalpha}{YGG17}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Large Batch Training of Convolutional Networks}
+      \field{year}{2017}
+      \verb{doi}
+      \verb 10.48550/ARXIV.1708.03888
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1708.03888
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1708.03888
+      \endverb
+      \keyw{Computer Vision and Pattern Recognition (cs.CV),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{ssl_loss_shortcuts}{inproceedings}{}
+      \name{author}{3}{}{%
+        {{hash=b240c653612b8157a41dd4282347398a}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Ting},
+           giveni={T\bibinitperiod}}}%
+        {{hash=3880846cafedf652049a38120af4ec77}{%
+           family={Luo},
+           familyi={L\bibinitperiod},
+           given={Calvin},
+           giveni={C\bibinitperiod}}}%
+        {{hash=0bde480b669967bb3a864e27dbd502cf}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Lala},
+           giveni={L\bibinitperiod}}}%
+      }
+      \name{editor}{5}{}{%
+        {{hash=6cb5af0e649387de5bbfdb150cc7a786}{%
+           family={Ranzato},
+           familyi={R\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod}}}%
+        {{hash=02854da982edf66ffa27f4fc1c738779}{%
+           family={Beygelzimer},
+           familyi={B\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod}}}%
+        {{hash=5e4dc483044b6dbd4496a818b8b6c67a}{%
+           family={Dauphin},
+           familyi={D\bibinitperiod},
+           given={Y.},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=12f9558e0c25864defe6eaed94a9011b}{%
+           family={Liang},
+           familyi={L\bibinitperiod},
+           given={P.S.},
+           giveni={P\bibinitperiod}}}%
+        {{hash=3d379bd6370f69ebc79dc5337ed96d13}{%
+           family={Vaughan},
+           familyi={V\bibinitperiod},
+           given={J.\bibnamedelimi Wortman},
+           giveni={J\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Curran Associates, Inc.}%
+      }
+      \strng{namehash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{fullhash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{bibnamehash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{authorbibnamehash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{authornamehash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{authorfullhash}{c031f826aa27e23140cd60d5e388407d}
+      \strng{editorbibnamehash}{6013a44c5dec47e5e51fdd72b3f8b5eb}
+      \strng{editornamehash}{6013a44c5dec47e5e51fdd72b3f8b5eb}
+      \strng{editorfullhash}{ad1ea98aa644fe4cbc55fbe24d1f78a9}
+      \field{extraname}{3}
+      \field{labelalpha}{CLL21}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{extraalpha}{2}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Advances in Neural Information Processing Systems}
+      \field{title}{Intriguing Properties of Contrastive Losses}
+      \field{volume}{34}
+      \field{year}{2021}
+      \field{pages}{11834\bibrangedash 11845}
+      \range{pages}{12}
+      \verb{urlraw}
+      \verb https://proceedings.neurips.cc/paper/2021/file/628f16b29939d1b060af49f66ae0f7f8-Paper.pdf
+      \endverb
+      \verb{url}
+      \verb https://proceedings.neurips.cc/paper/2021/file/628f16b29939d1b060af49f66ae0f7f8-Paper.pdf
+      \endverb
+    \endentry
+    \entry{contrastive_inverts_data_gen}{misc}{}
+      \name{author}{5}{}{%
+        {{hash=51decc3febc8d62b518dcc9468c33d23}{%
+           family={Zimmermann},
+           familyi={Z\bibinitperiod},
+           given={Roland\bibnamedelima S.},
+           giveni={R\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=1349d05adfb40ff0d344ee942288c81d}{%
+           family={Sharma},
+           familyi={S\bibinitperiod},
+           given={Yash},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=a13c8464f464250a409c78edf90ea235}{%
+           family={Schneider},
+           familyi={S\bibinitperiod},
+           given={Steffen},
+           giveni={S\bibinitperiod}}}%
+        {{hash=653ad8c2337d9615a186b743cc8d69a5}{%
+           family={Bethge},
+           familyi={B\bibinitperiod},
+           given={Matthias},
+           giveni={M\bibinitperiod}}}%
+        {{hash=8a7f657701e94ae3c82e5c742f585592}{%
+           family={Brendel},
+           familyi={B\bibinitperiod},
+           given={Wieland},
+           giveni={W\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{9bf4cffb5cbbc3b27ba14ddbd007a77f}
+      \strng{fullhash}{cfe4f7868be73baaeac80455f2432948}
+      \strng{bibnamehash}{9bf4cffb5cbbc3b27ba14ddbd007a77f}
+      \strng{authorbibnamehash}{9bf4cffb5cbbc3b27ba14ddbd007a77f}
+      \strng{authornamehash}{9bf4cffb5cbbc3b27ba14ddbd007a77f}
+      \strng{authorfullhash}{cfe4f7868be73baaeac80455f2432948}
+      \field{labelalpha}{Zim+21}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Contrastive Learning Inverts the Data Generating Process}
+      \field{year}{2021}
+      \verb{doi}
+      \verb 10.48550/ARXIV.2102.08850
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2102.08850
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2102.08850
+      \endverb
+      \keyw{Machine Learning (cs.LG),Computer Vision and Pattern Recognition (cs.CV),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+    \entry{concentration_measure}{inproceedings}{}
+      \name{author}{4}{}{%
+        {{hash=599110a4ab907d89c816dc89f2a7014c}{%
+           family={Mahloujifar},
+           familyi={M\bibinitperiod},
+           given={Saeed},
+           giveni={S\bibinitperiod}}}%
+        {{hash=227e34554b27c77e2d042504ef1edb97}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Xiao},
+           giveni={X\bibinitperiod}}}%
+        {{hash=d305cfdfd92b81e6b1e1371f146577ef}{%
+           family={Mahmoody},
+           familyi={M\bibinitperiod},
+           given={Mohammad},
+           giveni={M\bibinitperiod}}}%
+        {{hash=fdf60d29316eacfbd0fdc22e786afd78}{%
+           family={Evans},
+           familyi={E\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+      }
+      \name{editor}{6}{}{%
+        {{hash=1444141e07dd9549dbb4b8530fe4ec15}{%
+           family={Wallach},
+           familyi={W\bibinitperiod},
+           given={H.},
+           giveni={H\bibinitperiod}}}%
+        {{hash=6c15b92d4ebdbfae091f6548dc7543ae}{%
+           family={Larochelle},
+           familyi={L\bibinitperiod},
+           given={H.},
+           giveni={H\bibinitperiod}}}%
+        {{hash=02854da982edf66ffa27f4fc1c738779}{%
+           family={Beygelzimer},
+           familyi={B\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod}}}%
+        {{hash=d09836e3ea5c71d2c9e7d1c56ab7ffdd}{%
+           family={d'Alché-Buc},
+           familyi={d\bibinithyphendelim B\bibinitperiod},
+           given={F.},
+           giveni={F\bibinitperiod}}}%
+        {{hash=f81d803635cc159bfc9d9145ebd34a14}{%
+           family={Fox},
+           familyi={F\bibinitperiod},
+           given={E.},
+           giveni={E\bibinitperiod}}}%
+        {{hash=36b98b7ab533936cf1b5716148de704f}{%
+           family={Garnett},
+           familyi={G\bibinitperiod},
+           given={R.},
+           giveni={R\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Curran Associates, Inc.}%
+      }
+      \strng{namehash}{3ff4395be383e378695ba2d34d1fc11f}
+      \strng{fullhash}{a384f5ee2ebb547185816c7cb6c5f343}
+      \strng{bibnamehash}{3ff4395be383e378695ba2d34d1fc11f}
+      \strng{authorbibnamehash}{3ff4395be383e378695ba2d34d1fc11f}
+      \strng{authornamehash}{3ff4395be383e378695ba2d34d1fc11f}
+      \strng{authorfullhash}{a384f5ee2ebb547185816c7cb6c5f343}
+      \strng{editorbibnamehash}{d8a1689cbb7ff26be8b55bdda56fab83}
+      \strng{editornamehash}{d8a1689cbb7ff26be8b55bdda56fab83}
+      \strng{editorfullhash}{1fe7b3f8b138b9bcec056a9c1ca77fef}
+      \field{labelalpha}{Mah+19}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Advances in Neural Information Processing Systems}
+      \field{title}{Empirically Measuring Concentration: Fundamental Limits on Intrinsic Robustness}
+      \field{volume}{32}
+      \field{year}{2019}
+      \verb{urlraw}
+      \verb https://proceedings.neurips.cc/paper/2019/file/46f76a4bda9a9579eab38a8f6eabcda1-Paper.pdf
+      \endverb
+      \verb{url}
+      \verb https://proceedings.neurips.cc/paper/2019/file/46f76a4bda9a9579eab38a8f6eabcda1-Paper.pdf
+      \endverb
+    \endentry
+    \entry{underspecification}{misc}{}
+      \name{author}{40}{}{%
+        {{hash=6feece63ac4a69ad78dcf486fd29724d}{%
+           family={D'Amour},
+           familyi={D\bibinitperiod},
+           given={Alexander},
+           giveni={A\bibinitperiod}}}%
+        {{hash=b722031ccb9ceddc2dda9c72c44e5988}{%
+           family={Heller},
+           familyi={H\bibinitperiod},
+           given={Katherine},
+           giveni={K\bibinitperiod}}}%
+        {{hash=15b269f0732b6e66ee4b385a88bb365a}{%
+           family={Moldovan},
+           familyi={M\bibinitperiod},
+           given={Dan},
+           giveni={D\bibinitperiod}}}%
+        {{hash=b84a229b1fee5471317a8e8262e691b4}{%
+           family={Adlam},
+           familyi={A\bibinitperiod},
+           given={Ben},
+           giveni={B\bibinitperiod}}}%
+        {{hash=a10fd25c36668c3dac36aaf945c578cd}{%
+           family={Alipanahi},
+           familyi={A\bibinitperiod},
+           given={Babak},
+           giveni={B\bibinitperiod}}}%
+        {{hash=af12cc8ca94c1e303f4ae44f22264508}{%
+           family={Beutel},
+           familyi={B\bibinitperiod},
+           given={Alex},
+           giveni={A\bibinitperiod}}}%
+        {{hash=0e07a211847dc3a4c8e537e3a917815e}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Christina},
+           giveni={C\bibinitperiod}}}%
+        {{hash=93caf9fc920914164f56b329edd522f9}{%
+           family={Deaton},
+           familyi={D\bibinitperiod},
+           given={Jonathan},
+           giveni={J\bibinitperiod}}}%
+        {{hash=c63e034ea77c7c55818aa4da5f40f479}{%
+           family={Eisenstein},
+           familyi={E\bibinitperiod},
+           given={Jacob},
+           giveni={J\bibinitperiod}}}%
+        {{hash=937991c72400f4d0e0252027c8c03f67}{%
+           family={Hoffman},
+           familyi={H\bibinitperiod},
+           given={Matthew\bibnamedelima D.},
+           giveni={M\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+        {{hash=fcf83184326f785420f6110298510b9d}{%
+           family={Hormozdiari},
+           familyi={H\bibinitperiod},
+           given={Farhad},
+           giveni={F\bibinitperiod}}}%
+        {{hash=493a532418540859dca92cf3b579de2a}{%
+           family={Houlsby},
+           familyi={H\bibinitperiod},
+           given={Neil},
+           giveni={N\bibinitperiod}}}%
+        {{hash=dfe97de4c45eeb54c31466df32f36d11}{%
+           family={Hou},
+           familyi={H\bibinitperiod},
+           given={Shaobo},
+           giveni={S\bibinitperiod}}}%
+        {{hash=079580e9fff7f428f52654ca9de06f7f}{%
+           family={Jerfel},
+           familyi={J\bibinitperiod},
+           given={Ghassen},
+           giveni={G\bibinitperiod}}}%
+        {{hash=45aacfb5c7248e226c7bc1188c1e4e00}{%
+           family={Karthikesalingam},
+           familyi={K\bibinitperiod},
+           given={Alan},
+           giveni={A\bibinitperiod}}}%
+        {{hash=26b9b9f1c61e9425fb38070e6d2c9f31}{%
+           family={Lucic},
+           familyi={L\bibinitperiod},
+           given={Mario},
+           giveni={M\bibinitperiod}}}%
+        {{hash=3c043d7c4de9fed32445c67d1ff2881d}{%
+           family={Ma},
+           familyi={M\bibinitperiod},
+           given={Yian},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=314aa7e0d292da3b70b6f8f8902df122}{%
+           family={McLean},
+           familyi={M\bibinitperiod},
+           given={Cory},
+           giveni={C\bibinitperiod}}}%
+        {{hash=9e9ebb40e62476b2aaa4044ba67ea704}{%
+           family={Mincu},
+           familyi={M\bibinitperiod},
+           given={Diana},
+           giveni={D\bibinitperiod}}}%
+        {{hash=dd90bc505cbfb4b815decf6051a0b6a1}{%
+           family={Mitani},
+           familyi={M\bibinitperiod},
+           given={Akinori},
+           giveni={A\bibinitperiod}}}%
+        {{hash=484a542ca834affa98f81afbd90fba25}{%
+           family={Montanari},
+           familyi={M\bibinitperiod},
+           given={Andrea},
+           giveni={A\bibinitperiod}}}%
+        {{hash=f42b0f2cefb8f54e220b8df5fc3a3ce1}{%
+           family={Nado},
+           familyi={N\bibinitperiod},
+           given={Zachary},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=aa89cd9ecfc08eca06d1bdf5c0fe4a7b}{%
+           family={Natarajan},
+           familyi={N\bibinitperiod},
+           given={Vivek},
+           giveni={V\bibinitperiod}}}%
+        {{hash=6dea99c0814230090825e7a73fe23faa}{%
+           family={Nielson},
+           familyi={N\bibinitperiod},
+           given={Christopher},
+           giveni={C\bibinitperiod}}}%
+        {{hash=4cdd96d45bc19fd95436f55075610aee}{%
+           family={Osborne},
+           familyi={O\bibinitperiod},
+           given={Thomas\bibnamedelima F.},
+           giveni={T\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+        {{hash=6be8a4feb58712401c76f9a1a613bc5f}{%
+           family={Raman},
+           familyi={R\bibinitperiod},
+           given={Rajiv},
+           giveni={R\bibinitperiod}}}%
+        {{hash=c51d8f914a6cf58738f15cf93b49d3d1}{%
+           family={Ramasamy},
+           familyi={R\bibinitperiod},
+           given={Kim},
+           giveni={K\bibinitperiod}}}%
+        {{hash=2272611bbff9f395fa86d9d9b9e1248d}{%
+           family={Sayres},
+           familyi={S\bibinitperiod},
+           given={Rory},
+           giveni={R\bibinitperiod}}}%
+        {{hash=d2c303de7b2a13942d2d61af7d36c41f}{%
+           family={Schrouff},
+           familyi={S\bibinitperiod},
+           given={Jessica},
+           giveni={J\bibinitperiod}}}%
+        {{hash=e6e54ed8af8b0d85eef43525d40f7c9b}{%
+           family={Seneviratne},
+           familyi={S\bibinitperiod},
+           given={Martin},
+           giveni={M\bibinitperiod}}}%
+        {{hash=e033d101885add20885b9f3ae0ba42fd}{%
+           family={Sequeira},
+           familyi={S\bibinitperiod},
+           given={Shannon},
+           giveni={S\bibinitperiod}}}%
+        {{hash=0babc116a9d25d2aff3e6d9d1dc2a2e0}{%
+           family={Suresh},
+           familyi={S\bibinitperiod},
+           given={Harini},
+           giveni={H\bibinitperiod}}}%
+        {{hash=30db2f42d0dd8cf10ef82c5eae10096e}{%
+           family={Veitch},
+           familyi={V\bibinitperiod},
+           given={Victor},
+           giveni={V\bibinitperiod}}}%
+        {{hash=63be4e39fda3d86a1124fcc52cc270c2}{%
+           family={Vladymyrov},
+           familyi={V\bibinitperiod},
+           given={Max},
+           giveni={M\bibinitperiod}}}%
+        {{hash=27d22d8f05f44b47f7dcfe9b7fb85584}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Xuezhi},
+           giveni={X\bibinitperiod}}}%
+        {{hash=3bbcc2ef69a0be0d0298998d6b8e8efc}{%
+           family={Webster},
+           familyi={W\bibinitperiod},
+           given={Kellie},
+           giveni={K\bibinitperiod}}}%
+        {{hash=a4bc42d99314a91c052999544dab3f49}{%
+           family={Yadlowsky},
+           familyi={Y\bibinitperiod},
+           given={Steve},
+           giveni={S\bibinitperiod}}}%
+        {{hash=e6a62d29b84869aedc032f92f8c01d66}{%
+           family={Yun},
+           familyi={Y\bibinitperiod},
+           given={Taedong},
+           giveni={T\bibinitperiod}}}%
+        {{hash=00b950307c7d096765bb6df00c7c5c3a}{%
+           family={Zhai},
+           familyi={Z\bibinitperiod},
+           given={Xiaohua},
+           giveni={X\bibinitperiod}}}%
+        {{hash=5c6a1bebc2a08b2c1299f410c0ec9490}{%
+           family={Sculley},
+           familyi={S\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{6c8a05e1c35fbdb18bc9253c63772a83}
+      \strng{fullhash}{9f2c85f00b077d8abbbfcb292cb7e56b}
+      \strng{bibnamehash}{6c8a05e1c35fbdb18bc9253c63772a83}
+      \strng{authorbibnamehash}{6c8a05e1c35fbdb18bc9253c63772a83}
+      \strng{authornamehash}{6c8a05e1c35fbdb18bc9253c63772a83}
+      \strng{authorfullhash}{9f2c85f00b077d8abbbfcb292cb7e56b}
+      \field{labelalpha}{DAm+20}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Underspecification Presents Challenges for Credibility in Modern Machine Learning}
+      \field{year}{2020}
+      \verb{doi}
+      \verb 10.48550/ARXIV.2011.03395
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2011.03395
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2011.03395
+      \endverb
+      \keyw{Machine Learning (cs.LG),Machine Learning (stat.ML),FOS: Computer and information sciences,FOS: Computer and information sciences}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

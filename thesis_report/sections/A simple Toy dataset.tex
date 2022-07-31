@@ -1,0 +1,459 @@
+\documentclass[../thesis.tex]{subfiles}
+\graphicspath{{\subfix{../images/}}}
+\begin{document}
+
+\section{Simple But Useful Toys}
+\label{sec:toy_datasets}
+
+	In order to control the effect of the dataset and model architecture on robustness and to study adversarial examples in a simple environment I decided to create a toy dataset. A toy dataset can eliminate phenomena like ambiguity (different classes overlapping in some regions) or concentration of measure \cite{concentration_measure} which can be removed if the model has 100\% standard accuracy.
+	
+	The idea is that if we have a dataset such that there exists a model (say given by an oracle) that is 100\% robust (or close to 100\%) ,\textbf{independent of the attack used}, we might be able to say that we have isolated the effect of the dataset and model architecture. A second model with the same architecture trained using the same data has the potential of being robust. This is unlike real datasets like CIFAR10 where there are no know universally robust models for classification. Note that CIFAR10 robust models are all robust with respect to a specific attack (usually trained via adversarial training) and non are 100\% robust. Throughout this section in order to make calculations simpler I use $l_{\infty}$ as the norm for adversarial perturbations. 
+	
+	\subsection{The triangle square dataset}
+	
+	My first attempt at a toy dataset consisted of two classes: the "triangle" \ref{fig:toyclass1} and the "square" \ref{fig:toyclass2}. The 5x5 pixel patterns are placed in all possible positions in a 10x10 empty canvas where all the background pixels are set to 0 \ref{fig:sampletriangleimage}. Patterns always stay completely inside the canvas. This gives us 36 samples per class. The two patterns can be thought of as the causal factors for this dataset, the position of the pattern inside the canvas is the only other causal factor. We include all possible variations of the position factor in each dataset since we don't care about predicting it (it is an invariant for the prediction task). This helps the model generalize as best as possible on the in distribution samples (the total of 72 samples). Here we have a distribution with a finite set of samples (finite support).   
+	
+	% move to appendix ?	
+	Generally it is best to avoid having features specific to each class if they are not the target of our prediction since they could potentially act as a shortcut solution. These features need to be either fixed and equal for all classes or we need to include all possible variations for each class. In the same vein I made sure both classes have the same number of pixels set to 1 (shown in black) so that the model wouldn't use the shortcut of counting the pixels (eventually I observed that the model still uses a shortcut as explained later). For the same reason it is also not a good idea to give each pattern a distinct color. Coloring the shapes could be used if each class would uniformly sample from all possible colors but that would only complicate the dataset. 
+	
+	As a human we can play the role of the oracle mentioned before; one option for a 100\% robust model is using one convolutional layer with two filters \ref{fig:trianglesquareoptimalprojector}. Each filter is 5x5 and has the exact same values as the base patterns. I also divide the filter by the number of pixels set to 1 for normalization to make calculations simpler. This is followed by a max-pooling layer which gives two logits as output. The outputs are 2 floating point values corresponding to the two classes and the larger one is the prediction of the network (or equivalently we can calculate softmax probabilities) \footnote{This function is non-linear but convex since the outputs are the results of taking the maximum of a group of linear functions. I think using binary cross entropy loss we would also get a convex optimization problem.}. 
+	
+	
+	
+	\begin{figure} %[!h]
+		\centering
+		\includegraphics[width=1\linewidth]{images/Triangle_square_optimal_projector}
+		\caption{The hand made optimal projector.}
+		\label{fig:trianglesquareoptimalprojector}
+	\end{figure}
+	
+	We can easily prove that this model is 100\% robust to any $l_{\inf}$ perturbation with norm $\epsilon < 0.5$ independent of the attack. Intuitively if an optimal attack wants to change one class to another it should take advantage of the most pixel overlap between the two patterns. For this dataset this happens when the two patterns are exactly on top of each other. The optimal attack should also use the maximum perturbation magnitude allowed since the convolutional filters are linear so for instance to change a triangle to a square the optimal adversarial image will look like this:
+	
+	\begin{align*} 
+	\variablename{Original triangle pattern}&=
+	\begin{bmatrix}
+		0& 1& 1& 0& 0 \\
+		0& 0& 1& 0& 0 \\
+		0& 1& 1& 1& 0 \\
+		1& 1& 1& 1& 1 \\
+		1& 1& 1& 1& 1 
+	\end{bmatrix} \\
+	%
+	%
+	\variablename{Adversarial pattern}&=
+	\begin{bmatrix}
+	0+\epsilon& 1& 1& 0+\epsilon&  0+\epsilon\\
+	0+\epsilon& 0& 1-\epsilon& 0& 0+\epsilon\\
+	0+\epsilon& 1-\epsilon& 1-\epsilon& 1-\epsilon& 0+\epsilon\\
+	1& 1-\epsilon& 1-\epsilon& 1-\epsilon& 1\\
+	1& 1& 1& 1& 1
+	\end{bmatrix}
+	%
+	\end{align*}
+		
+	Note the adversarial pattern will replace the original pattern on the canvas. For $ 0.5 \leq \epsilon $ The samples will become ambiguous as shown in \ref{fig:toyambigiousimage} and it is impossible to predict the class of the original image. Obviously our handmade model also has 100\% standard accuracy. Note that due to the max-pooling layer this model is not linear but it is convex. Obviously the robust model is not unique; for instance, we could drop one of the filters (or choose its values randomly) and still get a robust model. Since we only have 2 classes and assume all inputs are either standard samples or their perturbations. \footnote{Generally for any dataset without adversarial ambiguity (without class overlaps when considering all samples within $\epsilon$ neighborhood of the original class boundaries according to some norm) for an n-class classification task we only need to robustly detect n-1 of the classes.}.   
+
+	\begin{figure}
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.5\linewidth]{toy_class_1}
+			\caption{Triangle pattern}
+			\label{fig:toyclass1}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.5\linewidth]{toy_class_2}
+			\caption{Square pattern}
+			\label{fig:toyclass2}
+		\end{subfigure}
+		\caption{The basic patterns}
+		\label{fig:Triangle_square_classes}
+	\end{figure}
+	
+	\begin{figure}
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.6\linewidth]{images/sample_triangle_image}
+			\caption{An example of the triangle pattern on the canvas.}
+			\label{fig:sampletriangleimage}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.6\linewidth]{toy_ambigious_image}
+			\caption{An ambiguous image.}
+			\label{fig:toyambigiousimage}
+		\end{subfigure}
+		\caption{Instances of images. The ambiguous image is not in the dataset.}
+		\label{fig:Triangle_square_image_samples}
+	\end{figure}
+
+
+	I then trained a model with the exact same architecture as the robust model on this dataset to see if it would be robust. We can see the filters resulting from standard training in \ref{fig:toy_standard_training_filters}. The model trained for 20 epochs has standard accuracy of 100\%. The robust accuracies using PGD($\alpha = \epsilon/2$, steps=10) are shown in \ref{tbl:std_model_trig_sqr}. 
+	\begin{table}[h!]
+		\centering
+		\begin{tabular}{|c|c|}
+			\hline
+			$\epsilon$ & Adversarial accuracy (\%) \\
+			\hline
+			0.1     & 99                        \\
+			\hline
+			0.2     & 54                        \\
+			\hline
+			0.3     & 11                        \\
+			\hline
+			0.4     & 0                         \\
+			\hline
+		\end{tabular}
+		\caption{The robustness of the model standardly trained on the triangle-square dataset for different values of $\epsilon$.}
+		\label{tbl:std_model_trig_sqr}
+	\end{table}
+	
+	I also adversarially trained the model with FGSM($\epsilon=0.1$) and the filters are shown \ref{fig:toy_adv_training_filters}. We can see that the first filter corresponding to the "triangle" class already looks more similar to the actual shape. \todo[inline]{run attack with eps=0.2 if time (low priority).}
+	
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.5\linewidth]{toy_filter_1_standard}
+			\caption{triangle}
+			\label{fig:toyfilter1standard}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.5\linewidth]{toy_filter2_standard}
+			\caption{square}
+			\label{fig:toyfilter2standard}
+		\end{subfigure}
+		\caption{The standard training filters.}
+		\label{fig:toy_standard_training_filters}
+	\end{figure}
+
+
+	\begin{figure}[h!]
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.5\linewidth]{toy_filter_1_adv_0.1}
+			\caption{triangle}
+			\label{fig:toyfilter1adv0}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.5\linewidth]{toy_filter_2_adv_0.1}
+			\caption{square}
+			\label{fig:toyfilter2adv0}
+		\end{subfigure}
+		\caption{The adversarial training filters (FGSM). An interesting fact is that when I used perturbations bigger than 0.1, gradient descent was very unstable and could no longer optimize the loss effectively even when decreasing the learning rate by 4 orders of magnitude. This shows that adversarial training might have issues with big perturbation values since the loss landscape shifts significantly with each epoch which makes converging harder.}
+		\label{fig:toy_adv_training_filters}
+	\end{figure}
+	
+	
+	One potential idea to create a robust dataset might be to remove non-robust features by modifying the image pixels based on saliency maps or other similar pixel level methods. In this example we can see that the network can pick up on features that are a subset of the correct pattern but it's not detecting the whole pattern. Such as in \ref{fig:toyfilter1standard} where the network pays a lot of attention to center pixels but not the whole "triangle" shape. Then removing or weakening these pixels by adding noise or penalizing model for using them also removes the general pattern which was the robust feature. So \textbf{"non-robust" features can also be a subset of robust features}. In contrast in other works such as \cite{adv_training_madry} they optimize the representations of the images using the latent space of a robust model to create a robust dataset.    
+	
+	
+	\subsection{The L-T dataset}
+	
+	There is still an important unanswered question: 
+	
+	\begin{center}
+		\textit{\textbf{Is it possible to train a robust model using this dataset alone ?}}
+	\end{center}
+	
+	
+	
+	when we created the optimal model by hand we used our human biases which helps us create the robust model while the learning algorithm doesn't have that possibility. This results in standard training yielding a model that doesn't correctly detect the shapes. So to truly control the dataset we need a new definition:
+	\textbf{A robust dataset} is a dataset such that there exists a learning method (optimization method) and an architecture such that when the learning method is used to train the model using the provided data (without using any extra data) the model is robust. 
+	
+	Since we are in a toy example the learning method can be computationally expensive or even theoretical. One possible example using brute force is this: for each of the 36 samples add all images that are in its $\epsilon$ neighborhood to the dataset, then train the model on this new dataset. We know that all values in a computer are finite precision so this dataset is finite. We can make this method computationally feasible by reducing the size of images and using lower precision pixels instead of the standard 64-bit floating points.
+	
+	\begin{center}
+		\textit{\textbf{What kind of model will we get if we train our model standardly on this new dataset ? will it be 100\% robust like the handmade model above? how does it compare to adversarial training ?}}
+	\end{center}
+
+	\phantomsection
+	\label{ds_size_numeric_cals}
+	One computationally efficient way of doing this is to reduce the precision of the pixels. For example assume we divide the interval between 0 and 1 into 5 segments so we would get 6 distinct values for each pixel $\{0, 1/5, 2/5, ..., 1\}$ so the smallest possible pixel value increments/decrements is $1/5$ (excluding the case of not changing the pixel at all). Also assume $l_{\infty}$ norm and $\epsilon = 2/5$ then for each 10x10 image, assuming norm infinity,  there are 5 possible modifications for each pixel $\pm 1/5$, $\pm 2/5$ and $0$. Thus there are $5^{100}$ neighbors in the ball centered at an original image. So the dataset size is $N * 4^{100}$ where $N$ is the number of standard images. This gives us $72* 5^{100} \approx 5.68*10^{71}$ images for the triangle-square dataset. We can see that even for the toy dataset above ($N=72$) the memory requirement can get astronomical. Even if we exclude the samples inside the epsilon ball (images such that all pixels only use $\pm 1/5$ or 0 so the total count is $72* 3^{100}$) and only consider the ones on the boundary we would get $72* 5^{100} - 72* 3^{100} = 5.679798518*10^{71}$ samples which is essentially the same number. Due to the curse of dimensionality in higher dimensions excluding images inside the center of the ball wont decrease the dataset size significantly. We can also show the same concept in continuous space, in a hypercube as the number of dimensions increases most of the volume of the cube concentrates close to the boundary of the cube \footnote{see a proof \href{https://github.com/lions-epfl-students/factors_adversarial_examples/blob/main/high_dimentional_volume.pdf}{here} from the math department of UCdavis.}.
+	
+	%To calculate the robustness of the model we just evaluate it on all the neighbors (excluding the image itself) and for each standard image report the worst result. We could have also used an attack to calculate robustness and then map the image back to the closest discrete image but that doesn't make sense.
+	
+	To reduce the size of the dataset we need to decrease the problematic term $5^{100}$ which is the possible options for each pixel to the power of number of pixels in a single image. So we need to decrease both the image resolution and the options for each pixel. 
+	%I initially tested this with a canvas of size 3x3 ($number\_of\_pixels=6$) and $options\_for\_each\_pixel=2$ using 2x2 patterns with 2 painted pixels. However, the dataset was too simplistic and standardly training the model for long enough resulted in a robust model. 
+	To this end I tried a 4x4 canvas and 3x3 patterns. The two "L" and "T" patterns are shown in \ref{fig:L-T-patterns}. I used a model architecture similar to \ref{fig:trianglesquareoptimalprojector} adapting the sizes of filters for the new dataset. Initially I evaluated the model trained on the standard dataset to show that it uses shortcut solutions. I trained the model using $\text{Adam}(lr=0.1)$ and used PGD($\alpha = \epsilon/2$, steps=10) to calculate robust accuracy. As before the model didn't learn robust filters but the adversarial accuracy only drops for $0.3 <\epsilon$. The robust accuracy for $\epsilon = 0.4$ is 12\% for both 20 and 200 epochs of training, indicating that the model has converged and is using a shortcut solution \ref{fig:standard_L_filters}. 
+
+	\begin{figure}
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.4\linewidth]{images/L_pattern}
+			\caption{The L pattern}
+			\label{fig:L_pattern}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.4\linewidth]{images/T_pattern}
+			\caption{The T pattern}
+			\label{fig:T_pattern}
+		\end{subfigure}
+		\caption{A simpler dataset}
+		\label{fig:L-T-patterns}
+	\end{figure}
+
+	
+	%	200 epochs standard training
+	%	L shape(0)
+	%	tensor([[[ 0.3009, -1.9852, -1.5344],
+	%	[-0.0585, -1.7199, -1.4590],
+	%	[ 1.9818,  2.7630,  2.7344]]], grad_fn=<SelectBackward0>)
+	%	T shape(1)
+	%	tensor([[[ 3.4013,  1.3553,  2.1428],
+	%	[-2.2003, -0.4574, -0.3173],
+	%	[-0.8513,  0.6219, -0.9399]]], grad_fn=<SelectBackward0>)
+	
+	%	for 20 epochs std trainingL shape(0)
+	%	tensor([[[-0.0063, -1.0709, -1.2715],
+	%	[-0.3765, -1.2514, -1.0492],
+	%	[ 1.4327,  1.9131,  1.5193]]], grad_fn=<SelectBackward0>)
+	%	T shape(1)
+	%	tensor([[[ 1.9168,  0.9046,  1.4073],
+	%	[-1.5633, -0.4869,  0.1521],
+	%	[-0.6697, -0.0223, -0.0897]]], grad_fn=<SelectBackward0>)
+	
+
+	\begin{figure}
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.7\linewidth]{images/L_filter_std_training_std_dataset_20_epochs}
+			\caption{trained for 20 epochs}
+			\label{fig:lfilterstdtrainingstddataset20epochs}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.7\linewidth]{images/L_filter_std_training_std_data_200_epochs}
+			\caption{trained for 200 epochs}
+			\label{fig:lfilterstdtrainingstddata200epochs}
+		\end{subfigure}
+		\caption{L filter results for standard model training using standard data (8 images)}
+		\label{fig:standard_L_filters}
+	\end{figure}
+	
+	\subsubsection{Simplifying assumptions}
+	
+	In order to further decrease the dataset size I made some assumptions: 
+	
+	\textbf{Assumption 1:} Any adversarial image (incorrectly classified by \textit{my} model architecture) that uses a perturbation smaller than the maximum perturbation ($\attackeps$) for any pixel can be replaced by an image that uses the maximum perturbation for all the modified pixels such that, the new image is also classified incorrectly and the logit difference is even worse than the first image. 
+	
+	 This assumption enables me to only consider the cases were the pixels are modified by the maximum perturbation possible. For $l_{\infty}$ norm this corresponds to only considering the corners of the hypercube and dropping the points on the sides or inside the cube. Intuitively (for my specific model) if the attack needs to change one pattern to another (change the class) there is no reason for the attack to only use a fraction of the perturbation allowed since: \textbf{1.} The model we use is \textit{almost} linear (2 conv filters followed by max pooling) this means that the model separates the classes using hyperplanes so if a point belonging to the epsilon neighborhood hypercube is on the wrong side of one of the boundaries then one of the corners must also be misclassified. Conversely if all of the corners of the hypercube are on the correct side then the whole hypercube is on the correct side (using a 3D intuition). \textbf{2.} the target patterns (standard images) use either 0 or 1 pixels so the attack has the best chance at fooling the model if it uses all of the perturbation allowed. As mentioned before we need to have $\epsilon < 0.5 $ so the adversarial samples wont be ambiguous. When running an attack the attack might perturb some pixels less than the maximum amount as it is performing gradient ascent. The point is that the position that corresponds to the maximum value calculated by maxpool layer (the final decision of the model) for the adversarial class will be definitely using the maximum perturbation possible. 
+	\todo[inline]{add proof if time, I haven't figured out the proof completely.} 
+	
+	\textbf{Assumption 2:} For my \textit{almost} linear model and $l_{\infty}$ norm (which means the $\epsilon$-neighborhood is a hypercube) and assuming the above intuition is correct, we can see that we don't need to discretized the $[0,1]$ interval since the above argument is independent of the granularity of discretization. So it would be enough to have 3 options for each pixel $\{-\epsilon, 0, +\epsilon\}$. Note that for $l_2$ norm this doesn't really help reduce the new dataset size since every point on a hypersphere is a "corner" (uses maximum perturbation) unless we fit the hypersphere in a hypercube.
+	
+	\phantomsection
+	\label{assumption3}
+	\textbf{Assumption 3:} Furthermore, I have observed that non of the attack samples leave the [0,1] interval for each pixel so there is no reason to consider values out of this range. So for a 0 pixel I only considered the options $\{0, +\epsilon\}$ and for a 1 pixel $\{1-\epsilon, 1\}$ giving me 2 options per pixel I call these \textbf{in-boundary neighbours} (this assumption turned out to be incorrect as explained later).
+	
+	\textbf{Assumption 4:} Moreover I only apply the perturbations to the pixels corresponding to the location of the pattern on canvas and not the whole canvas to decrease the exponential term further. This corresponds to the adversarial class's pattern lying exactly on the correct pattern location. This assumption was also wrong as shown in a counter example in \ref{fig:pgd_counterexample}, but there is a correct version of the statement. The adversary should try to get as much pixel overlap (matching 0 and 1 values) between the initial pattern and the target pattern to maximize the target pattern's convolutional filter output with the \textit{limited budget} ($\epsilon < 0.5$) it has. This doesn't necessarily correspond to putting the two patterns on top of each other ! It doesn't make sense for the adversary to prefer non-overlap pixels to overlap pixels since it would have to for instance, get a 0 pixel as close as possible to a 1 pixel (which is $0 + \epsilon$) while it could have used a 1 pixel that already exists (this is left as a future effort to optimize the dataset further.) \todo[inline]{Only use maximum overlap positions in L-T dataset (if time)!}
+	
+	
+	\subsubsection{Proof of model robustness}
+	
+	Before getting to the proof it is important to note that there are 2 epsilons: $\dseps$ which is used to create the samples on the boundary and should be the bigger epsilon to train a provably robust model and $\attackeps$ which is the attack budget. I will fix $\dseps=0.41$ and $\attackeps=0.4$ for all models mentioned in the rest of this section unless another value is specified. Using assumption 1, assuming $l_{\infty}$ and $\attackeps < \dseps < 0.5$ for the attack and the fact that the dataset includes all possible $\dseps$ perturbations we can show that: 
+	
+	\textbf{Theorem:} For a model with 100\% standard accuracy on the \textit{extended} dataset, no adversarial perturbation for the images in the \textit{standard} dataset can change the model's predicted label.
+	
+	\textbf{Proof:} By contradiction assume there is such an adversarial example, which uses $\attackeps$ perturbation. then we can create a corresponding sample which uses the same perturbation pattern but with magnitude $\dseps$ and the model also misclassifies the new image. But the new image is part of the extended dataset and the model correctly classifies it. \qedsymbol{} 
+	
+
+%	This means that the logit for the correct class is smaller than the incorrect class. But since the convolutional filters are linear followed only by a maxpool layer then a bigger magnitude of change (with the same change pattern) should make the gap bigger and still misclassify the image. So we have a contradiction. Since convolutional filters are linear and a bigger perturbation doesn't change the maximum among the 2 logits then the smaller perturbation can't either.      
+	
+	I will also experimentally show the correctness of the theorem using a PGD attack later. According to the above assumptions for two 3x3 patterns moving on a 4x4 canvas I need to modify all the canvas pixels using $\{-\dseps, 0, \dseps\}$ options. This gives a dataset size of $3^{16}*8 = 344,373,768$, I will call this the \textbf{extended dataset}. For the experiments mentioned below I also attempted pixel normalization using mean and std of all pixels in the dataset. Normalization didn't seem to affect any of the robustness results mentioned below, only slightly improving some of the models \footnote{Which makes sense considering the range of values we use is close to the interval $[-1,1]$.}. So I haven't used normalization unless specified.
+	
+	Standardly training my model on the \textbf{extended} dataset leads to 100\% standard accuracy on the \textbf{extended} dataset and 100\% robust accuracy on the \textbf{standard} dataset. I used Adam($lr=0.1$) and trained for $epochs = 6$. The learned filter can be seen in \ref{fig:robust_model_filters}. Since the dataset was too big to fit in the GPU memory unlike before I used batch gradient descent\footnote{refer to code for more detail}. Note that any set of weights for my model that has 100\% standard accuracy on the \textbf{extended} dataset but a robust accuracy less than 100\% on the \textbf{standard} dataset using any attack is a counter example and that is how I detect my wrong assumptions.
+	
+	\begin{figure}
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=.9\linewidth]{images/robust_model_L_filter}
+			\caption{L filter}
+			\label{fig:robustmodelLfilter}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=.9\linewidth]{images/robust_model_T_filter}
+			\caption{T filter}
+			\label{fig:robustmodelTfilter}
+		\end{subfigure}
+		\caption{The filters learned by the robust model.}
+		\label{fig:robust_model_filters}
+	\end{figure}
+	
+	 
+	
+	The model trained using the wrong version of assumptions 3 and 4 (only inbound perturbations and only perturbing the pixels in the pattern's location) with Adam($\variablename{lr} = 0.1$) and $\variablename{epochs} = 200$ reaches 100\% standard accuracy on the extended dataset but shows a robustness of 37\% (5 samples misclassified out of 8 in the standard dataset) and standard cross entropy $\variablename{loss} = 0.0078$ which yields a counter example. When I removed assumption 3 but still used the wrong version of assumption 4 (only perturbing the pixels in the pattern's location) the counter example \ref{fig:pgd_counterexample} was produced by PGD(attack\_epsilon=0.4, alpha=0.04, steps=50). Even though the model is correctly learning the shapes in \ref{fig:assumption4_model} it is still not enough to make the model robust! meaning the relative values of the weights matter.
+	
+	
+	\begin{figure}
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.8\linewidth]{images/standard_T_image}
+			\caption{a standard T image}
+			\label{fig:standardtimage}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.8\linewidth]{images/advresarial_T_image}
+			\caption{corresponding adversarial image found by PGD}
+			\label{fig:advresarialtimage}
+		\end{subfigure}
+		\caption{A counter example as calculated by PGD}
+		\label{fig:pgd_counterexample}
+	\end{figure}
+
+
+	\begin{figure}
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.8\linewidth]{images/using_assumption4_L_filter}
+			\caption{The L filter}
+			\label{fig:usingassumption4lfilter}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.8\linewidth]{images/using_assumption4_T_filter}
+			\caption{The T filter}
+			\label{fig:usingassumption4tfilter}
+		\end{subfigure}
+		\caption{The filters learned by the model using assumption 4.}
+		\label{fig:assumption4_model}
+	\end{figure}
+
+
+	
+	
+	\subsubsection{Observations from the Triangle-Square and L-T datasets}
+	
+	As empirically observed in \cite{adv_training_madry} a robust model needs more capacity (i.e. number of weights and nodes in a neural network) than a standard model. This is also confirmed in \ref{fig:toy_standard_training_filters} where the standard model learns only a subset of the shape meaning a model with smaller convolutional filter could have also separated standard images correctly. Obviously as shown in \ref{fig:toy_standard_training_filters} using a higher capacity model wont guarantee a robust model but it can be a necessary condition if the initial model is too small.
+	
+	\todo[inline]{run experiments with a model with a single conv layer, also run one with 2x2 conv filters is it possible to learn a robust model ?} 
+	
+	The L-T dataset shows that, with the assumptions made above regarding the dataset, it possible to train a model robustly (100\% robust accuracy) using standard training and the cross-entropy loss. Note we don't use any attacks during training and as I proved above the model is 100\% robust to all samples in the $\epsilon$-ball which means \textbf{our model is robust against any attack.} In addition, even when I use $\attackeps$ values bigger than $\dseps$ the model is still robust against PGD( alpha=$\epsilon*0.1$, steps=50) \ref{fig:accuracybigepsilonrangerobustness}. Furthermore there is no sudden drop in robustness after $\attackeps$ surpasses $\dseps$ which is further proof that the model has not overfitted any specific hyper-parameters during training \ref{fig:accuracysmallepsilonrangerobustness}. This is unlike adversarially trained models mentioned in \cite{adv_training_madry} figure 6 (a,c). 
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=1.1\linewidth,center]{images/accuracy_big_epsilon_range_robustness}
+		\caption{The robust model maintains 100\% robustness even when $\dseps<\attackeps$. The $\dseps=4.1$ is fixed. The dots show the values calculated by PGD the curve is regressed using a polynomial of degree 5. We see that the model maintains robustness even after $\dseps < \attackeps$. It should be the case that for $\attackeps = 0.5$ we get 0 accuracy since the samples become ambiguous. I also tried using PGD with $\alpha = 0.4*0.1$ fixed and the results were the same.}
+		\label{fig:accuracybigepsilonrangerobustness}
+	\end{figure}
+	\begin{figure}
+		\centering
+		\includegraphics[width=1.5\linewidth,center]{images/accuracy_small_epsilon_range_robustness}
+		\caption{Evaluating robustness with more $\attackeps$ precision (zooming in on the \ref{fig:accuracybigepsilonrangerobustness} plot) after the robust model starts losing accuracy ($0.46\leq\attackeps$). The $\dseps=4.1$ is fixed. The dots show the values calculated by PGD the curve is regressed using a polynomial of degree 8. We can see the drop in accuracy is slow.}
+		\label{fig:accuracysmallepsilonrangerobustness}
+	\end{figure}
+
+	\todo[inline]{repeat the plots \ref{fig:accuracybigepsilonrangerobustness} and \ref{fig:accuracysmallepsilonrangerobustness} for a dataset with $\epsilon \in [0.3, 0.4)$ like .35 or .37}
+	
+	\todo[inline]{more interesting question, what happens to \ref{fig:accuracybigepsilonrangerobustness} and \ref{fig:accuracysmallepsilonrangerobustness} plots for an SSL model that uses labels for training? is the drop faster or slower ? also will adding label noise make SSL results better than supervised ?}
+	
+	Plot \ref{fig:accuracysmallepsilonrangerobustness} shows that only adding more data is not enough to increase model robustness and we need the data points on the boundary otherwise as we decrease the number of samples on the boundary in our dataset or alternatively as the samples get further away from the boundary the model loses robustness (here we actually increase the attack budget which means we expand the hypercube but it a similar scenario).  \ref{fig:accuracybigepsilonrangerobustness} shows that if we use a non-ambiguous extended dataset it is possible to learn a robust model using the standard Cross-entropy loss and Gradient descent even providing robustness further than expected i.e. \textbf{The usual elements used in a deep learning pipeline are capable of training a robust model}.
+	
+	We can conclude that an important part of training a robust model is having access to such a dataset (specially if we also prove that including the boundary samples in the dataset is crucial as empirically shown in \ref{fig:accuracysmallepsilonrangerobustness}). This is also in agreement with the assumption of statistical learning regarding having an i.i.d sample of data which is usually ignored in an adversarial setting. To my knowledge, this is the first time that a standard training pipeline has been used to train a model that is 100\% robust to all adversaries without relying on any attacks or other modifications of the deep learning pipeline other than the dataset.  
+	
+	% Can we theoretically calculate the model and answer the above questions for the triangle-square dataset's simple model (one 5x5 conv layer fallowed by a max-pooling layer.) ? No since there is no explicit solution for the gradient of the cross-entropy or sigmoidal loss even for a linear model that is why we use gradient descent. Althouth both are convex and the total loss is also convex !  
+	
+	Another observation regarding the dataset extension method is that we have created a new dataset consisting of all the samples in the $\epsilon$ neighborhood, so this still doesn't show that its possible to learn a robust model from our original dataset with only 8 samples! Obviously this is an upper bound to the number of samples needed to train a \textbf{100\%} robust model \textbf{independent} of the attack (an astronomical number if the pattern size \footnote{or the canvas size for any image dataset not just one that classifies patterns.} is more than 5x5. \footnote{For instance, a canvas or pattern of size 5x5 pixels and with the standard dataset having a size of 8 the extended dataset will have $3^{25} * 8 \approx 6.8*10^{12} $ images} ). \textbf{Can we show this upper bound is tight ?} In this toy example it might be possible to show that:
+	
+	\textbf{1. Hypothesis:} we need to include all the samples on the boundary 
+	\footnote{As we have seen including all the boundary samples might not be necessary since my robust model was also robust for $\dseps < \attackeps$ \ref{fig:accuracybigepsilonrangerobustness}. In that case we can replace "all the samples on the boundary" with "A set of minimally sufficient samples that are sufficient to make the model robust". However I doubt without adding additional assumptions about the type of neighborhood or the model we would be able to do that.} 
+	to train a robust model using gradient descent. If one of the boundary samples is not in the training set the model boundary could be non-robust as shown in \ref{fig:weneedallsamplesinboundaryintuition}(b). Plot \ref{fig:accuracysmallepsilonrangerobustness} (where I increase $\attackeps$) might add validity to this hypothesis, yet it is not the same setting since I don't remove a neighbour but increase the neighborhood size for all standard samples. My intuition regarding this hypothesis in 2D is shown in \ref{fig:weneedallsamplesinboundaryintuition}.
+	
+	
+	\begin{figure}[!h]
+	\begin{minipage}{\textwidth}
+		\centering
+		\includegraphics[width=0.7\linewidth]{images/We_need_all_samples_in_boundary_intuition}
+		\caption[short]{An example for excluding a boundary sample in 2D for my hypothesis, here I assumed the adversary uses $l_{\infty}$, so the neighborhood is a square. (a) The standard sample (shown in green) centered at $l_{\infty}$ ball of size $\epsilon$. (b) A general model (possibly non-linear and non-convex) standardly trained using the extended dataset but excluding a single corner sample shown as a white dot on the top right. The red hatched area shows the region where the adversary can sample to fool the model (a.k.a the vulnerability region) note the diagonal line could be part of the boundary of a model that has 100\% standard accuracy but is still non-robust. (c) Adversarially training the model, the adversary produces the samples in the vulnerability region, which makes it smaller (i.e. the model is more robust). However since the adversarial problem \ref{eqn:adversarial_example_equation} is non-convex there is no guarantee we would include the excluded neighbour, so we still have a vulnerability region. This is similar to how adding random noise (i.e. sampling random points in the neighborhood) wont make a model more robust. Obviously adversarial training is a much better sampling method but it doesn't guarantee a fully robust model and it overfits the attack used. (d) Including all the boundary points in the dataset puts the model boundary in the desired region which eliminates the vulnerability region. Note for a general (possibly non-convex and non-linear) model this means also including the samples on the edges of the square and including the 4 corners might not be enough !}
+		\label{fig:weneedallsamplesinboundaryintuition}
+	\end{minipage}
+	\end{figure}
+	
+	
+	\textbf{2. Fact:} The number of non-boundary samples (samples inside the ball) is insignificant compared to boundary samples. This is already shown in \ref{ds_size_numeric_cals} as a numeric example. This means most of the training happens on the boundary samples so their existence is crucial to model robustness. This is also confirmed in the L-T dataset by the fact that we only train the model on boundary images and standard images. Additionally in the L-T dataset excluding the standard images (corresponding to the 0 change option for the pixels) still gives us a 100\% robust model. Consequently, the minimal options for each pixel to train a robust model are: $\{ -\epsilon, \epsilon \}$.
+	
+	This would mean that even for a toy dataset in order to get a \textbf{100\%} robust model \textbf{independent}  of the attack we would need an astronomical number of samples if we use 64-bit precision pixels. Note that with adversarial training we can obviously reach 80\% or 90\% robustness \textbf{ for a specific type of attack} but as papers have experimentally shown the model fails to perform equally well for a stronger attack and thus the endless arms race ! This dataset could show a limitation of our neural network models trained using gradient descent compared to a more robust model like a human brain which obviously doesn't need an astronomical number of samples to be robust ! \footnote{I believe that we are fooled by comparing artificial neural networks' robustness to that of the brain and assuming it is a simple task since 1. The two have almost nothing in common (in the way they are trained or the model they use) 2. It might also be possible to attack the visual cortex with $l_{\infty}$ and small epsilon but since we don't have a model for the visual cortex we can't design any tailor made attacks. }
+	
+	
+
+
+\end{document}
+
+
+% below is a counter example refuting assumption 4 !! The model has 100% std-accuracy while it still misclassifies one standard image ! note assumption 1 still holds !
+
+%		L shape(0)
+%		tensor([[[ 2.1326, -2.4906, -0.9757],
+%		[ 1.8431, -2.0762, -1.6401],
+%		[ 2.3728,  2.8880,  5.0056]]], grad_fn=<SelectBackward0>)
+%		T shape(1)
+%		tensor([[[ 3.6284,  2.2406,  2.9812],
+%		[-1.8816,  1.8894, -1.5876],
+%		[-1.2267,  2.6643, -2.6471]]], grad_fn=<SelectBackward0>)
+%	all incorrectly classified adv images:
+%	
+%	label: 1
+%	original
+%	tensor([
+%	 	[1., 1., 1., 0.],
+%		[0., 1., 0., 0.],
+%		[0., 1., 0., 0.],
+%		[0., 0., 0., 0.]])
+%	advresarial
+%	tensor([
+%		[0.6000, 0.6000, 0.6000, 0.3438],
+%		[0.4000, 1.0000, 0.0000, 0.0000],
+%		[0.4000, 0.6000, 0.4000, 0.0000],
+%		[0.2524, 0.4000, 0.4000, 0.4000]])
+%	L_index: 3, T_index: 0 
+
+
+
+
+%It turns out that the \textit{in-boundary neighbors} assumption \pageref{assumption3} was the culprit. When I used symmetric neighbours (using the options $\{-\epsilon, 0, \epsilon\}$ ) for all pixels) the standard accuracy on the \textbf{extended} dataset was a good predictor for the adversarial accuracy on the \textbf{standard} dataset. I used $\variablename{lr} = 0.1$, $\variablename{epochs} = 200$ which yielded 100\% accuracy for robust and standard accuracy. This is due to the fact that for each 0 pixel I only considered a single neighbour ${0 + \epsilon}$, so the model could have potentially learned that a pixel in the L shape that was inactive in the standard dataset can be slightly active in the extended dataset and the model uses that information \footnote{This is confirmed by the fact that using the options $\{ -\epsilon, 0, \epsilon \}\}$ for 0 pixels and only $\{-\epsilon, 0 \}$ for 1 pixels to create the dataset is enough to train a robust model. But this phenomena is probably dependent on statistics of 0 and 1 pixels (mean and std) and the fact that the standard dataset only has 0 and 1 as options for pixels, so it is not generalizable. }. To also compensate for the fact that the in-boundary dataset has far less samples than the symmetric dataset (the symmetric has 40 times more samples so the model is implicitly trained for more epochs) I also trained the model on the in-boundary dataset for $10^{4}$ epochs with $lr=0.01$ but robustness still didn't improve. 
+
+%Using the assumptions above (except assumption 3) we can prove that the weights in the convolutional filters learned by the robust model \ref{robust_filters} results in 100\% robustness. Using assumption 4 if the adversary only modifies the pixels that are part of the 3x3 pattern on the canvas this means that the convolutional output corresponding to that region on the canvas will be used in classification of adversarial examples (meaning the output will be the max among the 2x2 outputs of the convolutional filter.) This essentially means that we can assume the model is linear (red flag!) (this also proves assumption 1 since in a linear model we should use all the perturbation possible). Assume The attacks wants to change the label of a T pattern to an L label, to maximize the loss it needs to maximize the gap between the logits of these two classes while keeping the L logit as the maximum (since we use the cross entropy loss). Because the model is linear this simply means going throw the values of the convolutional filters and comparing each weight in the L filter with the corresponding weight in the T filter, if $w_{T} < w_{L}$ we add $\epsilon$ to the corresponding pixel in the image otherwise we subtract $\epsilon$. Results are shown below:
+
+%	\begin{align}
+%		&L_{filter} = \left[\begin{matrix}0.9304 & -1.3586 & -0.875\\0.9327 & -1.3777 & -1.2368\\1.4541 & 2.0726 & 2.6784\end{matrix}\right]\\
+%%
+%		&T_{filetr} = 
+%		\begin{bmatrix}
+%		2.0482 & 1.0966 & 1.6902\\
+%		-1.1556 & 1.0886 & -1.0052\\
+%		-0.7472 & 1.419 & -1.3296
+%		\end{bmatrix}\\
+%%			
+%		&\variablename{Advresarial image} = 
+%		\left[\begin{matrix}
+%		1 - \epsilon & 1 - \epsilon & 1 - \epsilon\\
+%		\epsilon & 1 - \epsilon & - \epsilon\\
+%		\epsilon & \epsilon + 1 & \epsilon
+%		\end{matrix}\right]\\
+%%
+%		&\text{Applying the filters gives:} \\
+%%
+%		&T_{filetr}\text{ output} = 7.3426-6.7318*\epsilon \\
+%		&L_{filetr}\text{ output} = 11.0555*\epsilon-0.6083 \\
+%		& T_{filetr}\text{ output} - L_{filetr}\text{ output} > 0 \label{L_T_inequality} \\
+%		& \epsilon > 0.446
+%	\end{align} 
+%	
+
+
+
+%	In \ref{L_T_inequality} we want the class to stay in T class (against the adversaries effort) so we subtract the $T_{filter}$ output from $L_{filter}$. The equality is strict to prevent ambiguous samples. The final result means that as long as we have $\epsilon > 0.446$ The model is robust to any perturbation in $l_{\infty}$. The ambigiouty Threshold changes  Since we only considered the pattern pixel in the proof it is independent of and applies to any canvas size.    

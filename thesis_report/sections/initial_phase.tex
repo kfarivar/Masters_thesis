@@ -1,0 +1,225 @@
+\documentclass[../thesis.tex]{subfiles}
+\graphicspath{{\subfix{../images/}}}
+\begin{document}
+	
+	
+	\section{Self-supervised learning, not robust on CIFAR10 }
+	\label{sec:SSL_experiments_cifar10}
+	
+	Our initial hypothesis was that training a self-supervised model could reduce adversarial susceptibility by removing the spurious correlation between images and labels. Furthermore, an SSL model would retain more useful features due to the lack of labels. I trained supervised and different SSL models on the CIFAR10 classification task to test this hypothesis. The unsupervised training of each SSL model is done according to the specific design of the method. To fine-tune the SSL models for classification, I trained a final linear layer (added after the encoder) while keeping the encoder fixed as shown in \ref{fig:encoderreadout}. The details are as follows.
+	
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=1\linewidth]{images/encoder_readout}
+		\caption{SSL model parts.}
+		\label{fig:encoderreadout}
+	\end{figure}
+	
+	\subsection{Models and training}
+	All the models were modified as needed for the CIFAR10 classification task (refer to \href{https://github.com/LIONS-EPFL/adversarial-components}{code}) but their implementation are faithful to the original design in the papers. The models are:
+	\begin{enumerate}
+		\item \href{https://github.com/yaohungt/Barlow-Twins-HSIC}{bralow twins}.
+		
+		\item \href{https://pytorch-lightning-bolts.readthedocs.io/en/latest/self_supervised_models.html}{simCLR} (implementation by lightning bolts \cite{bolts})
+		
+		\item \href{https://pytorch-lightning-bolts.readthedocs.io/en/latest/self_supervised_models.html}{simsiam} (implementation by lightning bolts \cite{bolts})
+		
+		\item \href{https://github.com/huyvnphan/PyTorch_CIFAR10}{supervised} (implementation by \cite{huy_phan_2021_4431043}).
+		
+	\end{enumerate}
+	
+	For the \textbf{backend} network, all methods use Resnet18 (18-layer convolutional network with skip connections), as implemented in the lightning bolts library, which has the output dimension 512. All backends were trained according to the implementation of the repositories, which they came from with necessary modifications. 
+	
+	For \textbf{SimCLR} \cite{simclr_chen_simple_2020} the projection head has 1 hidden layer with 2048 units and output size 128. All parameters are the same as the original paper except for the number of layers in the projection head. The paper uses two layers for it when training on Imagenet. However, since I train on CIFAR10, which has a much smaller image resolution, and to reduce training time, I used one layer\footnote{see the paper's appendix for CIFAR10 experiments.}. Similar to the paper, I used LARS for optimization. 
+	
+	\textbf{Simsiam} \cite{simsiam} has the same parameters for projection head as simclr except that the \textit{output} size is 2048 dimensional (as used by the paper) since they mention their method saturates slower than other SSL methods. The paper uses three hidden layers for projection. I used one to reduce the training time. They suggest using projector output divided by 4 for the number of hidden units in the predictor, so I used 512 hidden units with output size 2048 \footnote{Note that projector and predictor are parts of the simsiam SSL training and have nothing to do with the readout layer.}. For predictor, they use two layers, but I used one. They find that applying batch normalization to projector output slightly improves accuracy. I don't use batch normalization since the test accuracy is already 90\%. They also mention that simple SGD works well for their architecture, so I used it for optimization \footnote {see the paper's appendix for their CIFAR10 experiments.}. 
+	
+	In \textbf{Barlow twins} \cite{barlow_twins}  I use a projection head with 1 hidden layer (unlike the paper that uses 3) with 2048 nodes and output size 2048. The projection head also includes a batch normalization layer. To optimize, I used Adam. 
+	
+	For \textbf{supervised} training, I added a linear layer on top of the Resnet18 with ten outputs to calculate the logits and used Adam for optimization. The SSL models are unsupervised, so they need more epochs for the loss to converge. I have used either 800 or 400 epochs to train them to show that more training doesn't help with robustness. For the supervised model, 200 epochs gave an acceptable evaluation accuracy.  
+	
+	I add and fine-tune a final linear layer (readout layer) for SSL models to adapt the network to the labeled classification task. For the \textbf{standard fine-tuning of the readout layer} I trained it on the whole train set (without any augmentations), and the measurements in the plots are calculated on the CIFAR10 validation set. Using all the possible data gives the training method the best chance to learn a robust model. The backend (resnet18) weights are fixed while the last layer weights are trained. I used Adam with $lr=10^{-2}$ and trained for five epochs and batch size 512. Note that this is a convex optimization problem. For the \textbf{adversarial training of the readout layer} the last layer is adversarially trained using my robustness library. I do apply augmentation on the train set here (random crop and horizontal flip) to make the models potentially more robust. The backend (resnet18) weights were fixed, while the last layer weights were trained using Adam and batch size 512 (learning rate is different for different models). Note that this optimization problem is not necessarily convex and is harder since the dataset adversarially adapts to the model as the weights are updated. In other words, the loss function (defined via samples) changes with the model weights. Due to this, adversarial training usually requires a learning rate smaller by two orders of magnitude for loss convergence.      
+	
+	A version of the supervised model where the last layer was separately trained like an SSL model is also included as "Linear separated supervised". I did this to make the supervised conditions as similar as possible to the SSL. I also tried using the labels in simCLR training and called it "supervised simCLR" for further comparison. In the supervised version of simclr, in each batch and for each image $x$, I sampled another image randomly from the same class (using the labels). I used it as $x^+$, and images from other classes are considered as negative samples in the Info-NCE loss notation. I also removed augmentation in supervised training to observe its effect on robustness; I called this model "supervised no-augmentation". A summary of the models and their specifications can be found in \ref{tab:model_info}.
+	
+	Finally, I evaluated all the models on the CIFAR10 validation set. The three main attacks I used for evaluation were FGSM, Apgd-ce, and Apgd-10. Apgd-10 is the same attack as the Apgd-ce, except I reduced the number of iterations from 100 to 10 so I can reduce the time for adversarial fine-tuning of the linear readout layer. Since APGD-ce seemed effective enough in decreasing model accuracies close to 0 and correlated well with APGD-dlr \footnote{APGD-dlr is another version of APGD where the loss being maximized is not cross-entropy, and in some cases, it might be more effective. see \cite{autoattack} for more details.} I used it to compare the models. I have tried to keep the training and evaluation methods as similar as possible for all models. The standard accuracy of models on clean data can be seen in \ref{fig:cleanaccuraciescifar10}. 
+	
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=1.3\linewidth,center]{images/clean_accuracies_cifar10}
+		\caption{Clean accuracies}
+		\label{fig:cleanaccuraciescifar10}
+	\end{figure}
+	
+	
+	\begin{table}
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			Model&			Optimizer&		Epochs&		\rule[-2em]{0pt}{1em}\rule{0pt}{2em} Loss\\
+			\hline
+			Simclr&			LARS\cite{lars}&	800&  \rule[-2em]{0pt}{1em}\rule{0pt}{2em}  \(\displaystyle \ell_{i, j}=-\log \frac{\exp \left(\operatorname{sim}\left(\boldsymbol{z}_{i}, \boldsymbol{z}_{j}\right) / \tau\right)}{\sum_{k=1}^{2 N} \mathbbm{1}_{[k \neq i]} \exp \left(\operatorname{sim}\left(\boldsymbol{z}_{i}, \boldsymbol{z}_{k}\right) / \tau\right)}  \) \medspace (NT-Xent)	\\
+			\hline
+			Simsiam&		SGD&  				400&  	\rule[-2em]{0pt}{1em}\rule{0pt}{2em}\(\displaystyle \mathcal{L}=\frac{1}{2} \mathcal{D}\left(p_{1}, z_{2}\right)+\frac{1}{2} \mathcal{D}\left(p_{2}, z_{1}\right) \)	\\
+			\hline
+			Barlow twins&	ADAM&  				800&    \rule[-2em]{0pt}{1em}\rule{0pt}{2em}\(\displaystyle \mathcal{L}_{\mathcal{B} \mathcal{T}} \triangleq \sum_{i}\left(1-\mathcal{C}_{i i}\right)^{2}+\lambda \sum_{i} \sum_{j \neq i} \mathcal{C}_{i j}^{2} \)	\\
+			\hline
+			Supervised&  	ADAM&				200&    \rule[-2em]{0pt}{1em}\rule{0pt}{2em} \(\displaystyle \ell_{i, j} = -\sum_{i} \mathbbm{1}_{\{\hat{y}_i=y_i\}}\log \left(p_i\right) \) \medspace (Cross-entropy) \\
+			\hline
+		\end{tabular}
+		\caption{The properties of different models used in the CIFAR10 experiments. Note variants of the same model (e.g simclr and supervised-simclr) have the same properties in this table. The simclr loss is also known as the Info-NCE or contrastive loss. The simclr and simsiam losses are for single samples and the final loss is the sum of all sample losses. For barlow twins and cross entropy loss the sum over samples is already included. For explanation of losses refer to \ref{sec:ssl_methods} or their papers.}
+		\label{tab:model_info}
+	\end{table}
+	
+	\subsection{Results for Standard Fine-tuning the Readout Layer}
+	
+	Here for all the models, the readout layer was trained using standard supervised training (with no adversarial training). The evaluation results for different models using different attacks can be seen in \ref{fig:standard_readout_results}. For all the attacks I have used $l_{\infty}$ and $\epsilon = 8/255$ (similar to \cite{adv_training_madry}). The values in the plot \ref{fig:standard_readout_results} are percentages. Both APGD attacks are from the \href{https://github.com/fra31/auto-attack}{Autoattack library} with original parameters per \cite{autoattack}. Initially, I trained simCLR and barlow twins for 800 epochs. However, since they had a similar performance (standard and adversarial) for 400 epochs, I trained the other two SSL methods (simsiam and simCLR supervised) for 400 epochs. Besides, in \ref{fig:cleanaccuraciescifar10} we can see that these SSL models have standard accuracies higher or similar to the supervised model.
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=1.1\linewidth, center]{standard_old.pdf}
+			\caption{}
+			\label{fig:sub1}
+		\end{subfigure}%
+		%\vspace{.1\textwidth}
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=1.1\linewidth, center]{std_new.pdf}
+			\caption{}
+			\label{fig:sub2}
+		\end{subfigure}
+		\caption{Robust accuracies for readout standard tuning. (a) simCLR and barlow twins trained for 800 epochs, supervised and linear separated for 200 epochs. Linear separated is a supervised model with readout layer fine tuned like an SSL model. (b) simsiam and simclr-supervised trained for 400 epochs, supervised no-augmentation trained for 200 epochs.}
+		\label{fig:standard_readout_results}
+	\end{figure}
+	
+	%\includegraphics[width=3cm]{test}
+	
+	Observations from plot \ref{fig:cleanaccuraciescifar10} and \ref{fig:standard_readout_results}:
+	\begin{enumerate}
+		\item The SSL standard accuracies are on par with supervised models.
+		
+		\item None of the models are robust. But the supervised model seems to be a little more resistant (0.62\% robust accuracy for Apgd-ce).
+		
+		\item Although FGSM reduces model accuracies significantly (50\% or more), it grossly overestimates model robustness compared to the stronger Apgd-ce since (similar to all attacks) it approximates the solution to the adversarial problem. Therefore, FGSM is not suitable for making observations about individual models or comparing them.   
+	\end{enumerate}
+	
+	I also observed that taking the best adversarial example of APGD-ce and APGD-dlr for each batch (setting version ='standard' in AutoAttack) results in an accuracy of 0 for all models. So none of the models have any adversarial robustness. 
+	
+	
+	\subsection{Results for Adversarial Fine-tuning the Readout Layer}
+	\label{linear_adv_evals}
+	
+	In the previous section's experiments, we trained the readout layer in the standard way, and none of the models were robust. But what if the SSL models extract both robust and non-robust features (per \cite{features_not_bugs_madry} definitions)? however, we end up using shortcut/non-robust features since we train the readout layer standardly? To answer this question, I also trained the readout adversarially. 
+	
+	The readout layer was trained with APGD-ce ($l_{\infty}$, $\epsilon = 8/255$, for 10 epochs) as the adversary since, as observed in the previous section, it seems to estimate robustness well. I use the implementation in torchattacks since the original implementation didn't let me change the number of iterations from 100 to 10. Changing the iterations was necessary since training just a single linear layer with 100 iterations of APGD-ce would take as long as training the backend! Besides, using 10 iterations is more realistic since models are usually trained using cheaper attacks and evaluated with stronger ones. I tuned the learning rate for Adam in the range $[10^{-6}, 10^{-3} ]$ checking multiples of 10. 
+	The best learning rates were as follows:
+	
+	\begin{enumerate}
+		\item Barlow twins: lr = $10^{-4}$ %(v0),  epoch=14
+		\item SimCLR: lr = $10^{-4}$   %(v0), epoch=10		
+		\item Linear separated supervised: lr = $10^{-5}$ % (v1), epoch=4
+	\end{enumerate}
+	
+	An interesting observation when training the readout layer adversarially using APGD-ce was that the adversarial loss could diverge (keep increasing) for smaller learning rates. This could be because the small learning rates ($10^{-6}$, $10^{-5}$) cause underflow in floating point variables or other numeric instability problems. Usually, the adversarial loss increases or oscillates for the best learning rate and then decreases.    
+	As with standard training, the model with the best robust accuracy doesn't necessarily have the lowest loss. 
+	
+	Observations from results in \ref{fig:adv_readout_training}:
+	
+	\begin{enumerate}
+		
+		\item The best robust accuracy for APGD-10 and APGD is linear separated (supervised), which is the same as chance for APGD-10 and even lower for APGD.
+		
+		
+		% I excluded the stament below since I previosuly concluded that FGSM is not a good robustness measure so it doesn't make sense to analyze it !
+		%\item The FGSM accuracy is decreased in case of barlow twins compared to the standard training \ref{fig:standard_readout_results}. This makes sense since the robust accuracy of SSL models never improves much during robust training (since the optimization is harder and non-convex). This is in contrast to the Linear separated supervised model. For simcLR FGSM improves by 1.5\%. 
+		
+		\item All SSL models have almost no robustness. For instance, in the case of barlow twins, the 0.01 percent increase in the original APGD-ce is the equivalent of correctly classifying 1 sample in the validation set (the validation set includes $10^4$ samples). 
+		
+		% \item For barlow twins, the norm change is reduced for the original APDG-ce. But for FGSM, it is slightly increased. However, for supervised both decrease. This shows that networks that  change their feature norms (in response to a stronger attack) less than others are not necessarily more robust than others in response to a weaker attack. 
+		
+		% \item there is a stark difference between the norm of feature difference and the robust accuracy. Although the norm difference for the supervised model is higher (across all attacks) its accuracies are all significantly higher. This can mean in the supervised case there were robust and non-robust features available by the supervised encoder and the linear model chose the (probably few) robust ones while in the SSL case all features were non-robust yielding a robust accuracy worse than random !
+		
+		%\item We have to remember that simCLR (and the implementation of Barlow twins I use) normalize the output features (which are not the features used when training the linear layer) which might affect comparing the feature difference among the models. 
+		
+		\item Note at this stage, even if we got some significant robustness in one of the SSL models, we couldn't necessarily say that the model is robust to all attacks since our results depend on the type of attack used in the evaluation. But it would have been interesting since we didn't use any attacks when training the backend network. 
+		
+	\end{enumerate}
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			%\includegraphics[width=.4\linewidth]{image1}
+			\includegraphics[width=1.1\linewidth, center]{adv_old.pdf}
+			%\includesvg[scale=0.5]{standard_old}
+			\caption{}
+			\label{fig:sub1}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			%\includegraphics[width=.4\linewidth]{image1}
+			\includegraphics[width=1.1\linewidth, center]{adv_new.pdf}
+			\caption{}
+			\label{fig:sub2}
+		\end{subfigure}
+		\caption[Caption for LOF]{Robust accuracies for adversarially trained readout layer. (a) simCLR and barlow twins trained for 800 epochs, linear separated for 200 epochs. Linear separated is a supervised model with readout layer fine tuned like an SSL model. There is no "supervised" model in the plots since in order to train the readout layer adversarially I had to separate it. (b) simsiam and simclr-supervised trained for 400 epochs, supervised no-augmentation trained for 200 epochs.}
+		\label{fig:adv_readout_training}
+	\end{figure}
+	
+	I also measured the average difference between the encoding of the Resnet18 (512 dimensional) before and after the attack $||(\variablename{after}-\variablename{before} )||_2$, using APGD-ce($\epsilon=8/255$, 100 iterations), for samples in the validation set 
+	\footnote{Just because we use $l_{\infty}$ norm for the attack doesn't mean we have to use the same norm for this calculation since the difference is calculated in the latent space of the images and not the image space itself. Also, note that $l_1$, $l_2$, and $l_{\infty}$ norms are equivalent, i.e., each can be upper and lower bounded using the other two norms, so calculating one of them should be enough to observe any correlations with robust accuracy.}. 
+	Looking at the results in \ref{tb:std_readout_training} and \ref{tb:adv_readout_training}, we can see that the models with readout trained adversarially have a lower norm change compared to models with a standard readout layer. But when looking at individual models, the norm difference is not indicative of model performance. For instance, in \ref{tb:adv_readout_training}, we can see that simclr has the lowest norm change, but it has 0\% robust accuracy. It seems different training methods' norm differences are not comparable due to differences between the them. For example, barlow twins normalizes the latents (Resnet outputs) in its projection head while simsiam feeds the latents to a projector and a predictor. This means that different models use the latents differently and learn different latents. More importantly, for the norm difference to correlate with robust accuracy, we need to calculate it accurately, which is equivalent to calculating the Lipschitz constant of the network accurately. The Lipschitz calculation problem is hard, and the methods (similar to the attacks) give only approximate solutions; thus, inconsistent results are expected.    
+	
+	
+	
+	
+	\begin{table}[!htbp]
+		\centering
+		\begin{tabular}{|c|c|}
+			\hline
+			Model                       & Feature difference norm \\
+			\hline
+			Barlow twins                & 14.90                   \\
+			\hline
+			simCLR                      & 17.82                   \\
+			\hline
+			standard supervised         & 11.02                   \\
+			\hline
+			Linear separated supervised & 11.10                   \\
+			\hline                
+		\end{tabular}
+		\caption{Feature difference norms for standard readout training.}
+		\label{tb:std_readout_training}
+	\end{table}
+	
+	
+	\begin{table}[!htbp]
+		\centering
+		\begin{tabular}{|c|c|}
+			\hline
+			Model                       & Feature difference norm \\
+			\hline
+			Barlow twins                & 9.66                   \\
+			\hline
+			simCLR                      & 8.50                   \\
+			\hline
+			Linear separated supervised & 9.93                  \\
+			\hline
+		\end{tabular}
+		\caption{Feature difference norms for adversarial readout training.}
+		\label{tb:adv_readout_training}
+	\end{table}
+	
+	
+	
+	
+	\subsection{CIFAR10 conclusion}
+	
+	These experiments reject our hypothesis. In other words, using SSL models and losses doesn't automatically result in extracting more robust features from samples, and they seem to have lower robustness than supervised models. This either entails that the phenomena mentioned before (such as labeling noise or natural vs. human separation of data) do not significantly affect CIFAR10, or their benefits are offset by the tendency of SSL models to use easier non-robust features. Selecting a robust subset of features from SSL features by adversarially training the readout layer also fails with robust accuracies close to 0. In addition, the supervised model shows robust accuracies slightly higher than random prediction. This leads us to the second phase of my project.
+	
+	
+	
+\end{document}

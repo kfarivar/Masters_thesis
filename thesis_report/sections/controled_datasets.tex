@@ -1,0 +1,39 @@
+\documentclass[../thesis.tex]{subfiles}
+\graphicspath{{\subfix{../images/}}}
+\begin{document}
+
+\section{Controlled datasets}
+
+The new question to answer is :
+
+\textbf{\textit{Why is the robust accuracy of SSL models lower compared to supervised models with the same standard accuracy ? and can we fix this? }}
+
+To isolate the effect of the loss function, we need to rule out other confounders like the features present in the samples, dataset balance, model architecture and training method. Among these factors the dataset is the only one I haven't tried controlling or simplifying for our needs.  
+
+The problems observed in trying to learn robust features can be due to many factors such as
+redundant features or ambiguity of samples. For instance, as mentioned in \ref{sec:model_shortcuts} and \ref{sec:ifm_ssl_shortcuts} if there is an easy to learn feature such that the model can distinguish the images using them, then the model will
+use that feature and ignores others. (e.g. color instead of shapes or digits instead of complex shapes used by humans to classify). This is true for both supervised and self-supervised models , however this phenomena can affect SSL models more severely since it could lead to a deteriorating down stream performance since there are no labels used. Although this phenomena didn't manifest in our SSL models on CIFAR10 for \textit{standard accuracy} (since the standard accuracies were similar to that of the supervised model), it can happen in other datasets such as STL-digits (STL images overlaid with MNIST digits) \cite{ifm_ssl_avoid_shortcuts} and DigitOnImageNet (ImageNet images overlaid with MNIST digits) \cite{ssl_loss_shortcuts}. Thus, a similar phenomena could also be happening for the \textit{adversarial robustness} of our SSL models. 
+
+The main issue is that we don’t have control over any of these
+properties in real world datasets like CIFAR10, consequently we need to control the generating process of
+the data. By defining the causal factors we can control the features in images and other
+properties of the dataset. In this way we can isolate the effect of different contributing factors, therefore I decided to create a toy dataset. I can simplify the learning process and potentially gain some intuition regarding the phenomena affecting model robustness. An schematic of how causal factors can create a dataset can be seen in \ref{fig:data_seperation_human_labeling_and_training}.
+
+Previous works that analyze the effect of dataset on contrastive learning either assume a predefined data generation process \cite{contrastive_inverts_data_gen} or they are not specifically designed for analyzing robustness of contrastive methods \cite{3dident} (although I also experiment with 3dident) therefore, I decided to create my own toy dataset. It would be beneficial to keep the dataset and the classification task human understandable (e.g. simple image classification) since we can more easily visualize samples and run sanity checks. As depicted in \ref{fig:data_seperation_human_labeling_and_training} such a dataset would include: 
+
+\begin{enumerate}
+	\item The causal features (aka latent variables): these control the specific features that arise
+in a dataset and they provide the natural separation of the data or if continuous the
+spectrum of change. (e.g shape, color, texture)
+	
+	\item Human labeling/perception: The labels humans accurately assign to the images. These might or might
+not align with the natural separation provided by causal features. Our hypothesis is that this can reduce model robustness due to arbitrarily contorted boundaries for classes.
+	
+	\item Labeling noise: Humans can make mistakes while labeling. This is usually a small fraction of the samples for good quality datasets. 
+	
+\end{enumerate}
+To investigate the mismatch between causal features and human labeling we need causal features that are continuous or if discrete can be interpolated to create ambiguous samples (e.g. 3dident in \ref{sec:3dident}). In addition I can try to reduce the number of pixels and channels in the images to reduce the dataset size \ref{sec:toy_datasets}. 
+
+\todo[inline]{if time add the literature from "Takeaways from the literature for a robustly trainable dataset" slide 13 in passing.}
+
+\end{document}

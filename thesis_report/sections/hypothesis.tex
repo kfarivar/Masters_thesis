@@ -1,0 +1,41 @@
+\documentclass[../thesis.tex]{subfiles}
+\graphicspath{{\subfix{../images/}}}
+\begin{document}
+
+\section{Hypothesis}
+\label{sec:hypothesis}
+
+Training a neural network consists of 3 main components: The model architecture, The dataset, and the optimization method. So the influence of all these components can also contribute to the phenomenon of adversarial examples. For instance, a convolutional network has a specific architecture that could affect the smoothness of the boundary, or separate classes in the dataset could be overlapping which makes the samples in the overlap region ambiguous and gives a theoretical upper bound for the model robustness. My initial focus in section \ref{sec:SSL_experiments_cifar10} was on how defining different losses (supervised vs. SSL) could affect model robustness. We hypothesized that an SSL model would be more robust than a supervised model. Later I created some toy datasets to examine the contribution of the dataset on robustness. In section \ref{sec:toy_datasets} I hypothesized that it is possible to train a robust model using a standard architecture and training method given an idealistic dataset. To investigate the failure of SSL models in being robust on CIFAR10, in section \ref{sec:3dident} I used a dataset with an explicit causal graph hypothesizing that if the model can accurately retrieve the causal factors of samples, it will be more robust.  
+
+Here I will provide evidence for why SSL training might be more robust than supervised training. Many papers have focused on regularizing the supervised loss or studying the model's boundary geometry or features in the dataset to analyze model robustness. \cite{grad_align} introduces a new regularization method called GradAlign to prevent catastrophic overfitting when adversarially training a model using FGSM. They do this by maximizing the gradient alignment inside the perturbation set. \cite{cure} investigates how the curvature of the model's boundary is related to robustness (i.e., adversarially trained models have lower curvatures than standard supervised models). They then introduce a new regularization method, Curvature Regularization (CURE), that encourages the model to learn a low curvature boundary, and they show it achieves robustness levels comparable to that of adversarial training. Other papers study intrinsic robustness and the features in the data which contribute to robustness or adversarial susceptibility \cite{features_not_bugs_madry}. But what about the effect of the \textbf{loss function} on the robustness of a model? 
+
+Our initial intuition was that the robustness problem encountered in a supervised setting is due to using labeled data. As suggested by \cite{features_not_bugs_madry} and \cite{robustness_at_odds_madry}, the spurious correlation between classes and non-robust image features could be strongly connected to adversarial susceptibility, which exists due to the existence of a label for each image. \cite{excessive_invariance} shows that, in a supervised classification task, it is possible to get the same logit outputs from a model for images from entirely different classes (e.g., frog vs. monkey). They do it by perturbing images such that their human-recognizable features are fixed while the non-class related features of images are made as close as possible. They call these perturbed images Invariance-based Adversarial Examples, and the shortcoming of the model is called excessive invariance. They hypothesize that a significant reason
+for this excessive invariance can be understood via the information-theoretic viewpoint of cross-entropy, which maximizes a bound on the mutual information between \textit{labels} and representation,
+giving no incentive for the model to explain all class-dependent aspects of the input. Furthermore, there could also exist ambiguous and unnatural separation of classes in the dataset due to labeling. One reason might be that most classification tasks use hard labeling (e.g., a sample is either 100\% dog or 100\% cat) instead of assigning soft labels, specially for ambiguous samples (e.g., a single image could be classified as 80\% dog and 20\% cat). Another reason could be that there always exists the possibility of mislabeling samples due to human error in a human-labeled dataset (a.k.a labeling noise). All of these factors, which affect the training via the labels, can lead to the boundary learned by the model to be unnecessarily distorted and less smooth, which in turn could contribute to more adversarial vulnerability (fig \ref{fig:data_seperation_human_labeling_and_training}). So it is natural to ask:
+
+\begin{center}
+	\textbf{\textit{ Is a self-supervised model more robust than a supervised model ? and Do SSL models retain more robust features than supervised models ?}}  
+\end{center}
+
+
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\linewidth]{images/Midterm_DS_gen_figure}
+	\caption{Many causal factors can contribute to creating a dataset; these are shown with brown boxes on the top left. To create classification tasks, humans usually label samples, so they introduce their own biases to the dataset via the labels. The blue boundary shows natural data separation; the red boundary is distorted due to labeling noise which could contribute to adversarial susceptibility. Finally, we sample the dataset to train the model according to the labels but evaluate on unseen samples from the real distribution. Could this contribute to model's adversarial susceptibility ?}
+	\label{fig:data_seperation_human_labeling_and_training}
+\end{figure}
+
+My initial goal in section \ref{sec:SSL_experiments_cifar10} was to:
+\begin{enumerate}
+	\item Compare the classification accuracy of different loss functions and training methods on the CIFAR10\- dataset using different attacks.
+	
+	\item Compare the norm change of representations learned by self-supervised losses and the supervised loss on \-CIFAR10\-.
+	
+\end{enumerate}
+
+
+ 
+
+
+\end{document}

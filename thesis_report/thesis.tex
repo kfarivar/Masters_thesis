@@ -1,0 +1,160 @@
+% !TeX document-id = {eacd8960-0d03-4c53-87a3-0a938017385f}
+% !TeX TXS-program:compile = txs:///pdflatex/[--shell-escape]
+
+%\documentclass{article}
+%\usepackage{geometry}
+%\newgeometry{vmargin={15mm}, hmargin={25mm,25mm}} 
+\documentclass[a4paper,11pt,oneside]{article}
+\usepackage[MScThesis,lablogo]{EPFLreport}
+\usepackage{xspace}
+
+
+
+
+%\usepackage{arxiv}
+% uncomment to change preprint headers
+%\renewcommand{\WIP}{Bananas are yummy}
+%\usepackage{lipsum}% Can be removed after putting your text content
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage[english]{babel}
+
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+%\usepackage{bmm} % for \mathbbm{1} etc
+\usepackage{mathtools} % for rcases
+\usepackage{amssymb}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{thmtools}
+\usepackage{varioref}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{placeins}
+\usepackage{tikz}
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{svg}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage[autostyle]{csquotes}
+\usepackage[acronym]{glossaries}
+\usepackage[normalem]{ulem}
+\usepackage{subfiles}
+\usepackage{numprint}
+\usepackage{multicol}
+\usepackage{bbm}
+\usepackage{amsthm}
+\usepackage[export]{adjustbox}
+
+\usepackage{xcolor} % make links pretier
+\hypersetup{
+	colorlinks,
+	linkcolor={red!50!black},
+	citecolor={blue!50!black},
+	urlcolor={green!50!black}
+}
+
+
+\usepackage[disable]{todonotes} % [disable]
+
+
+
+
+\usepackage{tablefootnote,footnotehyper}
+\hypersetup{colorlinks}
+
+
+% my commands
+\newcommand\norm[1]{\left\lVert#1\right\rVert}
+\newcommand\tocite[1]{\todo[inline]{cite #1}}
+\newcommand\variablename[1]{\mathop{\textnormal{\slshape #1}}\nolimits}
+\newcommand\dseps{Dataset\text{-}\epsilon}
+\newcommand\attackeps{Attack\text{-}\epsilon}
+%\newcommand{\hat}[1]{\expandafter\hat#1} 
+
+
+
+\newtheorem{claim}{Claim}
+\newtheorem{prop}{Proposition}
+\newtheorem{caveat}{Caveat}[claim]
+\newtheorem{definition}{Definition}
+
+%\newcommand{\todo}[1]{ \textcolor{red}{#1}}
+% risk and adversarial risk
+\input{operators}
+
+
+
+\title{Experiments on adversarial robustness of models}
+\author{Kiarash Farivar}
+\supervisor{Igor Krawczuk}
+\adviser{Prof. Volkan Cevher}
+\expert{Dr. Tatjana Chavdarova}
+
+%\date{September 9, 1985}	% Here you can change the date presented in the paper title
+%\date{} 					% Or removing it
+
+
+%\makeglossaries
+
+\usepackage[skip=.2\baselineskip, indent=20pt]{parskip}
+
+
+
+
+\begin{document}
+	
+	
+\maketitle
+
+\listoftodos
+
+\pagebreak 
+
+\tableofcontents
+
+\pagebreak 
+
+\subfile{sections/intro}
+
+\pagebreak 
+
+\subfile{sections/lit_review}
+
+\pagebreak 
+
+\subfile{sections/hypothesis}
+
+\subfile{sections/initial_phase}
+
+\pagebreak
+
+\subfile{sections/controled_datasets}
+
+\subfile{sections/A simple Toy dataset}
+
+\subfile{sections/3dident}
+
+% \subfile{sections/blender_dataset}
+
+% \subfile{sections/further_investigation_ideas}
+
+\pagebreak 
+
+\subfile{sections/conclusion}
+
+\pagebreak
+
+\printbibliography
+
+
+
+\end{document}

@@ -1,0 +1,20 @@
+\defcounter {refsection}{0}\relax 
+\contentsline {todo}{also add excessive invariance paper \cite {excessive_invariance}, I already summarized it in the hypothesis section But reading it deeper might give a better summary. (if time)}{8}{section*.5}%
+\defcounter {refsection}{0}\relax 
+\contentsline {todo}{if time add the literature from "Takeaways from the literature for a robustly trainable dataset" slide 13 in passing.}{29}{section*.22}%
+\defcounter {refsection}{0}\relax 
+\contentsline {todo}{run attack with eps=0.2 if time (low priority).}{31}{section*.27}%
+\defcounter {refsection}{0}\relax 
+\contentsline {todo}{add proof if time, I haven't figured out the proof completely.}{35}{section*.33}%
+\defcounter {refsection}{0}\relax 
+\contentsline {todo}{Only use maximum overlap positions in L-T dataset (if time)!}{36}{section*.35}%
+\defcounter {refsection}{0}\relax 
+\contentsline {todo}{run experiments with a model with a single conv layer, also run one with 2x2 conv filters is it possible to learn a robust model ?}{37}{section*.39}%
+\defcounter {refsection}{0}\relax 
+\contentsline {todo}{repeat the plots \ref {fig:accuracybigepsilonrangerobustness} and \ref {fig:accuracysmallepsilonrangerobustness} for a dataset with $\epsilon \in [0.3, 0.4)$ like .35 or .37}{38}{section*.42}%
+\defcounter {refsection}{0}\relax 
+\contentsline {todo}{more interesting question, what happens to \ref {fig:accuracybigepsilonrangerobustness} and \ref {fig:accuracysmallepsilonrangerobustness} plots for an SSL model that uses labels for training? is the drop faster or slower ? also will adding label noise make SSL results better than supervised ?}{38}{section*.43}%
+\defcounter {refsection}{0}\relax 
+\contentsline {todo}{Add a figure for the semi circle, use blender (low priority)}{45}{section*.49}%
+\defcounter {refsection}{0}\relax 
+\contentsline {todo}{1. also calculate adversarially training the readout for both models to give them best chance. 2. also try the attack training and eval with epsilons: 1/256 and 2/256 these should be below or same as minimum increase in pixel values ! How to determine if the amount of adversarial perturbation is not too much for spotlight classification ? since 8/225 is less than the accuracy of jpg format! (low priority)}{46}{section*.50}%

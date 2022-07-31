@@ -1,0 +1,32 @@
+\documentclass[../thesis.tex]{subfiles}
+\graphicspath{{\subfix{../images/}}}
+\begin{document}
+
+\section{Further Investigation Ideas:}
+
+	\begin{enumerate}
+		
+		\item The lipschitz constant idea
+		
+		\item The problem of lack of proper generalization in deep learning to out of distribution data comes either from the network architecture or the training method used. Obviously statistical learning never guarantees or makes any claims about out of distribution learning but we know as humans that these out of distribution adversarial images are also out of distribution for our brains (since they are not rendered from actual 3d images but created by manipulating pixel values) but our brains are fairly robust to these examples (Maybe they are not considered out of distribution for our brains, but then how ? and why ?). 
+		
+		\begin{enumerate}
+			\item It would be interesting to have a model of human vision as a classifier and try to attack it with a small norm (8/225) in $l_{inf}$ to see if it would be possible to fool humans.
+			
+			\item We know that neural networks with a finite number of parameters (if enough parameters are added) can approximate most well-behaved curves/manifolds (we are usually interested in a bounded domain for input). So the shortcoming seems to come from the optimization side. The question is: is it possible to find an optimization-method / learning-method that can generalize to the data that are out of distribution without creating out of distribution samples? (I don't think statistical learning theory disproves this possibility.) Maybe it would be easier if we used a different architecture ? (something resembling the visual cortex maybe ?).
+			
+			\item Maybe the combination of model (neural networks) and leaning methods (optimization) we use are not suitable for this type of generalization ? we know as a fact that our optimization methods (some version of gradient descent) only are guarantied to converge to a local minimum so they only approximately solve the problem.    
+			
+			  
+		\end{enumerate}
+	
+		\item It would be interesting to work with a 2D data where we have a wiggly curve ($x^10$) and train a simple 2 layer network and investigate the effect of architecture and training and the actual boundary on the adversarial problem. But it is quite possible that problems exist in higher dimensions that don't show up in 2 or 3 dimensions. 
+		
+		
+		
+	\end{enumerate}
+	
+	
+
+
+\end{document}

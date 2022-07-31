@@ -1,0 +1,19 @@
+\documentclass[../thesis.tex]{subfiles}
+\graphicspath{{\subfix{../images/}}}
+\begin{document}
+
+\section{Conclusion}
+
+	In this work I used different experiments to show that the different standard SSL training pipelines, similar to supervised training, are adversarially non-robust. And that the dataset can play an important role in model robustness.     
+
+	In section \ref{sec:SSL_experiments_cifar10} I examined how different loss functions and training methods affect a model's adversarial accuracy. The results show that the SSL models are not any more robust than the supervised models. 
+	
+	In section \ref{sec:toy_datasets} I created a toy dataset and showed that if we include the appropriate boundary samples in the dataset we can train a robust model without using any attacks. This experimentally shows that in a learning pipeline if the dataset's classes are not ambiguous and the dataset includes all the "necessary" adversarial variations of standard samples and we have an "appropriate" model architecture capable of learning a robust model, i.e., we control the dataset and model elements of the pipeline, then the standard supervised training method available is enough to train a fully robust model \footnote{here the meaning of adjectives in double quotes depends on the problem definition and properties.}. Moreover, I argued that if we don't include the boundary samples in the dataset it might be impossible to train a 100\% robust model.
+	
+	In section \ref{sec:3dident} I created a theoretical framework to analyze  the robustness of a model, training method or loss function by transforming a regression task into a classification task. I did this by separating the inherent robustness that stems from the problem definition from that of the model robustness which is the result of the training method. I further showed that just because SSL models can accurately regress the samples' causal factors, it doesn't mean these models are robust. i.e., even when controlling for the loss, dataset and model features the training method can be a major source of adversarial susceptibility via its influence on the smoothness of the model features with respect to input.   
+	
+	Future work could focus on creating more realistic and complex datasets similar to the extended L-T dataset in \ref{sec:toy_datasets} and likewise try to eliminate the issue of underspecification and observe whether the results also hold for these datasets. Moreover, if a training method could efficiently control the lipschitz constant of a network it is possible to use the setup in section \ref{sec:3dident_general_idea} to test the model's smoothness and robustness. 
+	       
+
+
+\end{document}

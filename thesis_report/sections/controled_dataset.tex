@@ -1,0 +1,123 @@
+\documentclass[../thesis.tex]{subfiles}
+\graphicspath{{\subfix{../images/}}}
+\begin{document}
+
+\section{Controlled dataset experiments (Causal3DIdent)}
+
+\todo[inline]{3dident results}
+
+To investigate further we used the Causal3DIdent dataset \cite{isolates_Content_from_Style_2021}. The reason was that we needed control over different factors that contribute to creation of the images and the class labels.  
+
+
+\subsection{Dataset creation}
+The dataset is created using 4 main causal factors: spotlight position and hue, object class and background hue. These variables are all sampled independently form $U[-1,1]$. All object variables are dependent on these initial variables by changing the mean of a normal distribution (for more details see appendix B of \cite{isolates_Content_from_Style_2021}). In total there are 7 object classes: Teapot, Hare, Dragon, Cow, Armadillo, Horse, Head. The images are 224 × 224.
+
+\begin{figure}[h!]
+	\centering	
+	\includegraphics[width=1\linewidth]{data_gen.png}
+	\caption{(Left) Causal graph for the Causal3DIdent dataset. (Right) Two samples from each object class.}
+	\label{fig:sub1}
+\end{figure}
+
+
+
+
+\subsection{General idea}
+
+Up until this point the classification tasks have been discrete and involving discrete objects as classes (e.g car,cat,ship). But in the 3dident we have the opportunity to predict a continuous random variable that is a causal factor for creating images. This means the variable of interest is originally a continuous variable. We can then divide this variable into separate regions (according to our needs) to create discrete classes. For instance we can consider the spotlight rotation \ref{fig:spotlight_rotation_classes} (the spotlight is rotated on a semicircle above the object). 
+
+We can \textbf{define the parameter $\delta^*$} as the maximum perturbation that can be tolerated by the classification task. Note that $\delta^*$ is purely a property of the classification task and has nothing to do with the network architecture or the optimization method used to train it. 
+
+In case of the object classification one can think of estimating the output probabilities as a regression task but there is no well defined distance or similarity metric for instance between a cat class and a ship class so it is hard to calculate the $\delta^*$ for such a dataset.  
+
+
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{regression_to_classification.pdf}
+	\caption{The spotlight rotation is divided into 3 non-overlapping classes. Each class has the same range so the classification is balanced. This is an arbitrary definition to create a toy classification task. The most robust classifier would separate the classes using the middle point between the classes (red dashed lines). $\delta^*$ is the maximum perturbation that can be tolerated by this classification.}
+	\label{fig:spotlight_rotation_classes}
+\end{figure}
+
+This gives us much more control over how the classes are defined, whether they are ambiguous (the classes overlap in the regression space.) or well separated (like \ref{fig:spotlight_rotation_classes}) and how many classes we have. This also makes characterizing adversarial examples simpler.
+
+So the model can be divided into two parts: The network that regresses the continuous variable and a classification head added on top. Note that the classification head is only a function of the classification task we define and doesn't need to be trained. To provably determine the amount of perturbation this classifier is robust to we only need $\delta^*$ and the lipschitz constant of the network $\lambda$. 
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{regressor_classifier_network.pdf}
+	\caption{The classifier}
+	\label{fig:regressor_classifier}
+\end{figure}
+
+Assuming the network is $\lambda$-lipschitz and the input is $x$ and the bounded perturbation vector is $r$ s.t. $\norm{r} \leq \epsilon$ making the adversarial image $x+r$ we have: 
+
+\begin{align*}
+	\forall x \in \mathbb{R}^n \quad &f(x)\in \mathbb{R} \\
+	\forall x,r \in \mathbb{R}^n \quad & \norm{f(x) - f(x+r)} \leq 
+	\lambda \norm{r}  \leq   \lambda  \epsilon \\
+	& \lambda  \epsilon \leq \delta^*
+\end{align*}
+
+The most perturbation that the classification head input can tolerate and for the sample not to pass the classification boundaries (red lines in \ref{fig:spotlight_rotation_classes}) is $\delta^*$ thus the third line in the equations above. Given $\delta^*$ and $\lambda$ of a specific network we can provably say that our classifier is 100\% robust against any attack where the perturbation is bounded by $\epsilon$. Given $\delta^*$ and $\epsilon$ we can calculate the lipschitz constant of the network that is required to be 100\% robust
+\footnote{ We can also use $\lambda  \epsilon \leq \delta^*$ to estimate the lipschitz constant of the network (upper bound it), fixing the $\delta^*$ we keep decreasing $\epsilon$ until the classification accuracy is 100\%. The more points sampled from the data distribution the better the estimate.}.
+
+\sout{Another advantage of this method of creating a classification task is that it eliminates the problem of out of distribution adversarial samples mentioned in \cite{on_manifold_off_manifold} since the causal factor of interest (e.g. spotlight rotation) used to create the samples ,which are used in training the regression model, are uniformly sampled from the region of interest (e.g. $[0,\pi]$) so there are no out of distribution samples.} This method could also be generalized to a regression network with a multidimensional output.  
+
+The practical issue with using this setting is finding a method to train the network such that its lipschitz constant is bounded by a specific value $\lambda$. Usually even estimating the lipschitz constant of a network can be computationally expensive. 
+
+
+
+
+
+\subsection{Checking that my regression results match the paper}
+My results do match.
+\todo[inline]{add detail.}
+
+
+\subsection{Experiments}
+
+\textbf{model:} Bolts Resnet 18, unlike CIFAR10 since the images in 3dident are much bigger the first convolutional layer reduces the output resolution by half (112x112) this doesn't affect the standard results and makes training much faster. 
+
+One possible choice for the continuous variable of interest is spotlight rotation $\theta \in [-\pi/2, \pi/2]$. The spotlight position as a function of $\theta$ is: 
+
+\begin{align}
+(4 sin(x), 4 cos(x), 6+max\_object\_size)
+\end{align}
+ 
+where "max\_object\_size" is the maximum dimension of the object with the biggest dimensions and is a constant. This means the spotlight moves in a half circle above the object shining at it. \todo{add details of coordinates}. $\theta$ is originally uniformly sampled from $[-1,1]$ and linearly mapped to $[-\pi/2, \pi/2]$.
+
+
+To create a classification task I discretized the $\theta$ into 3 non-overlapping classes: $[\pi/4, \pi/2]$, $[-\pi/8, \pi/8]$, $[-\pi/2, -\pi/4]$. The interval lengths are equal so the classes are balanced.       
+
+I repeated the same training process as CIFAR10 to train SimCLR and Supervised models (including retraining the last layer which had the same results). The results are:
+
+
+ \begin{enumerate}
+ 	\item All models had accuracies in [99,100].
+ 	
+ 	\item All had robust accuracy 0 (APGD 100 iters) and all have accuracy under 1\% with APGD 10 iters.
+ 	
+ 	\item Simclr had FGSM accuracy of 33\% while supervised was under 1\% which as expected shows FGSM is much less accurate at solving the optimization problem than APGD.
+ 	
+ 	\item The feature norm difference for APGD:\quad Simclr:14 \quad supervised:95.
+ 		 For FGSM: \quad Simclr:5 \quad supervised:14. 
+ 		 
+ 	\item How to determine if the amount of adversarial perturbation is not too much for spotlight classification ? 
+ \end{enumerate}
+
+One major shortcoming of designing the experiment around spotlight rotation is that it's hard for humans to classify it by looking at the images while the computer does much better. This makes it much harder to reason about things like how much perturbation is too much and intuitively thinking about the problem so I decided to use Blender to create a dataset that is based on regressing and classifying the distance between objects. 
+
+
+
+
+
+
+
+ 
+
+    
+
+
+
+\end{document}
