@@ -22,3 +22,8 @@ barlow twins: ./home/kfarivar/adversarial-components/barlow_twins_yao_training
 * I also create simple toy datasets and showed that it is possible to train a 100\% robust model using the standard supervised training pipeline.
 
 * for more information see [report](https://github.com/kfarivar/Masters_thesis/blob/main/thesis_report/thesis.pdf).
+
+
+# Ideas to explore furthur 
+
+* In connection to footnote on page 40. Can we attack a human brain using a back box attack. Will we beable to full a human in l_infinity norm and with a small epsilon ?? 
